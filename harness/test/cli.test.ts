@@ -76,13 +76,8 @@ test("npm package carries every workflow and immutable template asset", () => {
     timeout: 10_000
   });
   assert.equal(packed.status, 0, packed.stderr || packed.stdout);
-  type PackReport = { name: string; version: string; files: Array<{ path: string }> };
-  // npm 11 returns an array; npm 12 keys reports by package name.
-  const reports = JSON.parse(packed.stdout) as PackReport[] | Record<string, PackReport>;
-  const report = Array.isArray(reports) ? reports.find(entry => entry.name === "cadre-ai") : reports["cadre-ai"];
-  assert.ok(report, "npm pack must report the cadre-ai package");
-  assert.equal(report.version, CADRE_RUNTIME_VERSION);
-  const files = new Set(report.files.map(entry => entry.path));
+  const reports = JSON.parse(packed.stdout) as Array<{ files?: Array<{ path?: string }> }>;
+  const files = new Set(reports[0]?.files?.map((entry) => entry.path) ?? []);
 
   for (const path of [
     "dist/cadre-cli.mjs", "dist/cadre-mcp.mjs", ".codex-plugin/plugin.json",
@@ -99,8 +94,7 @@ test("npm package carries every workflow and immutable template asset", () => {
   ]) {
     assert.ok(files.has(`skills/${skill}/SKILL.md`), `npm package is missing the ${skill} workflow`);
   }
-  assert.ok([...files].filter((path): path is string => typeof path === "string" && path.startsWith("templates/")).every(path => path.startsWith("templates/v6/") || path.startsWith("templates/github-v1/")), "historical template sets must not ship");
-  assert.ok(files.has("templates/github-v1/enforcement.yml"));
+  assert.ok([...files].filter((path): path is string => typeof path === "string" && path.startsWith("templates/")).every(path => path.startsWith("templates/v6/")), "historical template sets must not ship");
   for (const template of templateCatalog()) {
     const path = `templates/v6/${template.relativePath}`;
     assert.ok(files.has(path), `npm package is missing template ${template.id} at ${path}`);
@@ -157,8 +151,7 @@ test("global CLI installs and uninstalls Codex, Claude, and Zed from packaged as
   assert.equal(install.status, 0, install.stderr || install.stdout);
   const plugin = join(marketplace, "plugins", "cadre");
   assert.ok(existsSync(join(plugin, "dist", "cadre-mcp.mjs")));
-  assert.equal(existsSync(join(plugin, "dist", "cadre-cli.mjs")), true);
-  assert.ok(existsSync(join(plugin, "templates", "github-v1", "enforcement.yml")));
+  assert.equal(existsSync(join(plugin, "dist", "cadre-cli.mjs")), false);
   assert.ok(existsSync(join(plugin, "skills", "create", "SKILL.md")));
   assert.ok(existsSync(join(home, ".codex", "config.toml")));
   assert.ok(existsSync(join(home, ".claude", "settings.json")));

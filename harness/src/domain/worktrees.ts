@@ -8,7 +8,6 @@ import { readExecution, validateExecutionJournal, type ExecutionNode } from "./e
 import { contentHash, readSafeArtifact } from "./memory.js";
 import { parsePlanContent, validatePlanGraph } from "./plan.js";
 import { CadreError } from "./errors.js";
-import { requireGitHubMutation } from "./github/runtime.js";
 import { renderTracksWithState } from "./tracks-index.js";
 
 const SHA = /^[0-9a-f]{7,40}$/;
@@ -137,7 +136,6 @@ export function applyWorktreeCreate(
   proposalDigest: string,
   preparedProposal?: ReturnType<typeof previewWorktreeCreate>
 ): ReturnType<typeof previewWorktreeCreate> {
-  requireGitHubMutation(input.projectRoot, "implement", [input.trackId], PHASE_ID.test(input.nodeId));
   const proposal = preparedProposal ?? previewWorktreeCreate(input);
   if (proposal.digest !== proposalDigest) throw new Error("worktree proposal is stale; preview it again");
   if (proposal.existing) return proposal;
@@ -310,7 +308,6 @@ export function applyWorktreeIntegration(
   integrationKind: "fast-forward" | "merge" | "already-integrated";
 } {
   // Re-read ownership and Git heads even when transport supplies its preview.
-  requireGitHubMutation(input.projectRoot, "implement", [input.trackId]);
   const proposal = previewWorktreeIntegration(input);
   if (proposal.digest !== proposalDigest) throw new Error("integration proposal is stale; preview it again");
   if (proposal.alreadyIntegrated) {
@@ -389,7 +386,6 @@ export function applyWorktreeCleanup(
   removedPath: string;
   removedBranch: string;
 } {
-  requireGitHubMutation(input.projectRoot, "implement", [input.trackId], PHASE_ID.test(input.nodeId));
   const proposal = preparedProposal ?? previewWorktreeCleanup(input);
   if (proposal.digest !== proposalDigest) throw new Error("cleanup proposal is stale; preview it again");
   const root = assertRepository(input.projectRoot);

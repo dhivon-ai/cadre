@@ -7,16 +7,6 @@ order: 230
 
 # Release Notes
 
-## 4.1.0-beta.0 - 2026-10-22
-
-The opt-in [GitHub Integration Beta](/github-collaboration) adds shared PR
-ownership, checkpoint pushes, phase synchronization and enforcement. Local-only
-workflows remain unchanged, and existing 4.0.0 project state remains compatible.
-Install this prerelease with `npm install -g cadre-ai@beta`; stable installs keep
-using the `latest` channel. Tag `beta-4.1.0` publishes `4.1.0-beta.0` through the
-beta release workflow. GitLab integration is planned for a future release; see the
-[roadmap](/team-and-polyrepo) for current status.
-
 ## 4.0.0 - 2026-10-14
 
 Cadre 4.0.0 is a breaking runtime/API release that removes parallel legacy
@@ -63,7 +53,7 @@ every client/mode. Final 4.0.0 installation and activation checks passed for
 Codex, Claude Code and Zed, including packaged server parity, narrow approval
 settings and discovery of all ten skills.
 
-### Roadmap at the 4.0.0 release
+### Upcoming roadmap
 
 Three optional capabilities are planned beyond 4.0.0:
 

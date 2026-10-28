@@ -22,17 +22,6 @@ and the current v6 template catalog. All ten workflows, four approval modes,
 both scheduling modes, and stable Codex, Claude Code and Zed integrations remain
 available. Install [cadre-ai from npm](https://www.npmjs.com/package/cadre-ai).
 
-## GitHub Integration (Beta)
-
-The opt-in GitHub Integration Beta adds shared PR ownership, phase synchronization, automatic
-checkpoint publication and generated GitHub enforcement. It is explicitly
-opt-in: local-only projects keep their workflows and require no GitHub access.
-Install the beta with `npm install -g cadre-ai@beta` (4.1.0-beta.0). Stable installs
-continue using 4.0.0. CI requires an exact validator version, such as
-`4.1.0-beta.0`, or a digest-pinned candidate archive.
-GitLab support is planned for a future release, with no committed date.
-See [GitHub Integration (Beta)](https://cadre-docs.pages.dev/github-collaboration/).
-
 ## What changes in 4.0.0
 
 - **One recovery contract:** initialization, implementation completion, clean
@@ -57,21 +46,21 @@ refresh. The dummy app passed 26 tests and 200,020 arithmetic comparisons. Nativ
 workflow coverage was Autonomous/sequential; it does not establish exhaustive
 coverage of every mode or client. See the [native lifecycle report](docs/development/cadre-4.0.0-native-flow.md).
 
-## Roadmap
+## Upcoming roadmap
 
-1. **GitHub Integration — Beta:** shared PR ownership, checkpoint pushes,
-   phase synchronization and GitHub enforcement in the opt-in candidate.
-2. **GitLab Integration — Coming Soon:** future support for team coordination
-   through GitLab merge requests; not implemented yet.
-3. **Knowledge Base — Coming Soon:** capture decisions and learning during
-   delivery and reuse relevant knowledge as context for subsequent work.
-4. **Polyrepo Support — Coming Soon:** coordinate dependencies and delivery
-   across repositories while retaining per-repository history and approvals.
+Three optional capabilities are planned beyond 4.0.0:
 
-These capabilities are independently **opt-in and disabled by default**. Local-only
-workflows remain unchanged. GitHub Beta is not part of the published 4.0.0 package;
-install the beta channel to try it. Future capabilities have no committed
-release dates. See the [roadmap](https://cadre-docs.pages.dev/team-and-polyrepo/).
+1. **Deeper GitHub / GitLab integration** for coordinating work across multiple
+   people, including shared work status, ownership and review handoffs.
+2. **A knowledge base built as work happens**, capturing decisions and learning
+   during delivery and using relevant knowledge as context for subsequent work.
+3. **Polyrepo support** for coordinating dependencies and delivery across
+   multiple repositories while retaining per-repository history and approvals.
+
+Each capability will be independently **opt-in and disabled by default**. The
+core single-repository workflow will remain usable without enabling any of them.
+These are upcoming roadmap items, not features shipped in 4.0.0; no delivery dates
+are committed. See the [roadmap](https://cadre-docs.pages.dev/team-and-polyrepo/).
 
 ## What Cadre Provides
 

@@ -16,7 +16,6 @@ import { renderTracksWithState } from "./tracks-index.js";
 import { isGitAncestor, reachableGitCommits, resolveGitCommit } from "./git.js";
 import { committedOperationReceipt, isCommitRef, operationRef, promoteOperation, requireCommittedOperations } from "./operation-receipts.js";
 import { executionBuildCache } from "./build-cache.js";
-import { githubCheckpoint, requireGitHubMutation } from "./github/runtime.js";
 
 export const EXECUTION_NODE_STATUSES = [
   "pending", "running", "awaiting_approval", "committed", "integrating",
@@ -298,7 +297,6 @@ function buildNodes(graph: PlanGraph): Record<string, ExecutionNode> {
 }
 
 export function previewExecutionStart(input: ExecutionStartInput): ExecutionProposal {
-  requireGitHubMutation(input.projectRoot, "implement", [input.trackId], true);
   requireCommittedOperations(input.projectRoot);
   assertIdentifiers(input.trackId, input.executionId);
   if (input.executionId.startsWith("execution-")) {
@@ -436,7 +434,6 @@ export function applyExecutionStart(
   proposalDigest: string,
   preparedProposal?: ExecutionProposal
 ): ExecutionProposal & { derivedStatus: ExecutionDerivedStatus } {
-  requireGitHubMutation(input.projectRoot, "implement", [input.trackId], true);
   const proposal = preparedProposal ?? previewExecutionStart(input);
   if (proposal.digest !== proposalDigest) throw new Error("execution proposal is stale; preview it again");
   proposal.buildCachePath = executionBuildCache(input.projectRoot, input.trackId, input.executionId);
@@ -446,7 +443,6 @@ export function applyExecutionStart(
     writeFileSync(proposal.journalPath, `${JSON.stringify(proposal.journal, null, 2)}\n`);
   }
   writeTextAtomically(proposal.statePath, `${JSON.stringify(proposal.state, null, 2)}\n`);
-  githubCheckpoint(input.projectRoot, "execution-start", [proposal.statePath, proposal.journalPath]);
   return { ...proposal, derivedStatus: deriveExecutionStatus(proposal.journal) };
 }
 
@@ -661,7 +657,6 @@ export function applyExecutionNodesUpdate(input: ExecutionNodesUpdateInput, prop
   journal: ExecutionJournal;
   derivedStatus: ExecutionDerivedStatus;
 } {
-  requireGitHubMutation(input.projectRoot, "implement", [input.trackId]);
   const proposal = previewExecutionNodesUpdate(input);
   if (proposal.digest !== proposalDigest) throw new Error("execution nodes proposal is stale; preview it again");
   writeJournalAtomically(proposal.path, proposal.journal);
@@ -1032,16 +1027,11 @@ export function applyExecutionCheckpoint(
   proposalDigest: string,
   preparedProposal?: ReturnType<typeof previewExecutionCheckpoint>
 ): ReturnType<typeof applyExecutionNodesUpdate> & { transition: ExecutionTransitionReceipt } {
-  requireGitHubMutation(input.projectRoot, "implement", [input.trackId],
-    /^P\d+$/.test(input.nodeId) && ["start", "complete"].includes(input.event));
   if (preparedProposal) {
     if (preparedProposal.digest !== proposalDigest) {
       throw new Error("execution nodes proposal is stale; preview it again");
     }
     writeJournalAtomically(preparedProposal.path, preparedProposal.journal);
-    if (["complete", "complete_group", "record_verification"].includes(input.event)) {
-      githubCheckpoint(input.projectRoot, `${input.nodeId}:${input.event}`, [preparedProposal.path]);
-    }
     return {
       path: preparedProposal.path,
       journal: preparedProposal.journal,
@@ -1059,9 +1049,6 @@ export function applyExecutionCheckpoint(
     executionId: input.executionId,
     updates
   }, proposalDigest);
-  if (["complete", "complete_group", "record_verification"].includes(input.event)) {
-    githubCheckpoint(input.projectRoot, `${input.nodeId}:${input.event}`, [applied.path]);
-  }
   const statuses = updates.map((update) => update.status);
   return {
     ...applied,

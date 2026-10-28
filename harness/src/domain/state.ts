@@ -13,7 +13,6 @@ import { validatePlanProvenance, type PlanEvidence } from "./plan-provenance.js"
 import { isCommitRef, resolveOperation, pendingOperationErrors } from "./operation-receipts.js";
 import { validateTrackSet } from "./track-set-validation.js";
 import { validateProjectConfig } from "./project-config-validation.js";
-import { requireGitHubMutation, githubCheckpoint } from "./github/runtime.js";
 export { buildTracks } from "./tracks-index.js";
 
 export interface OperationState {
@@ -648,7 +647,6 @@ export function writeTracks(
   proposalDigest: string,
   preparedPreview?: ReturnType<typeof renderTracksPreview>
 ): string {
-  requireGitHubMutation(projectRoot, "index");
   const preview = preparedPreview ?? renderTracksPreview(projectRoot);
   if (preview.digest !== proposalDigest) {
     throw new Error("tracks.md proposal is stale; preview it again before applying");
@@ -658,7 +656,6 @@ export function writeTracks(
     readFileSync(preview.path, "utf8");
   }
   writeFileSync(preview.path, preview.content);
-  githubCheckpoint(projectRoot, "tracks-index", [preview.path]);
   return preview.path;
 }
 

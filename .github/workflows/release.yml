@@ -2,8 +2,6 @@ name: Release
 run-name: Release - ${{ github.event.release.tag_name || github.ref_name }}
 
 on:
-  push:
-    tags: ['beta-*']
   release:
     types: [published]
 
@@ -11,20 +9,16 @@ permissions:
   contents: read
 
 concurrency:
-  group: publish-cadre-ai
+  group: release-${{ github.event.release.id || github.run_id }}
   cancel-in-progress: false
 
 jobs:
   publish-npm:
     name: Publish NPM package
-    if: github.event_name == 'push' || (!github.event.release.prerelease && !startsWith(github.event.release.tag_name, 'beta-'))
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
-    outputs:
-      version: ${{ steps.release.outputs.version }}
-      channel: ${{ steps.release.outputs.channel }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -36,57 +30,30 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
           registry-url: https://registry.npmjs.org
-      - name: Install validated npm version
-        run: npm install -g npm@11.20.0
+      - name: Update npm
+        run: npm install -g npm@latest
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Verify version and select npm channel
-        id: release
-        working-directory: harness
-        env:
-          RELEASE_TAG: ${{ github.event.release.tag_name || github.ref_name }}
-        run: node --import tsx scripts/release-channel.ts
+      - name: Verify release tag matches package version
+        run: |
+          package_version="$(node -p "require('./harness/package.json').version")"
+          release_version="${GITHUB_REF_NAME#v}"
+          release_version="${release_version#release-}"
+          if [ "$package_version" != "$release_version" ]; then
+            echo "Release tag ${GITHUB_REF_NAME} does not match cadre-ai package version ${package_version}." >&2
+            exit 1
+          fi
       - name: Check harness package
         run: pnpm --filter cadre-ai check
-      - name: Test harness package
-        run: pnpm --filter cadre-ai test
-      - name: Validate harness package
-        run: pnpm --filter cadre-ai validate
       - name: Pack dry-run
         run: pnpm --filter cadre-ai pack --dry-run
       - name: Publish cadre-ai
         working-directory: harness
-        env:
-          NPM_CHANNEL: ${{ steps.release.outputs.channel }}
-        run: npm publish --access public --provenance --tag "$NPM_CHANNEL"
-
-  verify-npm:
-    name: Verify npm availability
-    needs: publish-npm
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Verify published version and channel
-        env:
-          RELEASE_VERSION: ${{ needs.publish-npm.outputs.version }}
-          NPM_CHANNEL: ${{ needs.publish-npm.outputs.channel }}
-        run: |
-          for attempt in $(seq 1 60); do
-            published="$(npm view "cadre-ai@$NPM_CHANNEL" version --prefer-online --fetch-retries=0 --fetch-timeout=5000 2>/dev/null)" || published=""
-            if [ "$published" = "$RELEASE_VERSION" ]; then exit 0; fi
-            echo "Waiting for npm registry visibility (attempt $attempt/60)"
-            sleep 15
-          done
-          echo "npm accepted publication, but registry visibility is still pending. Inspect npm and retry only this verification job; do not republish or move the release tag." >&2
-          exit 1
+        run: npm publish --access public --provenance
 
   docs:
     name: Run docs pipeline
-    needs: verify-npm
-    if: github.event_name == 'release' && !github.event.release.prerelease && !startsWith(github.event.release.tag_name, 'beta-')
+    needs: publish-npm
     uses: ./.github/workflows/docs.yml
     with:
       ref: ${{ github.ref_name }}
