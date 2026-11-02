@@ -23,20 +23,22 @@ pnpm typecheck
 pnpm build
 ```
 
-The app uses static export and deploys to Cloudflare Pages with Wrangler Direct
-Upload. The default deployment expects the Pages site at the domain root; set
-`NEXT_PUBLIC_BASE_PATH=/your-subpath` only when intentionally serving from a
-subpath. The default Pages project name is `cadre-docs`; set the GitHub Actions
-repository variable `CLOUDFLARE_PAGES_PROJECT_NAME` or the local environment
-variable of the same name if the Cloudflare Pages project uses another name.
-The release workflow creates the Pages project on first deploy when it does not
-already exist, and only runs when a GitHub release is published.
+Cloudflare Pages builds the static export from the `release` branch of
+`dhivon-ai/cadre`. After npm confirms a stable `release-*` publication, the release
+workflow force-updates that branch to the exact commit used for the package.
+Beta publishes do not update this branch. Treat `release` as a deployment pointer. Do not develop on it.
 
-```bash
-pnpm build
-pnpm preview:pages
-pnpm deploy
-```
+Configure the `cadre-docs` Pages project to build from the repository root:
+
+- Production branch: `release`. Disable preview branch deployments for release-only builds.
+- Build command: `pnpm --filter cadre-docs check` (includes the static build and export audit).
+- Output directory: `docs/out`.
+- Build environment: Node.js 22 and pnpm 11.4.0, matching the release workflow.
+- Optional production build variable: `GOOGLE_SITE_VERIFICATION`.
+
+The Git integration handles deployment without Cloudflare credentials in GitHub.
+The site is served at the domain root. Set `NEXT_PUBLIC_BASE_PATH` only for a subpath.
+To preview the export locally, run `pnpm preview:pages` from this directory.
 
 ## Content and search validation
 

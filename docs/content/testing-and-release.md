@@ -125,8 +125,11 @@ trusted-publisher configuration. No npm token belongs in the repository.
   validation, then publishes with `--tag beta --provenance`. A separate job waits
   up to roughly 15 minutes for npm processing and verifies the channel. If it times
   out, retry only the failed verification job; do not republish or move the tag.
-- Beta pushes leave npm's `latest` channel and production docs unchanged. Creating
-  a GitHub prerelease is optional and does not publish a second time.
+- After npm verifies a `release-*` tag on the `latest` channel, the workflow force-updates the
+  `release` branch to the commit used for publication. Cloudflare Pages deploys
+  production docs from that branch. It can move backward or across histories.
+- Beta pushes leave npm's `latest` channel and the `release` branch unchanged. Creating a GitHub
+  prerelease is optional and does not publish a second time.
 - Never move an existing release tag or reuse a published npm version. Fix a failed
   candidate and validate a new beta version when its contents need to change.
 

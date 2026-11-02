@@ -23,10 +23,12 @@ jobs:
       contents: read
       id-token: write
     outputs:
+      commit: ${{ steps.checkout.outputs.commit }}
       version: ${{ steps.release.outputs.version }}
       channel: ${{ steps.release.outputs.channel }}
     steps:
       - uses: actions/checkout@v4
+        id: checkout
       - uses: pnpm/action-setup@v4
         with:
           version: 11.4.0
@@ -83,12 +85,19 @@ jobs:
           echo "npm accepted publication, but registry visibility is still pending. Inspect npm and retry only this verification job; do not republish or move the release tag." >&2
           exit 1
 
-  docs:
-    name: Run docs pipeline
-    needs: verify-npm
-    if: github.event_name == 'release' && !github.event.release.prerelease && !startsWith(github.event.release.tag_name, 'beta-')
-    uses: ./.github/workflows/docs.yml
-    with:
-      ref: ${{ github.ref_name }}
-      production_branch: ${{ vars.CLOUDFLARE_PAGES_PRODUCTION_BRANCH || 'main' }}
-    secrets: inherit
+  update-release-branch:
+    name: Point release branch at published commit
+    needs: [publish-npm, verify-npm]
+    if: >-
+      github.event_name == 'release' &&
+      startsWith(github.event.release.tag_name, 'release-') &&
+      needs.publish-npm.outputs.channel == 'latest'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.publish-npm.outputs.commit }}
+      - name: Update Cloudflare production branch
+        run: git push --force origin HEAD:refs/heads/release
