@@ -94,9 +94,9 @@ identification; they do not guarantee Google indexing or rankings.
 
 After deployment, use [Google Search Console](https://search.google.com/search-console/)
 to add the **URL-prefix property** `https://cadre-docs.pages.dev/`. For HTML-tag
-verification, copy only the supplied tag's `content` value into the GitHub
-repository Actions variable `GOOGLE_SITE_VERIFICATION`, then rerun **Deploy Docs**
-for the intended commit. The build includes the verification tag only when that
+verification, copy only the supplied tag's `content` value into the Cloudflare Pages
+production build variable `GOOGLE_SITE_VERIFICATION`, then retry the production
+build for the published commit. The build includes the verification tag only when that
 value is configured. Keep it configured after verification to retain ownership.
 
 Submit `https://cadre-docs.pages.dev/sitemap.xml` in Search Console, inspect the
