@@ -85,7 +85,7 @@ changes.
 
 ### Search discovery and indexing
 
-The production site is `https://cadre-docs.pages.dev/`. The static build emits
+The production site is `https://cadre.dhivon.ai/`. The static build emits
 `/sitemap.xml` from the documentation catalog and `/robots.txt` with its sitemap
 location. Each page has a distinct canonical URL, title, description and social
 metadata. The homepage includes WebSite structured data, and guides include
@@ -93,13 +93,13 @@ breadcrumbs matching the visible navigation. These improve discovery and
 identification; they do not guarantee Google indexing or rankings.
 
 After deployment, use [Google Search Console](https://search.google.com/search-console/)
-to add the **URL-prefix property** `https://cadre-docs.pages.dev/`. For HTML-tag
+to add the **URL-prefix property** `https://cadre.dhivon.ai/`. For HTML-tag
 verification, copy only the supplied tag's `content` value into the Cloudflare Pages
 production build variable `GOOGLE_SITE_VERIFICATION`, then retry the production
 build for the published commit. The build includes the verification tag only when that
 value is configured. Keep it configured after verification to retain ownership.
 
-Submit `https://cadre-docs.pages.dev/sitemap.xml` in Search Console, inspect the
+Submit `https://cadre.dhivon.ai/sitemap.xml` in Search Console, inspect the
 homepage and a guide, and request indexing. Use the Page Indexing report to
 diagnose exclusions. npm's package page is outside this site's Search Console
 property. See [Google's sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap).

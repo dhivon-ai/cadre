@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const SITE_NAME = "Cadre AI"
-export const SITE_ORIGIN = "https://cadre-docs.pages.dev"
+export const SITE_ORIGIN = "https://cadre.dhivon.ai"
 export const HOME_TITLE = "Cadre AI (cadre-ai) — Workflows for Codex, Claude & Zed"
 export const SITE_DESCRIPTION =
   "Cadre AI (cadre-ai) is an open-source workflow harness for Codex, Claude Code and Zed, with approved plans, parallel Git worktrees and resumable delivery."
