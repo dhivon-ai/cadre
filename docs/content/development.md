@@ -39,7 +39,7 @@ Primary sources are:
 - `harness/agents/` worker definitions;
 - `harness/src/domain/` and `harness/src/mcp/`;
 - `harness/scripts/*.ts`;
-- `harness/templates/v1/` through `v6/` (immutable history; excluded from release payloads), and active `harness/templates/v7/`;
+- `harness/templates/v1/` through `v7/` (immutable history; excluded from release payloads), and active `harness/templates/v8/`;
 - tracked plugin manifests, MCP configs, and marketplace catalogs;
 - `harness/test/`;
 - `docs/content/` and the docs application.
@@ -113,6 +113,6 @@ invented ratings, reviews or modification dates to search metadata.
 
 Run frozen-lockfile installation, harness type checking, full tests, package validation, `pnpm --filter cadre-ai pack --dry-run`, and the documentation check. Keep the changelog entry under Unreleased until publication is authorized and the candidate is verified.
 
-Use disposable projects for native Claude and Codex workflow tests, including dirty-worktree revert preparation and fresh-session recovery. SDK client-identity tests cover wire compatibility but do not replace native activation. Before publishing, validate the packaged installer, enabled candidate version, narrow MCP approvals, and server activation in Codex, Claude Code, and Zed; Zed must discover all eleven skills. Record absent or untested clients as incomplete gates. Personal-client installation and publication require their own authorization.
+Use disposable projects for native Claude and Codex workflow tests, including dirty-worktree revert preparation and fresh-session recovery. SDK client-identity tests cover wire compatibility but do not replace native activation. Before publishing, validate the packaged installer, enabled candidate version, narrow MCP approvals, and server activation in Codex, Claude Code, and Zed; Zed must discover all ten skills. Record absent or untested clients as incomplete gates. Personal-client installation and publication require their own authorization.
 
 The 100-node aggregate benchmark compares current request/response bytes with a captured response-only baseline and resets retained context halfway through. This is a conservative retrieval comparison, not a before/after live-delivery token experiment. Report small-fixture overhead and client-reported usage separately.

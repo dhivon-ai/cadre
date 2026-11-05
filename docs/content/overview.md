@@ -42,9 +42,13 @@ for multi-person coordination, a knowledge base built during work and reused as
 context, and polyrepo support. Each will be optional, independently opt-in and
 disabled by default.
 
-The current source adds `quick` and template v7 for bounded changes with one
+The current source adds `quick`, merges archival into `refresh`, and uses template v8 for bounded changes with one
 final approval and a durable outcome record. Existing projects enable it through
 an approved refresh; see [workflows](/workflows#quick).
+
+## Unified Refresh (unreleased source change)
+
+Refresh now combines context maintenance, learning consolidation and completed-track archival under one approval, receipt and commit. The current source exposes ten workflows and 21 MCP tools with template v8. The standalone archive skill and MCP tool are removed. Existing approved archive journals remain recoverable through candidate_apply. Older supported projects adopt the new workflow contract in an approved Refresh.
 
 ## What Cadre Solves
 
@@ -67,7 +71,7 @@ flowchart LR
   C --> D["review"]
   D -->|approved bugs| C
   D -->|clean approval| E["completed"]
-  E --> F["archive"]
+  E --> F["refresh + archival"]
   B -. changed intent .-> G["revise"]
   C -. changed intent .-> G
   D -. changed intent .-> G
@@ -79,7 +83,7 @@ flowchart LR
 `status` validates without mutation, and `wisp` explores without entering the
 tracked lifecycle.
 
-## Eleven Workflow Skills
+## Ten Workflow Skills
 
 | Skill | Purpose |
 |---|---|
@@ -89,7 +93,6 @@ tracked lifecycle.
 | `implement` | Execute the approved dependency DAG. |
 | `review` | Record approved findings or complete a clean review. |
 | `revise` | Change active approved scope or propose a successor. |
-| `archive` | Archive completed tracks and distill patterns. |
 | `refresh` | Reconcile project context with current evidence. |
 | `revert` | Additively reverse a task, phase, or track. |
 | `status` | Validate and summarize current project state. |

@@ -58,16 +58,16 @@ continues into review and bounded in-scope remediation under its persisted
 authority without another command. All modes require explicit approval of the
 final clean completion. Autonomous cannot waive findings with accepted risks.
 
-## Archive Batches
+## Archival Within Refresh
 
-Archive explicit track IDs or `all completed`. An omitted selection includes all
+Run Refresh with explicit track IDs or `all completed`. An omitted selection includes all
 eligible completed tracks in dependency order. Review the complete selection
 and consequences in one batch approval before mutation.
 
-Archive validates the entire selection before promotion. One ineligible track
+Refresh validates the entire selection before promotion. One ineligible track
 rejects the batch. Promotion uses journaled, resumable writes and moves; an
 interruption may leave partial progress, which resumes under the original
-approval before the single archive commit and receipt reconciliation.
+approval before the single combined refresh commit and receipt reconciliation.
 
 ## Revert Recorded Work
 

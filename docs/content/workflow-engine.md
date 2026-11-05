@@ -110,7 +110,7 @@ from that clean bookkeeping boundary.
 
 - `implement` can reach only `ready_for_review`.
 - `review` alone can reach `completed`.
-- `archive` alone can reach `archived`.
+- `refresh` alone can reach `archived`.
 - Completed and archived history is immutable; changed intent becomes a
   successor track.
 

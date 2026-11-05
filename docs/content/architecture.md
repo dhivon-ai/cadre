@@ -58,11 +58,12 @@ coordinate the `cadre-ai` and `cadre-docs` packages.
 | `src/domain/plan.ts` | Plan parsing and DAG/manual-barrier validation. |
 | `src/domain/execution.ts` | Execution journals, node transitions, and finish gating. |
 | `src/domain/worktrees.ts` | Constrained worktree creation, integration, status, and cleanup. |
-| `src/domain/governance.ts` | Review completion and archive-batch governance. |
+| `src/domain/governance.ts` | Review completion and historical archive compatibility. |
+| `src/domain/refresh-archive.ts` | Refresh selection, derived archive moves, dependency relocation and recovery preservation. |
 | `src/mcp/server.ts` | MCP server instructions, resource registration, schemas, and tool adapters. |
 | `scripts/` | Build, CLI, installation, uninstall, permissions, packaging, and source validation. |
-| `templates/v1/` through `templates/v6/` | Immutable historical source fixtures, excluded from the installed payload. |
-| `templates/v7/` | Active cohesive-change, receipt, dependency-context, workflow, and styleguide templates. |
+| `templates/v1/` through `templates/v7/` | Immutable historical source fixtures, excluded from the installed payload. |
+| `templates/v8/` | Active cohesive-change, receipt, dependency-context, workflow, and styleguide templates. |
 
 The domain directory currently includes filesystem and Git-aware behavior; it
 is not a pure dependency-free DDD layer. Preserve the real capability

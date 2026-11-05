@@ -22,7 +22,7 @@ The prepare token is available in the selected JSON representation; applied resu
 
 ## Template Resources
 
-The active catalog is readable at `cadre://templates/v7/<logical-id>`. Only v7 is packaged; existing schema-2/v5 projects remain supported without migration.
+The active catalog is readable at `cadre://templates/v8/<logical-id>`. Only v8 is packaged; existing schema-2/v5 projects remain supported without migration.
 
 ## workflow_elicit
 
@@ -69,7 +69,7 @@ Creates or resumes `.cadre/stage/<candidate-id>` and ensures `.cadre/.gitignore`
 
 ## candidate_inspect
 
-Reads an exact staged file list, rejects unexpected/unsafe paths, symlinks, size violations, invalid revision filenames, and orphaned execution bindings in proposed track states, and returns one path/hash manifest plus a digest. `planValidations` must name every staged root or nested `plan.md` exactly once with its intended target status; staged plans and validation entries must correspond exactly. Results contain a sorted `plans` array, and the digest binds both artifact hashes and normalized validation context. Plan-free candidates omit `planValidations`. `learning` contains seed validation results against the proposed overlay; `memoryInputs` fingerprints unchanged canonical inputs and is included in the digest. Changed pattern content requires affected active seeds to be reassessed. For direct promotions, re-inspect immediately before writing and compare the full approved digest. Archive prepare/apply enforces its seed overlay in the runtime. Revert candidates that change persisted node evidence must include the exact original journal under `reverts/revert-<id>-execution-before.json`.
+Reads an exact staged file list, rejects unexpected/unsafe paths, symlinks, size violations, invalid revision filenames, and orphaned execution bindings in proposed track states, and returns one path/hash manifest plus a digest. `planValidations` must name every staged root or nested `plan.md` exactly once with its intended target status; staged plans and validation entries must correspond exactly. Results contain a sorted `plans` array, and the digest binds both artifact hashes and normalized validation context. Plan-free candidates omit `planValidations`. `learning` contains seed validation results against the proposed overlay; `memoryInputs` fingerprints unchanged canonical inputs and is included in the digest. Changed pattern content requires affected active seeds to be reassessed. For direct promotions, re-inspect immediately before writing and compare the full approved digest. Refresh prepare/apply enforces its seed overlay in the runtime. Revert candidates that change persisted node evidence must include the exact original journal under `reverts/revert-<id>-execution-before.json`.
 
 Track status reports an exact staged `track-<id>` as a `staged_track_candidate` only when canonical track state is absent. A present but unreadable canonical track fails with `TRACK_STATE_INVALID` instead of being masked by the staged candidate.
 
@@ -77,13 +77,15 @@ Track status reports an exact staged `track-<id>` as a `staged_track_candidate` 
 
 Constrained promotion for track, quick, revise, refresh, review remediation and revert reconciliation. Prepare accepts `request: {mode: "prepare", projectRoot, candidateId, workflow, files}` and returns the exact final manifest/digest and approval token. After the applicable approval, apply accepts only `{mode: "apply", proposalToken}`. It validates proposed state/graphs/memory, binds unchanged source inputs, generates indexes and operation references, journals before promotion, and returns immutable receipt trailers with `commit_pending`. Agent Git tools create the commit. `{mode: "reconcile", projectRoot, operationId}` verifies unique reachable committed receipt/artifacts and removes only ignored recovery state. `{mode: "resume", projectRoot, operationId, approvalDigest}` resumes the exact persisted approved promotion. It never writes product files or executes Git.
 
+For `workflow: "refresh"`, preparation also accepts `selectedTracks?: string[]`: omitted selects all eligible completed tracks in dependency order, an explicit list selects those tracks, and `[]` excludes archival. The returned `selectedTracks` is frozen into the proposal token; `moves` identifies each track's source and destination, and `stateChanges` explains derived metadata. Selection, complete source contents, fresh destinations and unchanged inputs are digest-bound. Stage project context, patterns, active seeds and a fresh refresh record; archive files and the index are runtime-derived. One receipt and commit cover the whole refresh. Historical archive receipts and approved journals remain readable and recoverable through resume/reconcile; the standalone archive MCP tool is removed.
+
 A blocked or stalled policy-v2 Autonomous loop can request an explicit retry only
 through refresh prepare, adding `reviewRetry: {trackId, refreshPath, reason}`.
 Stage unchanged current track state, project state, and the named human-instruction
 refresh record. The derived proposal preserves the original review baseline and
 all attempts, records the prior loop in refresh history, and binds a new bounded
 attempt budget to the approved receipt. Scope or plan changes use a separate
-approval; arbitrary authored loop resets remain invalid.
+approval; arbitrary authored loop resets remain invalid. Retry accepts only omitted or empty selectedTracks and cannot consolidate quick outcomes.
 
 Revert promotion requires the persisted approved reversal operation, actual
 reachable reversal commits, exact durable reversal record/original journal
@@ -139,16 +141,6 @@ recovery performs the same check before remaining writes, including older intent
 formats. A committed approval replays its original verified receipt independently
 of subsequent product changes; it does not approve those later changes.
 
-## archive_batch_candidate
-
-Approval-aware staged archive batch. Prepare consumes body-free update descriptors and returns the full manifest/moves. `stateChanges` identifies each source and destination state path, final SHA-256, and exact field-level set/append operations, including project history. Preview and apply share the same deterministic derivation. Apply re-reads exact bytes and returns changed paths/counts. A committed retry verifies the original receipt before checking archive eligibility or reading removed stages; it returns that receipt with zero changed paths/counts.
-
-Pending receipt-based archive promotion recovers with `candidate_apply` resume using the
-original operation ID and approval digest, then one receipt commit and
-reconciliation. Repeating archive apply while its intent is pending returns
-`COMMIT_PENDING`; the original archive token provides zero-change replay after
-commit/reconciliation. Never re-prepare or redistill an interrupted approved batch.
-
 ## execution_start
 
 Creates one already-authorized execution journal and track operation with persisted scheduling/approval modes. Before starting, the recorded plan commit must contain the approved revision and graph. New journals retain `planSource` for historical provenance checks.
@@ -203,9 +195,9 @@ Validates and atomically regenerates deterministic `tracks.md`.
 
 ## Upgrade and recovery
 
-The current source ships template set v7 and retains the schema-2 receipt contract. Existing 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no project refresh. Older formats receive a warning and must use Cadre 3.9.0 to reconcile interrupted operations and perform an explicitly approved schema-2/v5 refresh at a quiescent boundary. Then install 4.0 and reload the client. Preserve historical evidence and any required explicit approval-policy choice; never change labels by hand.
+The current source ships template set v8 and retains the schema-2 receipt contract. Existing 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no project refresh. Older formats receive a warning and must use Cadre 3.9.0 to reconcile interrupted operations and perform an explicitly approved schema-2/v5 refresh at a quiescent boundary. Then install 4.0 and reload the client. Preserve historical evidence and any required explicit approval-policy choice; never change labels by hand.
 
-Create, execution finish, clean review and archive return `receipt` with `operationId`, `receiptHash`, exact Git `trailers`, and commit_pending. Include it in the operation's one commit and reconcile before dependent delivery. No separate execution-start, phase-record, final-verification-phase or clean-evidence-only commits are needed. Persist journals on disk throughout execution. An explicit handoff/blocker checkpoint remains available.
+Create, execution finish and clean review return `receipt` with `operationId`, `receiptHash`, exact Git `trailers`, and commit_pending. Include it in the operation's one commit and reconcile before dependent delivery. No separate execution-start, phase-record, final-verification-phase or clean-evidence-only commits are needed. Persist journals on disk throughout execution. An explicit handoff/blocker checkpoint remains available.
 
 ## Quick extensions
 

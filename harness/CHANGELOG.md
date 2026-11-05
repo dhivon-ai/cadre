@@ -1,13 +1,15 @@
 # Changelog
 
-## Unreleased — Quick changes
+## Unreleased — Quick changes and unified Refresh
 
-- Add `quick` as the eleventh workflow for bounded fixes, refactors, docs, tests, and small features. Clear requests authorize reversible implementation; material choices get a scope discussion, and completion requires one final approval.
+- Add `quick` for bounded fixes, refactors, docs, tests, and small features. Clear requests authorize reversible implementation; material choices get a scope discussion, and completion requires one final approval.
 - Retain an ignored starting checkpoint and one immutable outcome record. Bind final approval to product bytes/modes, verification inputs, context, and Git baseline; verify one combined local commit and resume interrupted promotion without repeating delivery.
 - Add project-scoped context without a track ID, selected quick outcomes/patterns, separate paginated quick status, and source-linked refresh consolidation. Preserve track lifecycle and dependency authority.
 - Bound quick history lookup by relevance; approved refresh batches distill findings and move unchanged records into `.cadre/archive/.quick/`. Keep archived history out of routine context and status rows.
-- Ship template v7 while preserving v6 source bytes. Existing v5/v6 projects retain their workflows; enabling quick requires an approved refresh adopting its contract.
-- Keep 22 MCP tools, a self-contained runtime, and all three client integrations. Extend candidate_apply with begin_quick and workflow quick; product editing and commits remain with the agent.
+- Merge completed-track archival into Refresh under one approval, receipt, and commit. Freeze default or explicit track selection during preparation, consolidate learning with context and quick outcomes, and preserve historical artifacts and approved recovery authority.
+- Ship template v8 while preserving v1–v7 source bytes. Existing v5/v6/v7 projects remain supported; enabling new workflow contracts requires an approved refresh preserving custom policy.
+- Expose ten workflows and 21 MCP tools with a self-contained runtime and all three client integrations. Remove the standalone archive skill and tool; retain historical archive receipt decoding and generic resume/reconcile support. Extend candidate_apply with begin_quick, workflow quick, and refresh-only selectedTracks; product editing and commits remain with the agent.
+- Clean up obsolete Cadre-owned Zed archive links and exact tool approvals during upgrade/uninstall while preserving unrelated settings and user-owned paths.
 
 ## [4.0.0] - 2026-10-14
 

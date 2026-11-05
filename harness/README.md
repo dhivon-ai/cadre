@@ -45,6 +45,10 @@ refresh. The dummy app passed 26 tests and 200,020 arithmetic comparisons. Nativ
 workflow coverage was Autonomous/sequential; it does not establish exhaustive
 coverage of every mode or client. See the [testing and release documentation](https://cadre-docs.pages.dev/testing-and-release/).
 
+## Unified Refresh (unreleased source change)
+
+Refresh now combines context maintenance, learning consolidation and completed-track archival under one approval, receipt and commit. The current source exposes ten workflows and 21 MCP tools with template v8. The standalone archive skill and MCP tool are removed. Existing approved archive journals remain recoverable through candidate_apply. Older supported projects adopt the new workflow contract in an approved Refresh.
+
 ## Quick changes (unreleased source addition)
 
 Use `quick` for one bounded fix, refactor, documentation change, test, or small
@@ -56,7 +60,7 @@ and moves unchanged records to `.cadre/archive/.quick/`. Routine track context
 loads no quick history; focused search retrieves relevant outcomes when needed.
 
 Invoke `$cadre:quick` in Codex, `/cadre:quick` in Claude Code, or `/cadre-quick`
-in Zed. This source adds an eleventh workflow and template v7. Existing v5/v6
+in Zed. This source adds Quick and merges archival into Refresh, retaining ten workflows with template v8. Existing v5/v6
 projects retain their workflows; enabling quick requires an approved refresh
 adopting its contract. Wisp remains stateless exploration.
 
@@ -80,7 +84,7 @@ are committed. See the [roadmap](https://cadre-docs.pages.dev/team-and-polyrepo/
 
 - Greenfield and brownfield project onboarding, with an explicit classification gate when the repository is ambiguous.
 - Human approval of scope and approval policy, with explicit author approval for clean track completion.
-- Resumable create, specification, planning, implementation, review, revision, refresh, revert, and archive flows.
+- Resumable create, specification, planning, implementation, review, revision, refresh with archival, and revert flows.
 - Parallel-by-default implementation of dependency DAGs, with an explicit sequential mode.
 - Isolated phase and task workers in Cadre-managed Git worktrees, coordinated and integrated only by the main agent.
 - Feature and bug tracks with functional requirements, non-functional requirements, acceptance criteria, dependencies, phased tasks, and manual-verification gates.
@@ -224,7 +228,7 @@ After installation or update:
 - Start a new Codex conversation so the new skills and MCP tools are loaded.
 - In Claude Code, run `/reload-plugins` or start a new session.
 - In Zed, run `workspace: reload` from the command palette, then open a new
-  Agent thread. Confirm all eleven skills under AI → Skills and the active Cadre
+  Agent thread. Confirm all ten skills under AI → Skills and the active Cadre
   server under AI → MCP Servers. Replacing the installed payload can leave
   an already-open workspace with stale skill discovery until it reloads.
 
@@ -307,15 +311,15 @@ Zed Agent:   /cadre-review passwordless-login
 
 Findings are presented before they become Cadre state. Approved bugs create a timestamped bug artifact and add remediation phases to the plan. A human-approved clean review marks the track `completed`.
 
-### 5. Archive completed work
+### 5. Refresh and archive completed work
 
 ```text
-Codex:      $cadre:archive passwordless-login account-lockout
-Claude Code: /cadre:archive all completed
-Zed Agent:   /cadre-archive all completed
+Codex:      $cadre:refresh passwordless-login account-lockout
+Claude Code: /cadre:refresh all completed
+Zed Agent:   /cadre-refresh all completed
 ```
 
-Archive accepts one or more completed tracks in one resumable batch. It distills their durable learning into the project pattern catalog, updates relevant seeds for active tracks, preserves the full track history, and moves each selected track to its derived archive location.
+Refresh accepts one or more completed tracks in one resumable batch. It distills their durable learning into the project pattern catalog, updates relevant seeds for active tracks, preserves the full track history, and moves each selected track to its derived archive location.
 
 ## Command reference
 
@@ -327,8 +331,7 @@ Archive accepts one or more completed tracks in one resumable batch. It distills
 | `implement` | Execute or resume the approved phase/task DAG in parallel by default or explicitly sequentially, with worktrees, tests, learning, approvals, and commit provenance. |
 | `review` | Review a ready track, record approved findings, add remediation phases, or complete an approved clean cycle. |
 | `revise` | Route a requested change by lifecycle state, revise an approved active baseline, or propose a successor for completed history. |
-| `archive` | Archive one or more completed tracks, distill patterns, and reseed active tracks by relevance. |
-| `refresh` | Refresh project context from user input, repository changes, and completed-track outcomes. |
+| `refresh` | Update context, consolidate track/quick learning, reseed active work, and archive completed tracks in one approval and commit. |
 | `revert` | Prepare and execute a human-approved additive Git revert for a task, phase, or track. |
 | `status` | Validate and summarize project, operation, track, dependency, review, and archive state without mutation. |
 | `wisp` | Explore or investigate without creating or changing Cadre lifecycle state. |
@@ -344,7 +347,7 @@ drafting-spec → drafting-plan → planned → in_progress → ready_for_review
 completed/archived ── changed intent → successor track
 ```
 
-Only `review` can mark a track completed. Only `archive` can mark it archived. The `revise` command is callable in every state, but its behavior preserves approved history:
+Only `review` can mark a track completed. Only `refresh` can mark it archived. The `revise` command is callable in every state, but its behavior preserves approved history:
 
 - `drafting-spec` changes continue the track draft without creating a revision.
 - In `drafting-plan`, an approved-spec change is a revision while an unapproved-plan change remains drafting.
@@ -404,7 +407,7 @@ Important sources of truth:
 
 ## MCP capabilities
 
-The `cadre` stdio server exposes active immutable resources at `cadre://templates/v7/...` and 22 tools:
+The `cadre` stdio server exposes active immutable resources at `cadre://templates/v8/...` and 21 tools:
 
 | Tool | Mutation | Purpose |
 | --- | --- | --- |
@@ -420,7 +423,6 @@ The `cadre` stdio server exposes active immutable resources at `cadre://template
 | `candidate_apply` | Approval-aware | Prepare/apply approved candidates and resume/reconcile immutable operation receipts. |
 | `execution_graph_validate` | No | Parse and validate phase/task dependencies, cycles, and derived manual-verification barriers. |
 | `review_complete` | Adaptive | Derive the review range from the execution base or original Autonomous baseline, then prepare/apply clean completion. |
-| `archive_batch_candidate` | Adaptive | Read staged pattern/seed files, return the complete batch for approval, then apply its unchanged token. |
 | `execution_start` | Atomic | Create the authorized execution journal and enter `in_progress` in one call. |
 | `execution_checkpoint` | Atomic | Apply one strict `scope` + event-specific `action` with required evidence. |
 | `execution_status` | No | Return a compact ready/active/blocked scheduler view, with optional focused node detail. |
@@ -443,7 +445,7 @@ Multi-file state operations use atomic individual writes and converge from
 matching partial state; mismatched bytes, hashes, journals, or Git HEAD remain
 hard failures.
 
-Review and archive minimize approval fragmentation without weakening governance. A finding disposition and its exact remediation artifacts may share one approval. Outside Autonomous, explicit reject-and-complete records accepted risks; Autonomous completion requires no unresolved findings or accepted risks. Omitting archive track IDs selects all eligible completed tracks in dependency order. Archive prepare computes the post-move `tracks.md` before approval, including archived rows. Any changed content, selection, digest, or consequence requires a corrected proposal and renewed approval.
+Review and refresh minimize approval fragmentation without weakening governance. A finding disposition and its exact remediation artifacts may share one approval. Outside Autonomous, explicit reject-and-complete records accepted risks; Autonomous completion requires no unresolved findings or accepted risks. Omitting refresh track IDs selects all eligible completed tracks in dependency order. Refresh prepare computes the post-move `tracks.md` before approval, including archived rows. Any changed content, selection, digest, or consequence requires a corrected proposal and renewed approval.
 
 ### Worktree layout and worker model
 
@@ -497,7 +499,7 @@ pnpm --filter cadre-ai validate
 
 ### Memory format upgrade
 
-The current source packages template set v7; the 4.0.0 release shipped v6. Existing 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no project migration or version-only refresh. Older formats must use Cadre 3.9.0 for an approved refresh to schema-2/v5 before installing 4.0. Published v1–v6 templates remain unchanged in source, and terminal learning remains historical evidence. Active Pattern Seeds record revisions and exact pattern fingerprints; changed guidance requires reassessment. Task handoffs preserve decisions, failed approaches, uncertainty, and next actions alongside existing checkpoints. Use all `context_read` pages before acting, and retain source inspection and approval gates. Routine `project_status` uses summaries; request `detail: "full"` for history/graph diagnostics. Filtered/paged listings never narrow validation coverage.
+The current source packages template set v8; the 4.0.0 release shipped v6. Existing 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no project migration or version-only refresh. Older formats must use Cadre 3.9.0 for an approved refresh to schema-2/v5 before installing 4.0. Published v1–v7 templates remain unchanged in source, and terminal learning remains historical evidence. Active Pattern Seeds record revisions and exact pattern fingerprints; changed guidance requires reassessment. Task handoffs preserve decisions, failed approaches, uncertainty, and next actions alongside existing checkpoints. Use all `context_read` pages before acting, and retain source inspection and approval gates. Routine `project_status` uses summaries; request `detail: "full"` for history/graph diagnostics. Filtered/paged listings never narrow validation coverage.
 
 Release preparation includes regression tests, package inspection, and documentation checks. Publishing still requires native installer/discovery/activation checks for Codex, Claude Code, and Zed. Local model tests and byte benchmarks do not establish universal token savings or semantic correctness of generated learning.
 

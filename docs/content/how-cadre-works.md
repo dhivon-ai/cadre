@@ -17,12 +17,12 @@ worktree operations.
 The installed `cadre@cadre` plugin contains:
 
 ```text
-skills/                  # create, track, implement, review, revise, archive,
+skills/                  # create, track, implement, review, revise,
                          # refresh, revert, status, wisp, and quick
 zed-skills/              # generated cadre-* adapters for native Zed Agent
 agents/                  # Claude phase and task worker definitions
 dist/cadre-mcp.mjs       # self-contained stdio MCP runtime
-templates/v7/            # active cohesive-change and bounded-context templates
+templates/v8/            # active cohesive-change and bounded-context templates
 .codex-plugin/           # Codex manifest
 .claude-plugin/          # Claude manifest
 ```
@@ -126,7 +126,7 @@ cadre(review): complete passwordless-login
 
 New executions commit cohesive groups of related tasks within a phase. Each task retains verification, authorization and handoff evidence; legacy executions retain their original task boundaries. Phase and track verification record existing verified HEADs. Revert uses additive `git revert` commits and requires approval for every task sharing a reversed commit.
 
-A one-task lifecycle uses six commits: initialization, combined track, product, execution completion, clean review, and archive. Stable operation references resolve through immutable receipts and verified Git trailers. Reconciliation changes only temporary recovery state.
+A one-task lifecycle uses six commits: initialization, combined track, product, execution completion, clean review, and Refresh with archival. Stable operation references resolve through immutable receipts and verified Git trailers. Reconciliation changes only temporary recovery state.
 
 ## Learning Flow
 

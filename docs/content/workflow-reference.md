@@ -1,6 +1,6 @@
 ---
 title: Workflow Reference
-description: Invocation, eligibility, mutations, and terminal outcomes for all eleven Cadre skills.
+description: Invocation, eligibility, mutations, and terminal outcomes for all ten Cadre skills.
 section: Reference
 order: 200
 ---
@@ -49,7 +49,7 @@ focused search and selected IDs retrieve relevant records, including archives. Q
 Cadre workers or absorb pre-existing edits. Migrations, coordinated work, and
 changes to approved track requirements go through track or revise.
 
-Existing v5/v6 projects need a one-time approved refresh adopting the v7 quick
+Existing v5/v6 projects need a one-time approved refresh adopting the current quick
 contract. This is an unreleased source addition; installation alone does not
 rewrite project policy.
 
@@ -118,18 +118,6 @@ rewrite project policy.
 - **Completed/archived behavior:** propose a linked successor; never reopen
   or move terminal history.
 
-## archive
-
-- **Use for:** one or more tracks already completed by clean review.
-- **Primary MCP:** `archive_batch_candidate` for approved promotion and
-  `candidate_apply` for receipt recovery/reconciliation.
-- **Writes:** track moves/status, consolidated patterns, relevant active-track
-  seeds, immutable receipt and derived index in one commit.
-- **Selection:** omitted track IDs select all eligible completed tracks in dependency order.
-- **Recovery:** one ineligible selection rejects the batch before promotion.
-  Approved writes and moves are journaled and resumable after partial progress.
-- **Stops at:** `archived`.
-
 ## refresh
 
 - **Use for:** drift in product, guidelines, workflow, technology,
@@ -141,6 +129,10 @@ rewrite project policy.
 - **Active work:** execution-governing changes wait for a safe boundary and
   affected tracks follow revision impact analysis inside the same refresh
   approval envelope.
+
+Refresh selects all eligible completed tracks in dependency order by default. Explicit track IDs limit the batch; an explicit empty selection excludes track archival. Prepare freezes the selection and shows moves, derived state changes, context and pattern updates together. One approval covers one receipt and commit. No new lessons are required to archive; record a justified no-change assessment. Active dependency references relocate within the same operation, while completed history remains immutable.
+
+Blocked-review retry remains focused and cannot archive tracks or consolidate quick outcomes. New archival on older supported projects requires adopting the v8 workflow contract in the same approved refresh diff. Existing archive journals retain their original recovery authority; unapplied archive proposals must be prepared again through Refresh.
 
 ## revert
 
@@ -184,5 +176,5 @@ rewrite project policy.
 | planned/in-progress → ready for review | `implement` |
 | ready for review → in progress | `review` findings or `revise` |
 | ready for review → completed | `review` only |
-| completed → archived | `archive` only |
+| completed → archived | `refresh` only |
 | completed/archived → new intent | `revise` proposes successor |

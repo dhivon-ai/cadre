@@ -1,14 +1,14 @@
 ---
 title: Workflow Guide
 navTitle: Workflows
-description: When and how to use Cadre's eleven lifecycle skills.
+description: When and how to use Cadre's ten lifecycle skills.
 section: User Guide
 order: 60
 ---
 
 # Workflow Guide
 
-Cadre exposes eleven workflows in all supported clients. In Codex use
+Cadre exposes ten workflows in all supported clients. In Codex use
 `$cadre:<skill>`; in Claude Code use `/cadre:<skill>`; in the Zed Agent use
 `/cadre-<skill>`.
 
@@ -50,7 +50,7 @@ focused search and selected IDs retrieve relevant records, including archives. Q
 Cadre workers or absorb pre-existing edits. Migrations, coordinated work, and
 changes to approved track requirements go through track or revise.
 
-Existing v5/v6 projects need a one-time approved refresh adopting the v7 quick
+Existing v5/v6 projects need a one-time approved refresh adopting the current quick
 contract. This is an unreleased source addition; installation alone does not
 rewrite project policy.
 
@@ -141,19 +141,6 @@ Revisions assess transitive dependent tracks and never erase completed commit
 provenance. When partial-work disposition can be assessed in advance, it is
 included with all cascading changes in one revision approval.
 
-## archive
-
-Use `archive` after a clean approved review. It accepts explicit track IDs or
-`all completed`; omitting selection includes all eligible completed tracks in
-dependency order, presented in the batch approval.
-
-One digest-bound batch can move multiple completed tracks, distill their
-learning with existing patterns, reseed active tracks, update lifecycle state,
-and rebuild `tracks.md`. An immutable operation receipt records provenance in that same commit;
-reconciliation touches temporary state only.
-
-Only `archive` can mark a track archived.
-
 ## refresh
 
 Use `refresh` when project context no longer matches user intent, repository
@@ -164,6 +151,10 @@ language/framework styleguides, patterns, and affected active-track seeds.
 Execution-governing changes wait for a safe worker boundary. Cascading track
 changes follow `revise` impact analysis but join the same refresh approval
 instead of creating separate approval cycles.
+
+Refresh selects all eligible completed tracks in dependency order by default. Explicit track IDs limit the batch; an explicit empty selection excludes track archival. Prepare freezes the selection and shows moves, derived state changes, context and pattern updates together. One approval covers one receipt and commit. No new lessons are required to archive; record a justified no-change assessment. Active dependency references relocate within the same operation, while completed history remains immutable.
+
+Blocked-review retry remains focused and cannot archive tracks or consolidate quick outcomes. New archival on older supported projects requires adopting the v8 workflow contract in the same approved refresh diff. Existing archive journals retain their original recovery authority; unapplied archive proposals must be prepared again through Refresh.
 
 ## revert
 
@@ -206,6 +197,6 @@ turning a wisp into Cadre state.
 | Change approved intent | `revise` |
 | Update project-wide context | `refresh` |
 | Reverse recorded work | `revert` |
-| Preserve completed history and patterns | `archive` |
+| Preserve completed history and patterns | `refresh` |
 | Inspect health or next actions | `status` |
 | Explore without lifecycle state | `wisp` |

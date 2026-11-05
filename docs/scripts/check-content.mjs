@@ -105,8 +105,8 @@ function checkWorkflowCoverage(docsBySlug) {
     .sort()
   const reference = docsBySlug.get("workflow-reference")?.content ?? ""
 
-  if (workflows.length !== 11) {
-    fail(`Expected 11 current workflow skills, found ${workflows.length}: ${workflows.join(", ")}`)
+  if (workflows.length !== 10) {
+    fail(`Expected 10 current workflow skills, found ${workflows.length}: ${workflows.join(", ")}`)
   }
   for (const workflow of workflows) {
     if (!reference.includes(`## ${workflow}\n`)) {
@@ -121,8 +121,8 @@ function checkMcpCoverage(docsBySlug) {
   const tools = [...catalog.matchAll(/:\s*"([a-z_]+)"/g)].map((match) => match[1])
   const reference = docsBySlug.get("mcp-reference")?.content ?? ""
 
-  if (tools.length !== 22) {
-    fail(`Expected 22 current MCP tools, found ${tools.length}`)
+  if (tools.length !== 21) {
+    fail(`Expected 21 current MCP tools, found ${tools.length}`)
   }
   for (const tool of tools) {
     if (!reference.includes(`## ${tool}\n`)) {
@@ -167,7 +167,7 @@ function checkCurrentModel(docsBySlug) {
   requireText(docsBySlug, "getting-started", "Zed Agent support is stable")
   requireText(docsBySlug, "mcp-reference", "planValidations")
   requireText(docsBySlug, "mcp-reference", "staged_track_candidate")
-  for (const workflow of ["create", "track", "implement", "review", "archive"]) {
+  for (const workflow of ["create", "track", "implement", "review", "refresh"]) {
     requireText(docsBySlug, "quickstart", `$cadre:${workflow}`)
     requireText(docsBySlug, "quickstart", `/cadre:${workflow}`)
     requireText(docsBySlug, "quickstart", `/cadre-${workflow}`)

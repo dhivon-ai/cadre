@@ -46,6 +46,10 @@ refresh. The dummy app passed 26 tests and 200,020 arithmetic comparisons. Nativ
 workflow coverage was Autonomous/sequential; it does not establish exhaustive
 coverage of every mode or client. See the [native lifecycle report](docs/development/cadre-4.0.0-native-flow.md).
 
+## Unified Refresh (unreleased source change)
+
+Refresh now combines context maintenance, learning consolidation and completed-track archival under one approval, receipt and commit. The current source exposes ten workflows and 21 MCP tools with template v8. The standalone archive skill and MCP tool are removed. Existing approved archive journals remain recoverable through candidate_apply. Older supported projects adopt the new workflow contract in an approved Refresh.
+
 ## Quick changes (unreleased source addition)
 
 Use `quick` for one bounded fix, refactor, documentation change, test, or small
@@ -57,7 +61,7 @@ and moves unchanged records to `.cadre/archive/.quick/`. Routine track context
 loads no quick history; focused search retrieves relevant outcomes when needed.
 
 Invoke `$cadre:quick` in Codex, `/cadre:quick` in Claude Code, or `/cadre-quick`
-in Zed. This source adds an eleventh workflow and template v7. Existing v5/v6
+in Zed. This source adds Quick and merges archival into Refresh, retaining ten workflows with template v8. Existing v5/v6
 projects retain their workflows; enabling quick requires an approved refresh
 adopting its contract. Wisp remains stateless exploration.
 
@@ -121,25 +125,25 @@ $cadre:create
 $cadre:track Add passwordless login as a feature
 $cadre:implement passwordless-login
 $cadre:review passwordless-login
-$cadre:archive passwordless-login
+$cadre:refresh passwordless-login
 
 # Claude Code
 /cadre:create
 /cadre:track Add passwordless login as a feature
 /cadre:implement passwordless-login
 /cadre:review passwordless-login
-/cadre:archive passwordless-login
+/cadre:refresh passwordless-login
 
 # Zed Agent
 /cadre-create
 /cadre-track Add passwordless login as a feature
 /cadre-implement passwordless-login
 /cadre-review passwordless-login
-/cadre-archive passwordless-login
+/cadre-refresh passwordless-login
 ```
 
 The complete workflow set is `create`, `track`, `implement`, `review`,
-`revise`, `archive`, `refresh`, `revert`, `status`, `wisp`, and `quick`.
+`revise`, `refresh`, `revert`, `status`, `wisp`, and `quick`.
 
 An initialized target project keeps approved mutable delivery state under
 `.cadre/`. The installed payload retains the runtime, skills, worker

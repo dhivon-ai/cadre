@@ -131,15 +131,15 @@ mode, the human may explicitly reject findings and record accepted risks.
 Autonomous requires all findings resolved. Every mode requires explicit approval
 of the exact completion proposal; only `review` can mark the track `completed`.
 
-## 6. Archive Completed Work
+## 6. Refresh And Archive Completed Work
 
 ```text
-$cadre:archive passwordless-login
-/cadre:archive passwordless-login
-/cadre-archive passwordless-login
+$cadre:refresh passwordless-login
+/cadre:refresh passwordless-login
+/cadre-refresh passwordless-login
 ```
 
-Archive can process one or more completed tracks in a single approved,
+Refresh updates project context and can process one or more completed tracks in a single approved,
 resumable batch. It moves track history to the derived archive location,
 distills durable learning into project patterns, reseeds relevant active
 tracks, rebuilds `tracks.md`, and records Git provenance.
