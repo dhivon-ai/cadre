@@ -1,3 +1,4 @@
+import { quickRecordSchema } from "./quick-record.js";
 import { dependencyContextSchema } from "./dependency-context.js";
 import { MEMORY_START, MEMORY_END, seedMemorySchema, seedSection } from "./memory.js";
 
@@ -9,6 +10,7 @@ export function recordedRecoveryInputs(files: File[]): RecoveryInput[] {
   const overlay = new Map(files.map((file) => [file.path, file.content]));
   const inputs: RecoveryInput[] = [];
   for (const file of files) {
+    if (file.content !== null && /^\.cadre\/quick\/[^/]+\.json$/.test(file.path)) inputs.push(...quickRecordSchema.parse(JSON.parse(file.content)).context);
     if (file.content === null || !/^\.cadre\/tracks\/[^/]+\/(?:learning\.md|dependency-context\.json)$/.test(file.path)) continue;
     const stateBody = overlay.get(file.path.replace(/[^/]+$/, "state.json"));
     if (stateBody && ["completed", "archived"].includes(JSON.parse(stateBody).status)) continue;

@@ -16,8 +16,8 @@ fixture.
 - Installation packages a shared local payload, installs `cadre@cadre` for
   Codex/Claude, links collision-safe `cadre-*` skills for Zed, and runs the
   bundled `dist/cadre-mcp.mjs` stdio server.
-- The ten user workflows are `create`, `track`, `implement`, `review`,
-  `revise`, `archive`, `refresh`, `revert`, `status`, and `wisp`.
+- The eleven user workflows are `create`, `track`, `implement`, `review`,
+  `revise`, `archive`, `refresh`, `revert`, `status`, `wisp`, and `quick`.
 - Initialized projects keep approved mutable state under `.cadre/`. Runtime
   code, skills, worker definitions, and the immutable template catalog remain
   in the installed plugin rather than being copied into the project.
@@ -31,12 +31,12 @@ three-tool `cadre_workflow` API.
 
 ```text
 harness/
-├── skills/<workflow>/       # Ten workflow skills and Codex picker metadata
+├── skills/<workflow>/       # Eleven workflow skills and Codex picker metadata
 ├── agents/                  # Claude phase/task worker definitions
 ├── src/domain/              # State, plans, execution, governance, templates
 ├── src/mcp/                 # Typed stdio MCP server
 ├── scripts/                 # TypeScript build, CLI, installer, and validation
-├── templates/v6/            # Active immutable project and track templates
+├── templates/v7/            # Active immutable project and track templates
 ├── test/                    # CLI and integration tests
 ├── .codex-plugin/           # Codex source manifest
 ├── .claude-plugin/          # Claude source manifest
@@ -153,7 +153,7 @@ zed --version
 ```
 
 Codex and Claude must report `cadre@cadre` installed and enabled at the
-candidate version. Zed must discover all ten `cadre-*` skills and show the
+candidate version. Zed must discover all eleven `cadre-*` skills and show the
 Cadre context server active. All clients must launch the packaged
 `dist/cadre-mcp.mjs`, and their narrow Cadre MCP approval settings must be
 present. There is no installer `--check` mode in the current CLI. If

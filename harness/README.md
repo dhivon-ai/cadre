@@ -1,7 +1,7 @@
 # Cadre
 
 **Cadre 4.0.0** simplifies the runtime around one receipt-based mutation path
-and the current v6 template catalog. All ten workflows, four approval modes,
+and its v6 template catalog. All ten workflows, four approval modes,
 both scheduling modes, and stable Codex, Claude Code and Zed integrations remain
 available. Install [cadre-ai from npm](https://www.npmjs.com/package/cadre-ai).
 
@@ -44,6 +44,21 @@ revision, review/remediation, manual-edit freshness checks, archive recovery and
 refresh. The dummy app passed 26 tests and 200,020 arithmetic comparisons. Native
 workflow coverage was Autonomous/sequential; it does not establish exhaustive
 coverage of every mode or client. See the [testing and release documentation](https://cadre-docs.pages.dev/testing-and-release/).
+
+## Quick changes (unreleased source addition)
+
+Use `quick` for one bounded fix, refactor, documentation change, test, or small
+feature. It reads relevant Cadre context, implements and verifies the change,
+then asks for one final approval of the diff and outcome record. Material scope
+choices are discussed before editing. One local commit contains the change and
+its durable record. A later approved `refresh` batch consolidates useful lessons
+and moves unchanged records to `.cadre/archive/.quick/`. Routine track context
+loads no quick history; focused search retrieves relevant outcomes when needed.
+
+Invoke `$cadre:quick` in Codex, `/cadre:quick` in Claude Code, or `/cadre-quick`
+in Zed. This source adds an eleventh workflow and template v7. Existing v5/v6
+projects retain their workflows; enabling quick requires an approved refresh
+adopting its contract. Wisp remains stateless exploration.
 
 ## Upcoming roadmap
 
@@ -209,7 +224,7 @@ After installation or update:
 - Start a new Codex conversation so the new skills and MCP tools are loaded.
 - In Claude Code, run `/reload-plugins` or start a new session.
 - In Zed, run `workspace: reload` from the command palette, then open a new
-  Agent thread. Confirm all ten skills under AI → Skills and the active Cadre
+  Agent thread. Confirm all eleven skills under AI → Skills and the active Cadre
   server under AI → MCP Servers. Replacing the installed payload can leave
   an already-open workspace with stale skill discovery until it reloads.
 
@@ -307,6 +322,7 @@ Archive accepts one or more completed tracks in one resumable batch. It distills
 | Command | Purpose |
 | --- | --- |
 | `create` | Initialize or resume Cadre, classify project context, initialize Git when needed, and establish approved project artifacts. |
+| `quick` | Deliver a bounded change with one final approval, one combined commit, and a durable outcome record. |
 | `track` | Create or resume a feature/bug specification, phased plan, dependency set, and learning seed. |
 | `implement` | Execute or resume the approved phase/task DAG in parallel by default or explicitly sequentially, with worktrees, tests, learning, approvals, and commit provenance. |
 | `review` | Review a ready track, record approved findings, add remediation phases, or complete an approved clean cycle. |
@@ -355,6 +371,7 @@ An initialized project has this shape:
 ├── patterns/
 ├── receipts/                    # tracked immutable operation evidence
 ├── operations/                  # retained historical journals, when present
+├── quick/                       # immutable small-change outcome records
 ├── refreshes/
 ├── tracks/
 │   └── <track-id>/
@@ -366,6 +383,8 @@ An initialized project has this shape:
 │       ├── bugs/
 │       └── revisions/
 ├── archive/
+│   ├── <track-id>/
+│   └── .quick/             # consolidated immutable quick records
 ├── stage/                       # ignored candidates and approved recovery journals
 ├── .worktrees/                  # ignored, temporary execution worktrees
 └── wisps/                       # ignored, disposable exploration output
@@ -385,7 +404,7 @@ Important sources of truth:
 
 ## MCP capabilities
 
-The `cadre` stdio server exposes active immutable resources at `cadre://templates/v6/...` and 22 tools:
+The `cadre` stdio server exposes active immutable resources at `cadre://templates/v7/...` and 22 tools:
 
 | Tool | Mutation | Purpose |
 | --- | --- | --- |
@@ -478,7 +497,7 @@ pnpm --filter cadre-ai validate
 
 ### Memory format upgrade
 
-The current package ships template set v6. Existing 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no project migration or version-only refresh. Older formats must use Cadre 3.9.0 for an approved refresh to schema-2/v5 before installing 4.0. Published v1–v5 templates remain unchanged in source, and terminal learning remains historical evidence. Active Pattern Seeds record revisions and exact pattern fingerprints; changed guidance requires reassessment. Task handoffs preserve decisions, failed approaches, uncertainty, and next actions alongside existing checkpoints. Use all `context_read` pages before acting, and retain source inspection and approval gates. Routine `project_status` uses summaries; request `detail: "full"` for history/graph diagnostics. Filtered/paged listings never narrow validation coverage.
+The current source packages template set v7; the 4.0.0 release shipped v6. Existing 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no project migration or version-only refresh. Older formats must use Cadre 3.9.0 for an approved refresh to schema-2/v5 before installing 4.0. Published v1–v6 templates remain unchanged in source, and terminal learning remains historical evidence. Active Pattern Seeds record revisions and exact pattern fingerprints; changed guidance requires reassessment. Task handoffs preserve decisions, failed approaches, uncertainty, and next actions alongside existing checkpoints. Use all `context_read` pages before acting, and retain source inspection and approval gates. Routine `project_status` uses summaries; request `detail: "full"` for history/graph diagnostics. Filtered/paged listings never narrow validation coverage.
 
 Release preparation includes regression tests, package inspection, and documentation checks. Publishing still requires native installer/discovery/activation checks for Codex, Claude Code, and Zed. Local model tests and byte benchmarks do not establish universal token savings or semantic correctness of generated learning.
 

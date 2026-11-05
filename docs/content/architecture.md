@@ -61,8 +61,8 @@ coordinate the `cadre-ai` and `cadre-docs` packages.
 | `src/domain/governance.ts` | Review completion and archive-batch governance. |
 | `src/mcp/server.ts` | MCP server instructions, resource registration, schemas, and tool adapters. |
 | `scripts/` | Build, CLI, installation, uninstall, permissions, packaging, and source validation. |
-| `templates/v1/` through `templates/v5/` | Immutable historical source fixtures, excluded from the installed payload. |
-| `templates/v6/` | Active cohesive-change, receipt, dependency-context, workflow, and styleguide templates. |
+| `templates/v1/` through `templates/v6/` | Immutable historical source fixtures, excluded from the installed payload. |
+| `templates/v7/` | Active cohesive-change, receipt, dependency-context, workflow, and styleguide templates. |
 
 The domain directory currently includes filesystem and Git-aware behavior; it
 is not a pure dependency-free DDD layer. Preserve the real capability

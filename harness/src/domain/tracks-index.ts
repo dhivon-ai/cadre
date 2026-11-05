@@ -39,7 +39,7 @@ export function renderTracksWithState(
     const directoryRoot = join(root, directory);
     if (!existsSync(directoryRoot)) continue;
     for (const entry of readdirSync(directoryRoot, { withFileTypes: true })
-      .filter((candidate) => candidate.isDirectory())
+      .filter((candidate) => candidate.isDirectory() && !(directory === "archive" && candidate.name === ".quick"))
       .sort((left, right) => left.name.localeCompare(right.name))) {
       const path = join(directoryRoot, entry.name, "state.json");
       let state: Record<string, unknown>;

@@ -56,7 +56,7 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const templateRoot = join(root, "templates", "v5", "init");
 const legacyTemplateRoot = join(root, "templates", "v1", "init");
-const providerRoot = join(root, "templates", "v6");
+const providerRoot = join(root, "templates", "v7");
 
 test("published v1 templates remain byte-for-byte immutable", () => {
   const files = (directory: string): string[] => readdirSync(directory, { withFileTypes: true })
@@ -1674,7 +1674,7 @@ test("installer prepares a shared three-client payload", async () => {
   assert.ok(existsSync(join(pluginRoot, "skills", "track", "SKILL.md")));
   for (const workflow of [
     "create", "track", "implement", "review", "revise",
-    "archive", "refresh", "revert", "status", "wisp"
+    "archive", "refresh", "revert", "status", "wisp", "quick"
   ]) {
     const zedSkill = readFileSync(join(pluginRoot, "zed-skills", `cadre-${workflow}`, "SKILL.md"), "utf8");
     assert.match(zedSkill, new RegExp(`^name: cadre-${workflow}$`, "m"));
@@ -1690,8 +1690,8 @@ test("installer prepares a shared three-client payload", async () => {
   assert.equal(codexManifest.version, `${CADRE_RUNTIME_VERSION}+codex.test-build`);
   assert.equal(claudeManifest.version, `${CADRE_RUNTIME_VERSION}+claude.test-build`);
   assert.ok(existsSync(join(pluginRoot, "dist", "cadre-mcp.mjs")));
-  assert.ok(existsSync(join(pluginRoot, "templates", "v6", "track", "spec.md")));
-  assert.ok(existsSync(join(pluginRoot, "templates", "v6", "init", "gitignore.template")));
+  assert.ok(existsSync(join(pluginRoot, "templates", "v7", "track", "spec.md")));
+  assert.ok(existsSync(join(pluginRoot, "templates", "v7", "init", "gitignore.template")));
   assert.ok(existsSync(join(pluginRoot, "agents", "cadre-phase-worker.md")));
   assert.ok(existsSync(join(pluginRoot, "agents", "cadre-task-worker.md")));
   assert.equal(existsSync(join(pluginRoot, "scripts")), false);
@@ -1725,7 +1725,7 @@ test("installer prepares a shared three-client payload", async () => {
     assert.ok(tools.tools.some((tool) => tool.name === "project_status"));
     const resources = await client.listResources();
     assert.deepEqual(
-      resources.resources.map((resource) => resource.uri.replace("cadre://templates/v6/", "")),
+      resources.resources.map((resource) => resource.uri.replace("cadre://templates/v7/", "")),
       [...TEMPLATE_IDS]
     );
   } finally {
@@ -2072,22 +2072,22 @@ test("compiled MCP exposes versioned templates and initializes projects without 
     );
     agentVisibleResult(fallback);
     const resources = await client.listResources();
-    assert.ok(resources.resources.some((resource) => resource.uri === "cadre://templates/v6/track/spec"));
+    assert.ok(resources.resources.some((resource) => resource.uri === "cadre://templates/v7/track/spec"));
     assert.ok(resources.resources.some(
-      (resource) => resource.uri === "cadre://templates/v6/track/revise-operation"
+      (resource) => resource.uri === "cadre://templates/v7/track/revise-operation"
     ));
     assert.ok(resources.resources.some(
-      (resource) => resource.uri === "cadre://templates/v6/project/refresh-operation"
+      (resource) => resource.uri === "cadre://templates/v7/project/refresh-operation"
     ));
     assert.ok(resources.resources.some(
-      (resource) => resource.uri === "cadre://templates/v6/project/gitignore"
+      (resource) => resource.uri === "cadre://templates/v7/project/gitignore"
     ));
     assert.ok(resources.resources.some(
-      (resource) => resource.uri === "cadre://templates/v6/track/revert-operation"
+      (resource) => resource.uri === "cadre://templates/v7/track/revert-operation"
     ));
 
-    const workflow = await client.readResource({ uri: "cadre://templates/v6/project/workflow" });
-    assert.equal(workflow.contents[0]?.uri, "cadre://templates/v6/project/workflow");
+    const workflow = await client.readResource({ uri: "cadre://templates/v7/project/workflow" });
+    assert.equal(workflow.contents[0]?.uri, "cadre://templates/v7/project/workflow");
     assert.match((workflow.contents[0] as { text?: string }).text ?? "", /^# Cadre Workflow/);
 
     const bundle = await client.callTool({
@@ -3050,7 +3050,7 @@ test("compiled MCP presents and normalizes a client-native workflow form", async
 test("plugin namespace is not repeated in skill identities", () => {
   for (const skill of [
     "create", "track", "implement", "review", "revise",
-    "archive", "refresh", "revert", "status", "wisp"
+    "archive", "refresh", "revert", "status", "wisp", "quick"
   ]) {
     const body = readFileSync(join(root, "skills", skill, "SKILL.md"), "utf8");
     assert.ok(body.startsWith(`---\nname: ${skill}\n`));
@@ -3061,7 +3061,7 @@ test("plugin namespace is not repeated in skill identities", () => {
 test("every post-create command loads the shared workflow", () => {
   for (const skill of [
     "track", "implement", "review", "revise", "archive",
-    "refresh", "revert", "status", "wisp"
+    "refresh", "revert", "status", "wisp", "quick"
   ]) {
     const body = readFileSync(join(root, "skills", skill, "SKILL.md"), "utf8");
     assert.match(body, /\.cadre\/workflow\.md/, `${skill} must load the shared workflow`);

@@ -1,3 +1,5 @@
+import { beginQuick, beginQuickInputSchema } from "../domain/quick.js";
+import { quickStatus } from "../domain/quick-history.js";
 import { requireSupportedProjectFormat, supportsProjectFormat } from "../domain/project-format.js";
 import { requireTrackExecutionAuthority } from "../domain/execution.js";
 import { deriveNextStep } from "../domain/next-step.js";
@@ -439,7 +441,7 @@ export function createCadreServer(): McpServer {
   });
 
   registerTool(CADRE_MCP_TOOLS.contextRead, {
-    title: "Read track context", description: "Read scoped context; consume all pages before acting. Sources remain authoritative.",
+    title: "Read project or track context", description: "Read required context pages. Quick history is optional targeted search or ID lookup; never overrides requirements.",
     inputSchema: contextInputSchema,
     outputSchema: CADRE_MCP_OUTPUT_SCHEMAS[CADRE_MCP_TOOLS.contextRead],
     annotations: { readOnlyHint: true, openWorldHint: false }
@@ -460,14 +462,14 @@ export function createCadreServer(): McpServer {
       view: z.enum(["project", "track", "implementation"]).optional().default("project"),
       detail: z.enum(["summary", "full"]).default("summary"),
       statuses: z.array(lifecycleSchema).optional(), limit: z.number().int().min(1).max(200).default(50),
-      cursor: z.string().max(1024).optional(),
+      cursor: z.string().max(1024).optional(), quickCursor: z.string().max(1024).optional(),
       trackId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).optional(),
       executionId: z.string().regex(/^[0-9A-Za-z]+(?:-[0-9A-Za-z]+)*$/).nullish()
         .describe("Known persisted execution ID. Omit or use null to select current state; never infer it from trackId.")
     },
     outputSchema: CADRE_MCP_OUTPUT_SCHEMAS[CADRE_MCP_TOOLS.projectStatus],
     annotations: { readOnlyHint: true, openWorldHint: false }
-  }, async ({ projectRoot, view, trackId, executionId, detail, statuses, limit, cursor }) => {
+  }, async ({ projectRoot, view, trackId, executionId, detail, statuses, limit, cursor, quickCursor }) => {
     try {
       const root = safeProjectRoot(projectRoot);
       const validation = validateProject(root);
@@ -482,7 +484,7 @@ export function createCadreServer(): McpServer {
         return result(
           { ...projectStatusView(validation), detail,
             ...(detail === "full" ? { projectState: validation.project, trackDetails: fullProjectTracks(root, page.tracks, validation.states, validation.plans) } : {}),
-            tracks: page.tracks.map(projectTrackSummary), listing: page.listing, staleMemory: validation.staleMemory, stagedTrackCandidates: stagedTrackCandidates(root, validation), worktreeRuntime },
+            quick: quickStatus(root, limit, quickCursor), tracks: page.tracks.map(projectTrackSummary), listing: page.listing, staleMemory: validation.staleMemory, stagedTrackCandidates: stagedTrackCandidates(root, validation), worktreeRuntime },
           `Cadre project ${validation.errors.length ? "has validation errors" : "is valid"}; ${validation.tracks.length} track${validation.tracks.length === 1 ? "" : "s"}.`
         );
       }
@@ -703,14 +705,16 @@ export function createCadreServer(): McpServer {
   registerTool(CADRE_MCP_TOOLS.candidateApply, {
     title: "Apply candidate", description: "Preview or promote constrained Cadre artifacts; never writes product files or commits.",
     inputSchema: { request: z.discriminatedUnion("mode", [
-      z.strictObject({ mode: z.literal("prepare"), projectRoot: z.string().min(1), candidateId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), workflow: z.enum(["track", "revise", "refresh", "review", "revert"]), files: z.array(z.string()).min(1), reviewRetry: reviewRetrySchema.optional() }),
+      z.strictObject({ mode: z.literal("prepare"), projectRoot: z.string().min(1), candidateId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), workflow: z.enum(["track", "revise", "refresh", "review", "revert", "quick"]), files: z.array(z.string()).min(1), reviewRetry: reviewRetrySchema.optional() }),
       z.strictObject({ mode: z.literal("apply"), proposalToken: proposalTokenSchema }),
+      z.strictObject({ mode: z.literal("begin_quick"), ...beginQuickInputSchema.shape }),
       z.strictObject({ mode: z.literal("reconcile"), projectRoot: z.string(), operationId: z.string() }),
       z.strictObject({ mode: z.literal("resume"), projectRoot: z.string(), operationId: z.string(), approvalDigest: z.string().regex(/^[0-9a-f]{64}$/) })
     ]) },
     outputSchema: CADRE_MCP_OUTPUT_SCHEMAS[CADRE_MCP_TOOLS.candidateApply], annotations: { destructiveHint: false, openWorldHint: false }
   }, async ({ request }) => {
     try {
+      if (request.mode === "begin_quick") { const {mode: _mode, ...input} = request; return result(beginQuick(input)); }
       if (request.mode === "reconcile") return result({ status: "committed" as const, operationId: request.operationId, commit: reconcileOperation(request.projectRoot, request.operationId) });
       if (request.mode === "resume") {
         const root = safeProjectRoot(request.projectRoot);

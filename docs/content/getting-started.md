@@ -58,7 +58,7 @@ After installing or updating:
 - Start a new Codex conversation.
 - In Claude Code, run `/reload-plugins` or start a new session.
 - In Zed, run `workspace: reload` from the command palette, then open a new
-  Agent thread. Confirm all ten Cadre skills and the active MCP server below.
+  Agent thread. Confirm all eleven Cadre skills and the active MCP server below.
   An already-open workspace can retain stale skill discovery after an update.
 
 Confirm installation with the native clients:
@@ -69,7 +69,7 @@ claude plugin list --json
 ```
 
 Codex and Claude should report `cadre@cadre` installed and enabled.
-For Zed, open AI → Skills to confirm all ten `cadre-*` skills and AI → MCP
+For Zed, open AI → Skills to confirm all eleven `cadre-*` skills and AI → MCP
 Servers to confirm that `cadre` is active.
 
 ## MCP Permission Behavior
@@ -162,3 +162,7 @@ node harness/dist/cadre-cli.mjs install --target all
 
 Use this path for harness development and release validation, not for normal
 package upgrades.
+
+The current source adds quick with template v7. Existing v5/v6 projects continue
+track workflows unchanged; use an approved refresh to adopt quick before its
+first use. Do not edit version labels by hand.

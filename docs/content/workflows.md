@@ -1,14 +1,14 @@
 ---
 title: Workflow Guide
 navTitle: Workflows
-description: When and how to use Cadre's ten lifecycle skills.
+description: When and how to use Cadre's eleven lifecycle skills.
 section: User Guide
 order: 60
 ---
 
 # Workflow Guide
 
-Cadre exposes ten workflows in all supported clients. In Codex use
+Cadre exposes eleven workflows in all supported clients. In Codex use
 `$cadre:<skill>`; in Claude Code use `/cadre:<skill>`; in the Zed Agent use
 `/cadre-<skill>`.
 
@@ -30,6 +30,29 @@ The workflow:
 8. Validates, commits, and records provenance without follow-up approvals.
 
 An existing `.cadre/project.json` is resumed, never overwritten.
+
+## quick
+
+Use `quick` for one bounded, locally verifiable fix, refactor, documentation
+change, test, or small feature. A clear request authorizes reversible edits;
+material choices or wider consequences get a scope discussion first. Quick
+reads relevant project context, verifies and reviews the change, and asks for
+one final approval. One local commit includes code, the immutable outcome
+record, and its receipt. There is no track, phase graph, separate review commit,
+or per-change archive step.
+
+Interrupted work remains in ignored staging. Status shows quick outcomes
+separately from tracks. An approved refresh batch assesses at most 20 outcomes,
+merges durable findings into existing guidance or patterns, reassesses affected
+active-track memory, and moves original records unchanged to
+`.cadre/archive/.quick/`. Track context includes no quick history by default;
+focused search and selected IDs retrieve relevant records, including archives. Quick does not run beside active
+Cadre workers or absorb pre-existing edits. Migrations, coordinated work, and
+changes to approved track requirements go through track or revise.
+
+Existing v5/v6 projects need a one-time approved refresh adopting the v7 quick
+contract. This is an unreleased source addition; installation alone does not
+rewrite project policy.
 
 ## track
 
@@ -134,7 +157,7 @@ Only `archive` can mark a track archived.
 ## refresh
 
 Use `refresh` when project context no longer matches user intent, repository
-changes, or completed-track learning.
+changes, completed-track learning, or quick outcomes.
 
 It can update product, guidelines, workflow, technology, general styleguide,
 language/framework styleguides, patterns, and affected active-track seeds.
@@ -165,10 +188,10 @@ Use `wisp` for a lightweight investigation, question, or spike that should not
 enter Cadre lifecycle state. Disposable output may live under `.cadre/wisps/`
 only when the initialized project already ignores it; otherwise it uses an OS
 temporary directory and never creates `.cadre/`. Ordinary exploration has zero approvals. Persistent product
-changes should be promoted to `track`; explicitly requested untracked edits
+changes should use `quick` when bounded or `track` when coordinated; explicitly requested untracked edits
 receive one exact scope approval and are not committed automatically.
 
-Promote durable implementation work into `track` rather than retroactively
+Route durable implementation work to `quick` or `track` rather than retroactively
 turning a wisp into Cadre state.
 
 ## Choosing The Right Workflow
@@ -176,7 +199,8 @@ turning a wisp into Cadre state.
 | Situation | Use |
 |---|---|
 | New project context | `create` |
-| New desired feature or known bug | `track` |
+| Bounded fix, maintenance, or small feature | `quick` |
+| Feature or bug needing coordinated delivery | `track` |
 | Execute approved work | `implement` |
 | Evaluate finished implementation | `review` |
 | Change approved intent | `revise` |

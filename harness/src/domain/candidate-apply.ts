@@ -1,3 +1,5 @@
+import { previewQuick } from "./quick.js";
+import { quickRefreshMoves, requireQuickRefreshSources } from "./quick-consolidation.js";
 import { requireSupportedProjectFormat } from "./project-format.js";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -32,14 +34,14 @@ import { requireRefreshRecord } from "./refresh-record.js";
 export interface CandidateApplyInput {
   projectRoot: string;
   candidateId: string;
-  workflow: "track" | "revise" | "refresh" | "review" | "revert";
+  workflow: "track" | "revise" | "refresh" | "review" | "revert" | "quick";
   files: string[];
   reviewRetry?: ReviewRetry | undefined;
 }
 const json = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
 
 function allowed(input: CandidateApplyInput, path: string): boolean {
-  if (input.workflow === "refresh") return /^(?:project\.json|\.gitignore|(?:product|guidelines|workflow|tech-stack)\.md|styleguides\/[a-z0-9-]+\.md|refreshes\/[a-z0-9-]+\.(?:md|json)|tracks\/[a-z0-9-]+\/(?:state\.json|spec\.md|plan\.md|learning\.md|dependency-context\.json|revisions\/revision-[a-z0-9-]+\.md|executions\/execution-[a-zA-Z0-9-]+\.json))$/.test(path);
+  if (input.workflow === "refresh") return /^(?:project\.json|\.gitignore|(?:product|guidelines|workflow|tech-stack)\.md|(?:styleguides|patterns)\/[a-z0-9-]+\.md|refreshes\/[a-z0-9-]+\.(?:md|json)|tracks\/[a-z0-9-]+\/(?:state\.json|spec\.md|plan\.md|learning\.md|dependency-context\.json|revisions\/revision-[a-z0-9-]+\.md|executions\/execution-[a-zA-Z0-9-]+\.json))$/.test(path);
   if (input.workflow === "revise" && /^tracks\/[a-z0-9-]+\/(?:state\.json|spec\.md|plan\.md|learning\.md|dependency-context\.json|revisions\/revision-[a-z0-9-]+\.md)$/.test(path)) return true;
   const owner = input.candidateId.slice(input.workflow.length + 1), parent = `tracks/${owner}/`;
   if (!path.startsWith(parent)) return false;
@@ -57,6 +59,7 @@ export function previewCandidateApply(input: CandidateApplyInput) {
     if (input.workflow !== "refresh") throw new Error("Explicit review retry requires the refresh workflow");
   }
   requireCommittedOperations(input.projectRoot);
+  if (input.workflow === "quick") return previewQuick(input);
   const root = safeProjectRoot(input.projectRoot), baseCommit = resolveGitCommit(root);
   if (!input.candidateId.startsWith(`${input.workflow}-`)) throw new Error("Candidate ID must be owned by its workflow");
   const staged = readCandidateFiles(root, input.candidateId, input.files);
@@ -179,7 +182,7 @@ export function previewCandidateApply(input: CandidateApplyInput) {
   if (memory.learning.some((item) => !item.valid)) throw new Error("Candidate contains invalid or stale learning");
   const tracks: TracksIndexEntry[] = [];
   for (const location of ["tracks", "archive"]) {
-    const ids = new Set(existsSync(join(root, ".cadre", location)) ? readdirSync(join(root, ".cadre", location), { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => entry.name) : []);
+    const ids = new Set(existsSync(join(root, ".cadre", location)) ? readdirSync(join(root, ".cadre", location), { withFileTypes: true }).filter((entry) => entry.isDirectory() && !(location === "archive" && entry.name === ".quick")).map((entry) => entry.name) : []);
     if (location === "tracks") for (const id of trackIds) ids.add(id);
     for (const id of ids) {
       const state = JSON.parse(read(`${location}/${id}/state.json`));
@@ -191,10 +194,14 @@ export function previewCandidateApply(input: CandidateApplyInput) {
   if (input.workflow === "track" || input.workflow === "revise") requireWorkflowAdmission(root, input.workflow, promoted);
   if (input.workflow === "review") requireReviewPreservation(root, promoted);
   if (["refresh", "revise"].includes(input.workflow)) requireJournalPreservation(root, promoted);
-  if (input.workflow === "refresh") requireRefreshPreservation(root, promoted);
+  if (input.workflow === "refresh") {
+    requireRefreshPreservation(root, promoted);
+    promoted.push(...quickRefreshMoves(root, promoted));
+    requireQuickRefreshSources(root, promoted);
+  }
   requireProjectOverlay(root, promoted);
   const before = promoted.map((file) => ({ path: file.path, sha256: existsSync(join(root, file.path)) ? contentHash(readSafeArtifact(root, file.path)) : null }));
-  const manifest = promoted.map((file) => ({ path: file.path, sha256: contentHash(file.content!) }));
+  const manifest = promoted.map((file) => ({ path: file.path, sha256: file.content === null ? null : contentHash(file.content) }));
   const digest = contentHash(JSON.stringify({ operationId, baseCommit, manifest, before, memoryInputs: memory.inputs, unchanged: [...unchanged].sort() }));
   const stateChanges = [...overlay].filter(([path]) => path === "project.json" || /^tracks\/[^/]+\/state\.json$/.test(path)).map(([path, content]) => ({
     path: `.cadre/${path}`,

@@ -18,11 +18,11 @@ The installed `cadre@cadre` plugin contains:
 
 ```text
 skills/                  # create, track, implement, review, revise, archive,
-                         # refresh, revert, status, and wisp
+                         # refresh, revert, status, wisp, and quick
 zed-skills/              # generated cadre-* adapters for native Zed Agent
 agents/                  # Claude phase and task worker definitions
 dist/cadre-mcp.mjs       # self-contained stdio MCP runtime
-templates/v6/            # active cohesive-change and bounded-context templates
+templates/v7/            # active cohesive-change and bounded-context templates
 .codex-plugin/           # Codex manifest
 .claude-plugin/          # Claude manifest
 ```

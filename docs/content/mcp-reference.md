@@ -22,7 +22,7 @@ The prepare token is available in the selected JSON representation; applied resu
 
 ## Template Resources
 
-The active catalog is readable at `cadre://templates/v6/<logical-id>`. Only v6 is packaged; existing schema-2/v5 projects remain supported without migration.
+The active catalog is readable at `cadre://templates/v7/<logical-id>`. Only v7 is packaged; existing schema-2/v5 projects remain supported without migration.
 
 ## workflow_elicit
 
@@ -75,7 +75,7 @@ Track status reports an exact staged `track-<id>` as a `staged_track_candidate` 
 
 ## candidate_apply
 
-Constrained promotion for track, revise, refresh, review remediation and revert reconciliation. Prepare accepts `request: {mode: "prepare", projectRoot, candidateId, workflow, files}` and returns the exact final manifest/digest and approval token. After the applicable approval, apply accepts only `{mode: "apply", proposalToken}`. It validates proposed state/graphs/memory, binds unchanged source inputs, generates indexes and operation references, journals before promotion, and returns immutable receipt trailers with `commit_pending`. Agent Git tools create the commit. `{mode: "reconcile", projectRoot, operationId}` verifies unique reachable committed receipt/artifacts and removes only ignored recovery state. `{mode: "resume", projectRoot, operationId, approvalDigest}` resumes the exact persisted approved promotion. It never writes product files or executes Git.
+Constrained promotion for track, quick, revise, refresh, review remediation and revert reconciliation. Prepare accepts `request: {mode: "prepare", projectRoot, candidateId, workflow, files}` and returns the exact final manifest/digest and approval token. After the applicable approval, apply accepts only `{mode: "apply", proposalToken}`. It validates proposed state/graphs/memory, binds unchanged source inputs, generates indexes and operation references, journals before promotion, and returns immutable receipt trailers with `commit_pending`. Agent Git tools create the commit. `{mode: "reconcile", projectRoot, operationId}` verifies unique reachable committed receipt/artifacts and removes only ignored recovery state. `{mode: "resume", projectRoot, operationId, approvalDigest}` resumes the exact persisted approved promotion. It never writes product files or executes Git.
 
 A blocked or stalled policy-v2 Autonomous loop can request an explicit retry only
 through refresh prepare, adding `reviewRetry: {trackId, refreshPath, reason}`.
@@ -203,6 +203,48 @@ Validates and atomically regenerates deterministic `tracks.md`.
 
 ## Upgrade and recovery
 
-The current source ships template set v6 and retains the schema-2 receipt contract. Existing 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no project refresh. Older formats receive a warning and must use Cadre 3.9.0 to reconcile interrupted operations and perform an explicitly approved schema-2/v5 refresh at a quiescent boundary. Then install 4.0 and reload the client. Preserve historical evidence and any required explicit approval-policy choice; never change labels by hand.
+The current source ships template set v7 and retains the schema-2 receipt contract. Existing 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no project refresh. Older formats receive a warning and must use Cadre 3.9.0 to reconcile interrupted operations and perform an explicitly approved schema-2/v5 refresh at a quiescent boundary. Then install 4.0 and reload the client. Preserve historical evidence and any required explicit approval-policy choice; never change labels by hand.
 
 Create, execution finish, clean review and archive return `receipt` with `operationId`, `receiptHash`, exact Git `trailers`, and commit_pending. Include it in the operation's one commit and reconcile before dependent delivery. No separate execution-start, phase-record, final-verification-phase or clean-evidence-only commits are needed. Persist journals on disk throughout execution. An explicit handoff/blocker checkpoint remains available.
+
+## Quick extensions
+
+`candidate_apply` accepts `{request: {mode: "begin_quick", projectRoot, quickId,
+intent}}` before product edits. It writes only ignored starting evidence and
+returns `status: "draft"`, `candidateId`, `stagePath`, and `baseCommit`. Retrying
+resumes the same intent without replacing its baseline.
+
+Stage `quick/<quickId>.json` using `quick/record`, retaining the starting
+`checkpoint.json`. Prepare with `workflow: "quick"` and that single record path.
+The preview includes `stateChanges` with product evidence for reconstructing the
+runtime-derived record. Apply after approval; the agent makes one focused commit
+with product paths, record, receipt, and trailers. Reconcile verifies exact
+product bytes/modes and excludes unrelated committed files. Resume uses the
+persisted original approval and rechecks product/context freshness. Staging owned
+product files for the combined commit is allowed; unrelated index drift and
+unmerged entries remain blocking. Staged renames bind both old and new paths.
+
+`context_read` accepts `scope: "project"` without a trackId. Existing track calls
+remain compatible. Default context includes no quick history. Optional
+`quickSearch: {query, paths, limit, cursor}` requires a query or affected product
+paths. It searches active and archived completed records, returning at most 10
+compact hits (default 5, below 8 KiB) in a `quick search` excerpt. The excerpt's
+`nextSearchCursor` is optional discovery: pass it as `quickSearch.cursor` only
+when more matches are useful, and never automatically exhaust history.
+`quickIds` loads up to 20 selected full outcomes; `patternIds` loads selected
+guidance. Keep selections fixed across required context continuation pages
+(`nextCursor`) and restart when they change.
+
+Project status returns `quick.records`, `quick.staged`, `quick.counts`, errors,
+and a separate `quick.listing`. Pass its next cursor as `quickCursor` independently
+of track pagination. Routine rows include unconsolidated and unresolved work;
+archived records appear in `quick.counts.archived` and explicit lookup only.
+Refresh records up to 20 source assessments per approved batch between
+`<!-- cadre:quick-sources:start -->` and `<!-- cadre:quick-sources:end -->` as a
+JSON array of `{quickId, sha256, disposition: "incorporated" | "no-change", reason}`.
+Prepare derives each assessed record's removal from `.cadre/quick/` and
+byte-identical addition at `.cadre/archive/.quick/<id>.json`. Review these moves
+with guidance changes under one refresh approval. Both dispositions archive
+the record; unassessed records stay in the queue. Only receipt-backed committed
+moves count as consolidation. IDs, original contents, and delivery receipts
+remain immutable; resume uses the same batch after interruption.

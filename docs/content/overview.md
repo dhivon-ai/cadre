@@ -42,6 +42,10 @@ for multi-person coordination, a knowledge base built during work and reused as
 context, and polyrepo support. Each will be optional, independently opt-in and
 disabled by default.
 
+The current source adds `quick` and template v7 for bounded changes with one
+final approval and a durable outcome record. Existing projects enable it through
+an approved refresh; see [workflows](/workflows#quick).
+
 ## What Cadre Solves
 
 | Need | Cadre's approach |
@@ -75,11 +79,12 @@ flowchart LR
 `status` validates without mutation, and `wisp` explores without entering the
 tracked lifecycle.
 
-## Ten Workflow Skills
+## Eleven Workflow Skills
 
 | Skill | Purpose |
 |---|---|
 | `create` | Initialize or resume an approved `.cadre/` project. |
+| `quick` | Deliver a bounded change and retain its verified outcome (unreleased). |
 | `track` | Specify and plan a feature or bug. |
 | `implement` | Execute the approved dependency DAG. |
 | `review` | Record approved findings or complete a clean review. |

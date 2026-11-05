@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "quickId": "{{QUICK_ID}}",
+  "title": "{{TITLE}}",
+  "intent": "{{EXACT_CHECKPOINT_INTENT}}",
+  "outcome": "{{OUTCOME}}",
+  "acceptance": ["{{ACCEPTANCE}}"],
+  "affectedPaths": ["{{PRODUCT_PATH}}"],
+  "verification": [{"check": "{{CHECK}}", "result": "passed", "evidence": "{{ACTUAL_RESULT}}"}],
+  "reviewed": true,
+  "context": [],
+  "lessons": [],
+  "relatedQuickIds": [],
+  "operation": null
+}

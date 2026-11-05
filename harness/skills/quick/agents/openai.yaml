@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cadre: Quick"
+  short_description: "Small changes with durable Cadre context"
+  default_prompt: "Use $quick to implement a bounded change and record its verified outcome in Cadre."

@@ -44,7 +44,7 @@ export function validateStagedState(root: string, candidateId: string, files: Ca
       throw new Error(`Invalid revision artifact ${file.path}; use revisions/revision-<id>.md before approval`);
     }
     const affected = canonical(file.path).match(/^((?:tracks|archive)\/[^/]+)\/(?:state\.json|plan\.md|executions\/[^/]+\.json)$/);
-    if (affected) parents.add(affected[1]!);
+    if (affected && affected[1] !== "archive/.quick") parents.add(affected[1]!);
     const journalPath = canonical(file.path);
     if (candidateId.startsWith("revert-") && /\/executions\/execution-[^/]+\.json$/.test(journalPath)
       && existsSync(join(root, ".cadre", journalPath))) {

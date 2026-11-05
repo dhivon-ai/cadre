@@ -264,6 +264,13 @@ const projectStatusProjectSchema = z.strictObject({
   staleMemory: z.array(freshnessSchema),
   errors: stringArray,
   warnings: stringArray,
+  quick: z.strictObject({
+    records: z.array(z.strictObject({quickId: z.string(), title: z.string(),
+      hasLessons: z.boolean(), status: z.enum(["completed", "commit_pending", "invalid"]),
+      consolidated: z.boolean(), operation: z.string().nullable()})),
+    staged: z.array(z.strictObject({candidateId: z.string(), status: z.enum(["draft", "ready", "invalid", "blocked", "escalated"]), intent: z.string().nullable(), nextAction: z.string().optional(), error: z.string().optional()})),
+    errors: stringArray, counts: z.record(z.string(), z.number().int()), listing: listingSchema
+  }),
   stagedTrackCandidates: z.array(stagedCandidateSchema),
   worktreeRuntime: worktreeRuntimeSchema.nullable()
 });
@@ -505,7 +512,7 @@ const workflowOutcomeSchema = z.strictObject({
 
 export const CADRE_MCP_OUTPUT_SCHEMAS = {
   [CADRE_MCP_TOOLS.contextRead]: compatibleOutputSchema(contextPageSchema),
-  [CADRE_MCP_TOOLS.candidateApply]: compatibleOutputSchema(receiptResultSchema, z.strictObject({ commandStatus: z.literal("approval_required"), proposalToken: proposalTokenSchema, operationId: z.string(), files: z.array(artifactSchema),
+  [CADRE_MCP_TOOLS.candidateApply]: compatibleOutputSchema(receiptResultSchema, z.strictObject({status: z.literal("draft"), candidateId: z.string(), stagePath: pathSchema, baseCommit: commitSchema}), z.strictObject({ commandStatus: z.literal("approval_required"), proposalToken: proposalTokenSchema, operationId: z.string(), files: z.array(z.strictObject({path: pathSchema, sha256: digestSchema.nullable()})),
     stateChanges: z.array(z.strictObject({ path: pathSchema, changes: z.array(z.strictObject({ field: z.string(), action: z.enum(["set", "append"]), value: z.unknown() })) })),
     digest: digestSchema, validation: z.strictObject({ valid: z.boolean(), errors: stringArray }) })),
   [CADRE_MCP_TOOLS.diagnosticRead]: compatibleOutputSchema(z.strictObject({ diagnosticId: z.string(), content: z.string(), offset: z.number().int(), nextOffset: z.number().int().nullable(), totalBytes: z.number().int() })),

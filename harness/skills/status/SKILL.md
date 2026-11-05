@@ -28,3 +28,7 @@ Read any file before quoting or interpreting it. Do not mutate files, run commit
 This workflow creates no commits. Reuse retained context and the latest mutation receipt when available; status itself is read-only. Report `commit_pending` as unresolved provenance, never as completed delivery. Clear retainedContextToken after context loss. Use diagnostic_read only for explicitly needed full diagnostics; ordinary errors are capped at 8 KiB. Never migrate or normalize historical state from this workflow.
 
 When status reports `PROJECT_UPGRADE_REQUIRED`, show its upgrade instructions: use Cadre 3.9.0 to reconcile pending operations and perform the approved schema-2/v5 refresh, then install 4.0.0 and reload the client. Compatible 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no version-only refresh. Do not mutate metadata from status.
+
+## Quick work
+
+Report quick counts separately from tracks: completed, archived, commit_pending, and awaiting consolidation. Routine rows contain the unconsolidated queue and unresolved records; archived history is available by focused context_read quickSearch or quickIds. Show unfinished staged quick intent without claiming delivery. Recommend a bounded refresh/consolidation batch when unconsolidated reaches 20, without blocking new quick work or automatically approving refresh. Request quick.listing.nextCursor as quickCursor only when further queue detail is needed, independently of the track cursor; never infer track dependencies or lifecycle transitions from a quick outcome. Status remains read-only.

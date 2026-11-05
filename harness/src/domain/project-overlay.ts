@@ -10,13 +10,13 @@ import type { ProjectState, TrackState } from "./state.js";
 /** Validate the complete proposed track set without writing a temporary control plane. */
 export function requireProjectOverlay(root: string, files: PromotionFile[]): void {
   const overlay = new Map(files.map((file) => [file.path, file.content]));
-  const paths = new Set(files.map((file) => file.path).filter((path) => /^\.cadre\/(?:tracks|archive)\/[^/]+\/state\.json$/.test(path)));
+  const paths = new Set(files.map((file) => file.path).filter((path) => !path.startsWith(".cadre/archive/.quick/") && /^\.cadre\/(?:tracks|archive)\/[^/]+\/state\.json$/.test(path)));
   for (const directory of ["tracks", "archive"]) {
     const base = join(root, ".cadre", directory);
     if (!existsSync(base)) continue;
     for (const entry of readdirSync(base, {withFileTypes: true})) {
       if (entry.isSymbolicLink()) throw new Error(`Unsafe track directory: ${directory}/${entry.name}`);
-      if (entry.isDirectory()) paths.add(`.cadre/${directory}/${entry.name}/state.json`);
+      if (entry.isDirectory() && !(directory === "archive" && entry.name === ".quick")) paths.add(`.cadre/${directory}/${entry.name}/state.json`);
     }
   }
   const errors: string[] = [];

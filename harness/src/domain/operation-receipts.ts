@@ -1,3 +1,7 @@
+import { requireQuickFreshness } from "./quick.js";
+import { quickRecordSchema } from "./quick-record.js";
+import { verifyQuickCommit } from "./quick-git.js";
+import { requireQuickRefreshSources } from "./quick-history.js";
 import { readGitBlobs } from "./git.js";
 import { recordedRecoveryInputs, mergeRecoveryInputs, type RecoveryInput } from "./recovery-inputs.js";
 import { requireReviewFreshness } from "./review-freshness.js";
@@ -28,7 +32,7 @@ const digest = z.string().regex(/^[0-9a-f]{64}$/);
 export const isCommitRef = (value: unknown): value is CommitRef => typeof value === "string"
   && (/^[0-9a-f]{7,40}$/.test(value) || /^op:[a-z0-9][a-z0-9-]{7,95}$/.test(value));
 export const operationRef = (id: string): CommitRef => `op:${operationId.parse(id)}`;
-export const receiptSchema = z.strictObject({ schemaVersion: z.literal(1), operationId, kind: z.enum(["create", "track", "revise", "refresh", "implement", "review", "archive", "revert"]),
+export const receiptSchema = z.strictObject({ schemaVersion: z.literal(1), operationId, kind: z.enum(["create", "track", "revise", "refresh", "implement", "review", "archive", "revert", "quick"]),
   status: z.literal("completed"), approvalDigest: digest, baseCommit: sha.nullable(),
   artifacts: z.array(z.strictObject({ path: z.string(), sha256: digest.nullable() })).min(1) });
 export type OperationReceipt = z.infer<typeof receiptSchema>;
@@ -80,6 +84,7 @@ function transitionEvidence(root: string, kind: string, files: PromotionFile[], 
   if (kind === "refresh") {
     const evidence = [...requireJournalPreservation(root, files, saved, base), ...requireRefreshPreservation(root, files, saved, base)];
     requireRefreshRecord(root, files);
+    requireQuickRefreshSources(root, files);
     return [...new Map(evidence.map((file) => [file.path, file])).values()];
   }
   if (kind === "track" || kind === "revise") {
@@ -140,6 +145,8 @@ export function promoteOperation(rootInput: string, input: OperationPromotionInp
       return { status: "committed" as const, commit: committed, operationId: input.operationId, receiptHash: receiptHash(receiptBody), trailers: trailers(receipt) };
     }
     const beforeFiles = files.map((file) => ({...file, before: currentHash(root, file.path)}));
+    if (input.kind === "quick" && beforeFiles.some((file) => file.before !== null)) throw new Error("Quick records are immutable");
+    requireQuickFreshness(root, input.kind, files, input.operationId, input.baseCommit);
     const transitionBefore = transitionEvidence(root, input.kind, beforeFiles);
     const reviewBeforeState = requireReviewFreshness(root, input.kind, files);
     const revertApproval = requireRevertFreshness(root, input.kind, input.operationId, files);
@@ -152,6 +159,7 @@ export function promoteOperation(rootInput: string, input: OperationPromotionInp
     write(root, { path, content: json(recovery) });
     afterWrite?.(path);
   }
+  requireQuickFreshness(root, recovery.receipt.kind, recovery.files, recovery.receipt.operationId, recovery.receipt.baseCommit);
   const reviewBeforeState = requireReviewFreshness(root, recovery.receipt.kind, recovery.files, recovery.reviewBeforeState, recovery.receipt.baseCommit);
   const retainedBefore = recovery.transitionBefore ?? (reviewBeforeState ? recovery.files
     .filter((file) => /^\.cadre\/tracks\/[^/]+\/state\.json$/.test(file.path))
@@ -224,6 +232,14 @@ function resolveOperationUncached(rootInput: string, ref: string): string {
   for (const artifact of receipt.artifacts) {
     const blob = blobs.get(`${commit}:${artifact.path}`);
     if (artifact.sha256 === null ? blob != null : blob == null || receiptHash(blob) !== artifact.sha256) throw new CadreError("OPERATION_ARTIFACT_MISMATCH", "Committed operation artifact differs from the receipt", { path: artifact.path });
+  }
+  if (receipt.kind === "quick") {
+    if (receipt.artifacts.length !== 1) throw new Error("Quick receipt must own exactly one record");
+    const artifact = receipt.artifacts[0]!;
+    const record = quickRecordSchema.parse(JSON.parse(blobs.get(`${commit}:${artifact.path}`)!));
+    if (artifact.path !== `.cadre/quick/${record.quickId}.json` || record.operation !== operationRef(id)
+      || !record.product || record.product.baseCommit !== receipt.baseCommit) throw new Error("Quick receipt identity mismatch");
+    verifyQuickCommit(root, commit, record.product, [artifact.path, receiptPath(id)]);
   }
   return commit;
 }

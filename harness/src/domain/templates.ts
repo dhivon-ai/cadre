@@ -34,6 +34,7 @@ export const TEMPLATE_IDS = [
   "project/tech-stack",
   "project/tracks",
   "project/workflow",
+  "quick/record",
   "styleguide/dart",
   "styleguide/flutter",
   "styleguide/go",
@@ -62,6 +63,7 @@ export const TEMPLATE_IDS = [
 ] as const;
 
 const TEMPLATE_ARTIFACT_PATHS: Partial<Record<(typeof TEMPLATE_IDS)[number], string>> = {
+  "quick/record": "quick/<id>.json",
   "track/bug": "bugs/review-<cycle>.md",
   "track/dependency-context": "dependency-context.json",
   "track/revision": "revisions/revision-<id>.md",

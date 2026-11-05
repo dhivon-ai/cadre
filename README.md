@@ -18,7 +18,7 @@ provenance without asking an agent to invent workflow state.
 [Review release notes](https://cadre-docs.pages.dev/release-notes/)
 
 **Cadre 4.0.0** simplifies the runtime around one receipt-based mutation path
-and the current v6 template catalog. All ten workflows, four approval modes,
+and its v6 template catalog. All ten workflows, four approval modes,
 both scheduling modes, and stable Codex, Claude Code and Zed integrations remain
 available. Install [cadre-ai from npm](https://www.npmjs.com/package/cadre-ai).
 
@@ -45,6 +45,21 @@ revision, review/remediation, manual-edit freshness checks, archive recovery and
 refresh. The dummy app passed 26 tests and 200,020 arithmetic comparisons. Native
 workflow coverage was Autonomous/sequential; it does not establish exhaustive
 coverage of every mode or client. See the [native lifecycle report](docs/development/cadre-4.0.0-native-flow.md).
+
+## Quick changes (unreleased source addition)
+
+Use `quick` for one bounded fix, refactor, documentation change, test, or small
+feature. It reads relevant Cadre context, implements and verifies the change,
+then asks for one final approval of the diff and outcome record. Material scope
+choices are discussed before editing. One local commit contains the change and
+its durable record. A later approved `refresh` batch consolidates useful lessons
+and moves unchanged records to `.cadre/archive/.quick/`. Routine track context
+loads no quick history; focused search retrieves relevant outcomes when needed.
+
+Invoke `$cadre:quick` in Codex, `/cadre:quick` in Claude Code, or `/cadre-quick`
+in Zed. This source adds an eleventh workflow and template v7. Existing v5/v6
+projects retain their workflows; enabling quick requires an approved refresh
+adopting its contract. Wisp remains stateless exploration.
 
 ## Upcoming roadmap
 
@@ -124,7 +139,7 @@ $cadre:archive passwordless-login
 ```
 
 The complete workflow set is `create`, `track`, `implement`, `review`,
-`revise`, `archive`, `refresh`, `revert`, `status`, and `wisp`.
+`revise`, `archive`, `refresh`, `revert`, `status`, `wisp`, and `quick`.
 
 An initialized target project keeps approved mutable delivery state under
 `.cadre/`. The installed payload retains the runtime, skills, worker

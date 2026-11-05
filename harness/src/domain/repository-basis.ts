@@ -44,8 +44,8 @@ export function captureRepositoryBasis(rootInput: string, dirtyOnly = false, tra
       index.push({mode: match[1]!, oid: match[2]!, stage: match[3]!, path: match[4]!});
     }
     if (dirtyOnly && head) {
-      for (const scope of scopes) for (const args of [["diff", "--name-only", "-z", head, "--", ...scope],
-        ["diff", "--cached", "--name-only", "-z", head, "--", ...scope]]) {
+      for (const scope of scopes) for (const args of [["diff", "--no-renames", "--name-only", "-z", head, "--", ...scope],
+        ["diff", "--cached", "--no-renames", "--name-only", "-z", head, "--", ...scope]]) {
         for (const name of read(args).split("\0").filter(Boolean)) paths.add(name);
       }
     } else for (const entry of index) paths.add(entry.path);

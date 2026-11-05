@@ -1,3 +1,4 @@
+import { inspectQuickHistory, quickConsolidated } from "./quick-history.js";
 import { inspectOnce, readInspectionText as readFileSync, readInspectionJson, type InspectionMetrics } from "./inspection.js";
 import { inspectMemory, readSafeArtifact, type FreshnessFinding } from "./memory.js";
 import { createHash } from "node:crypto";
@@ -453,7 +454,7 @@ function discoverTracks(root: string, errors: string[]): {
     const directoryRoot = join(root, directory);
     if (!existsSync(directoryRoot)) continue;
     const entries = readdirSync(directoryRoot, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
+      .filter((entry) => entry.isDirectory() && !(directory === "archive" && entry.name === ".quick"))
       .sort((left, right) => left.name.localeCompare(right.name));
     for (const entry of entries) {
       const location = `${directory}/${entry.name}`;
@@ -490,7 +491,8 @@ function validateProjectSnapshot(projectRoot: string): ValidationResult {
   const root = cadreRoot(projectRoot);
   const errors: string[] = [];
   const warnings: string[] = [];
-  errors.push(...pendingOperationErrors(projectRoot));
+  errors.push(...pendingOperationErrors(projectRoot), ...inspectQuickHistory(projectRoot).errors);
+  try {quickConsolidated(projectRoot);} catch (error) {errors.push(String(error));}
   for (const file of REQUIRED_CONTEXT) {
     if (!existsSync(join(root, file))) errors.push(`${join(root, file)}: missing required Cadre file`);
   }
@@ -551,7 +553,7 @@ function validateProjectSnapshot(projectRoot: string): ValidationResult {
     );
     if (existsSync(learningPath)) {
       const memory = inspectMemory({ trackId: track.id, path: learningPath, body: readFileSync(learningPath, "utf8"),
-        graph: planGraph, required: ["v3", "v4", "v5", "v6"].includes(project.templateSetVersion ?? "") && !["drafting-spec", "drafting-plan"].includes(track.status),
+        graph: planGraph, required: ["v3", "v4", "v5", "v6", "v7"].includes(project.templateSetVersion ?? "") && !["drafting-spec", "drafting-plan"].includes(track.status),
         historical: ["completed", "archived"].includes(track.status),
         readPattern: (path) => readSafeArtifact(projectRoot, `.cadre/${path}`) });
       errors.push(...memory.errors);

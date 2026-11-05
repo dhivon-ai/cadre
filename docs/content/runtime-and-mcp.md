@@ -29,13 +29,13 @@ workflow packets.
 
 ## Template Resources
 
-Every file under active `templates/v6/` is registered as an immutable MCP resource:
+Every file under active `templates/v7/` is registered as an immutable MCP resource:
 
 ```text
-cadre://templates/v6/<logical-id>
+cadre://templates/v7/<logical-id>
 ```
 
-Published `templates/v1/` through `templates/v5/` remain byte-stable in source history and fixtures, but only v6 is shipped. Existing v5 project artifacts remain supported. The internal
+Published `templates/v1/` through `templates/v6/` remain byte-stable in source history and fixtures, but only v7 is shipped. Existing v5/v6 project artifacts remain supported; quick requires an approved refresh adopting the v7 contract. The internal
 catalog records provider paths, but public descriptors expose logical ID, URI,
 eventual artifact path, media type, and SHA-256 hash. Template content appears once: inside structured template descriptors for
 recognized structured clients, or as embedded resources/text blocks for text

@@ -1,3 +1,5 @@
+import { quickSearchSchema, searchQuickRecords } from "./quick-search.js";
+import { inspectQuickHistory } from "./quick-history.js";
 import { readGitFileAtCommit } from "./git.js";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -16,7 +18,9 @@ import { inspectDependencyContext } from "./dependency-context.js";
 
 const id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 export const contextInputSchema = z.strictObject({
-  projectRoot: z.string().min(1), trackId: id,
+  projectRoot: z.string().min(1), trackId: id.optional(), scope: z.enum(["project", "track"]).optional(),
+  quickIds: z.array(id).max(20).default([]), quickSearch: quickSearchSchema.optional(),
+  patternIds: z.array(id).max(100).default([]),
   executionId: z.string().regex(/^[0-9A-Za-z]+(?:-[0-9A-Za-z]+)*$/).optional(),
   nodeId: z.string().regex(/^(?:P\d+|T\d+\.\d+)$/, "Use an exact graph node ID such as P1 or T1.1, not a track ID, phase slug, or commit-group name")
     .describe("Exact node ID from the plan graph or scheduler (P1 or T1.1); omit for full track context").optional(),
@@ -73,6 +77,26 @@ function collectContext(input: z.output<typeof contextInputSchema>) {
     add(`.cadre/styleguides/${file}`, "project styleguide; retain until applicability is established");
   }
   const project = JSON.parse(read(".cadre/project.json")) as { templateSetVersion?: string };
+  if (input.quickIds.length || input.quickSearch) {
+    const quick = inspectQuickHistory(root);
+    errors.push(...quick.errors);
+    if (input.quickSearch) {
+      const content = JSON.stringify(searchQuickRecords(quick.records, input.quickSearch));
+      sources.push({path: ".cadre/quick", sha256: contentHash(content), section: "quick search",
+        reason: "Optional historical evidence; load relevant quickIds. Do not exhaust search pages by default.", format: "source", content});
+    }
+    for (const selected of input.quickIds) {
+      const entry = quick.records.find((entry) => entry.record.quickId === selected && entry.status === "completed");
+      if (entry) add(entry.path, "Explicit historical outcome; never overrides approved requirements", "full quick outcome");
+      else errors.push(`Unknown or unresolved quick record: ${selected}`);
+    }
+  }
+  for (const pattern of input.patternIds) add(`.cadre/patterns/${pattern}.md`, "explicitly selected relevant guidance");
+  if (input.scope === "project") {
+    if (input.trackId || input.nodeId || input.executionId) throw new Error("Project context cannot select track execution fields");
+    return {sources, errors, staleMemory, dependencyContext: undefined, snapshot: contentHash(JSON.stringify({sources, errors, inputs: [...inputHashes].sort()}))};
+  }
+  if (!input.trackId) throw new Error("Track context requires trackId; use scope: project for project context");
   const locate = (trackId: string) => {
     id.parse(trackId);
     const active = `.cadre/tracks/${trackId}`, archived = `.cadre/archive/${trackId}`;
@@ -105,7 +129,7 @@ function collectContext(input: z.output<typeof contextInputSchema>) {
   let uncertainPatterns = false;
   const addLearning = (path: string, trackId: string, historical: boolean, selected: Set<string> | null, plan: typeof graph) => {
     const body = read(path);
-    const inspected = inspectMemory({ trackId, path, body, graph: plan, required: ["v3", "v4", "v5", "v6"].includes(project.templateSetVersion ?? ""),
+    const inspected = inspectMemory({ trackId, path, body, graph: plan, required: ["v3", "v4", "v5", "v6", "v7"].includes(project.templateSetVersion ?? ""),
       historical, readPattern: (path) => read(`.cadre/${path}`) });
     errors.push(...inspected.errors); staleMemory.push(...inspected.stale);
     if (!inspected.metadata) uncertainPatterns = true;
@@ -177,7 +201,7 @@ function collectContext(input: z.output<typeof contextInputSchema>) {
 export function readContext(raw: ContextInput): ContextPage {
   const input = contextInputSchema.parse(raw);
   return inspectOnce(() => {
-    const scope = JSON.stringify([safeProjectRoot(input.projectRoot), input.trackId]);
+    const scope = JSON.stringify([safeProjectRoot(input.projectRoot), input.scope ?? "track", input.trackId, input.quickIds, input.patternIds, input.quickSearch]);
     const knownSources = [...input.knownSources, ...retainedSources(input.retainedContextToken, scope)];
     const collected = collectContext(input), { errors, staleMemory } = collected;
     const sources = collected.sources.map((source) => {

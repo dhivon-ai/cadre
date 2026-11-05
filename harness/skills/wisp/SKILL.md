@@ -1,6 +1,6 @@
 ---
 name: wisp
-description: Perform lightweight exploration, investigation, spikes, or questions without creating or mutating Cadre project/track state. Use for the wisp command when work is intentionally untracked; promote durable work into a track before implementation.
+description: Perform lightweight exploration, investigation, spikes, or questions without creating or mutating Cadre project/track state. Use for the wisp command when work is intentionally untracked; route durable work to quick or track before implementation.
 ---
 
 # Cadre Wisp
@@ -11,9 +11,9 @@ When the exploration needs a material clarification and the Cadre MCP is availab
 
 1. Define the exploration question and expected disposable output. Use `.cadre/wisps/<timestamp>-<slug>/` only when an initialized project already has a regular `.cadre/.gitignore` containing `/wisps/`. Otherwise use an OS temporary directory and never create `.cadre` for a wisp.
 2. Inspect relevant repository files. Before editing any existing file, read it and its directly relevant context; inspect the directory before creating a file.
-3. Prefer read-only investigation and temporary files outside the repository. Standard Wisp has zero approval prompts. Wisp files never enter Cadre state or commits. Promote requested persistent product changes into the Cadre track workflow; only when the human explicitly insists on an untracked persistent edit, present one exact scope approval and do not commit automatically.
+3. Prefer read-only investigation and temporary files outside the repository. Standard Wisp has zero approval prompts. Wisp files never enter Cadre state or commits. Route requested persistent product changes to quick for bounded work or track for coordinated delivery; only when the human explicitly insists on an untracked persistent edit, present one exact scope approval and do not commit automatically.
 4. Return findings, evidence, uncertainty, and a recommendation.
-5. If the result should become product work, recommend the Cadre track workflow; do not retroactively mutate Cadre state from the wisp.
+5. If the result should become product work, recommend quick for bounded work or track for coordinated delivery; do not retroactively mutate Cadre state from the wisp.
 
 Wisp bypasses delivery tracking, not safety, repository instructions, or read-before-edit discipline.
 

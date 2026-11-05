@@ -15,7 +15,7 @@ import { dirname, join, resolve } from "node:path";
 
 export const CADRE_WORKFLOWS = [
   "create", "track", "implement", "review", "revise",
-  "archive", "refresh", "revert", "status", "wisp"
+  "archive", "refresh", "revert", "status", "wisp", "quick"
 ] as const;
 
 const ZED_COMPATIBILITY = `## Zed compatibility

@@ -84,19 +84,19 @@ test("npm package carries every workflow and immutable template asset", () => {
     ".claude-plugin/plugin.json", ".mcp.codex.json", ".mcp.json",
     "CHANGELOG.md",
     "agents/cadre-phase-worker.md", "agents/cadre-task-worker.md",
-    "templates/v6/init/wisps/.gitkeep"
+    "templates/v7/init/wisps/.gitkeep"
   ]) {
     assert.ok(files.has(path), `npm package is missing ${path}`);
   }
   for (const skill of [
     "create", "track", "implement", "review", "revise",
-    "archive", "refresh", "revert", "status", "wisp"
+    "archive", "refresh", "revert", "status", "wisp", "quick"
   ]) {
     assert.ok(files.has(`skills/${skill}/SKILL.md`), `npm package is missing the ${skill} workflow`);
   }
-  assert.ok([...files].filter((path): path is string => typeof path === "string" && path.startsWith("templates/")).every(path => path.startsWith("templates/v6/")), "historical template sets must not ship");
+  assert.ok([...files].filter((path): path is string => typeof path === "string" && path.startsWith("templates/")).every(path => path.startsWith("templates/v7/")), "historical template sets must not ship");
   for (const template of templateCatalog()) {
-    const path = `templates/v6/${template.relativePath}`;
+    const path = `templates/v7/${template.relativePath}`;
     assert.ok(files.has(path), `npm package is missing template ${template.id} at ${path}`);
   }
 });
@@ -106,7 +106,7 @@ test("doctor and installer reject an incomplete immutable template catalog", () 
   for (const entry of ["dist", ".codex-plugin", ".claude-plugin", "skills", "templates"]) {
     cpSync(join(root, entry), join(packageRoot, entry), { recursive: true });
   }
-  unlinkSync(join(packageRoot, "templates", "v6", "init", "gitignore.template"));
+  unlinkSync(join(packageRoot, "templates", "v7", "init", "gitignore.template"));
 
   const doctor = spawnSync(process.execPath, [join(packageRoot, "dist", "cadre-cli.mjs"), "doctor"], {
     cwd: packageRoot,
@@ -157,7 +157,7 @@ test("global CLI installs and uninstalls Codex, Claude, and Zed from packaged as
   assert.ok(existsSync(join(home, ".claude", "settings.json")));
   for (const workflow of [
     "create", "track", "implement", "review", "revise",
-    "archive", "refresh", "revert", "status", "wisp"
+    "archive", "refresh", "revert", "status", "wisp", "quick"
   ]) {
     const adapter = join(plugin, "zed-skills", `cadre-${workflow}`, "SKILL.md");
     const link = join(home, ".agents", "skills", `cadre-${workflow}`);

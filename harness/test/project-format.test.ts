@@ -13,7 +13,7 @@ import type { ProjectState } from "../src/domain/state.js";
 
 test("format admission preserves 3.9 contracts and rejects obsolete or unknown formats", () => {
   for (const runtimeVersion of ["3.9.0", "3.9.1", "3.9.2", CADRE_RUNTIME_VERSION]) {
-    for (const templateSetVersion of ["v5", "v6"]) {
+    for (const templateSetVersion of ["v5", "v6", "v7"]) {
       const project = {schemaVersion: 2, runtimeVersion, templateSetVersion};
       const before = json(project);
       assert.equal(supportsProjectFormat(project), true);

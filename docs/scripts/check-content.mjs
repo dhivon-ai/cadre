@@ -105,8 +105,8 @@ function checkWorkflowCoverage(docsBySlug) {
     .sort()
   const reference = docsBySlug.get("workflow-reference")?.content ?? ""
 
-  if (workflows.length !== 10) {
-    fail(`Expected 10 current workflow skills, found ${workflows.length}: ${workflows.join(", ")}`)
+  if (workflows.length !== 11) {
+    fail(`Expected 11 current workflow skills, found ${workflows.length}: ${workflows.join(", ")}`)
   }
   for (const workflow of workflows) {
     if (!reference.includes(`## ${workflow}\n`)) {

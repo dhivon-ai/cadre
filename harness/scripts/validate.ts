@@ -11,7 +11,7 @@ import { CADRE_RUNTIME_VERSION } from "../src/domain/version.js";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const skills = [
   "create", "track", "implement", "review", "revise",
-  "archive", "refresh", "revert", "status", "wisp"
+  "archive", "refresh", "revert", "status", "wisp", "quick"
 ];
 const errors: string[] = [];
 

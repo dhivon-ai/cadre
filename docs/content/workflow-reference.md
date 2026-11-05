@@ -1,6 +1,6 @@
 ---
 title: Workflow Reference
-description: Invocation, eligibility, mutations, and terminal outcomes for all ten Cadre skills.
+description: Invocation, eligibility, mutations, and terminal outcomes for all eleven Cadre skills.
 section: Reference
 order: 200
 ---
@@ -29,6 +29,29 @@ Invoke a skill as `$cadre:<name>` in Codex, `/cadre:<name>` in Claude Code, or
 - **Writes:** initial `.cadre/` state and receipt in one initialization commit.
 - **Stops when:** setup is complete; an initialized project routes to refresh
   or status.
+
+## quick
+
+Use `quick` for one bounded, locally verifiable fix, refactor, documentation
+change, test, or small feature. A clear request authorizes reversible edits;
+material choices or wider consequences get a scope discussion first. Quick
+reads relevant project context, verifies and reviews the change, and asks for
+one final approval. One local commit includes code, the immutable outcome
+record, and its receipt. There is no track, phase graph, separate review commit,
+or per-change archive step.
+
+Interrupted work remains in ignored staging. Status shows quick outcomes
+separately from tracks. An approved refresh batch assesses at most 20 outcomes,
+merges durable findings into existing guidance or patterns, reassesses affected
+active-track memory, and moves original records unchanged to
+`.cadre/archive/.quick/`. Track context includes no quick history by default;
+focused search and selected IDs retrieve relevant records, including archives. Quick does not run beside active
+Cadre workers or absorb pre-existing edits. Migrations, coordinated work, and
+changes to approved track requirements go through track or revise.
+
+Existing v5/v6 projects need a one-time approved refresh adopting the v7 quick
+contract. This is an unreleased source addition; installation alone does not
+rewrite project policy.
 
 ## track
 
@@ -112,7 +135,7 @@ Invoke a skill as `$cadre:<name>` in Codex, `/cadre:<name>` in Claude Code, or
 - **Use for:** drift in product, guidelines, workflow, technology,
   styleguides, patterns, or completed-track learning.
 - **Evidence:** user input, repository changes since setup/last refresh,
-  completed outcomes, and current code/manifests.
+  completed track/quick outcomes, and current code/manifests.
 - **Writes:** approved project context, refresh record/journal, affected seeds,
   derived index and receipt in one commit.
 - **Active work:** execution-governing changes wait for a safe boundary and
@@ -150,7 +173,7 @@ Invoke a skill as `$cadre:<name>` in Codex, `/cadre:<name>` in Claude Code, or
 - **Writes:** no Cadre lifecycle state. `.cadre/wisps/` is used only for an
   initialized project that already ignores it; otherwise disposable output
   uses an OS temporary directory and never creates `.cadre/`.
-- **Promotion:** recommend `track` before durable implementation work.
+- **Promotion:** recommend `quick` for bounded work or `track` for coordinated delivery before implementation.
 
 ## Lifecycle Ownership
 

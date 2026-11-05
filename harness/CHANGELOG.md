@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — Quick changes
+
+- Add `quick` as the eleventh workflow for bounded fixes, refactors, docs, tests, and small features. Clear requests authorize reversible implementation; material choices get a scope discussion, and completion requires one final approval.
+- Retain an ignored starting checkpoint and one immutable outcome record. Bind final approval to product bytes/modes, verification inputs, context, and Git baseline; verify one combined local commit and resume interrupted promotion without repeating delivery.
+- Add project-scoped context without a track ID, selected quick outcomes/patterns, separate paginated quick status, and source-linked refresh consolidation. Preserve track lifecycle and dependency authority.
+- Bound quick history lookup by relevance; approved refresh batches distill findings and move unchanged records into `.cadre/archive/.quick/`. Keep archived history out of routine context and status rows.
+- Ship template v7 while preserving v6 source bytes. Existing v5/v6 projects retain their workflows; enabling quick requires an approved refresh adopting its contract.
+- Keep 22 MCP tools, a self-contained runtime, and all three client integrations. Extend candidate_apply with begin_quick and workflow quick; product editing and commits remain with the agent.
+
 ## [4.0.0] - 2026-10-14
 
 Cadre 4.0.0 is a breaking runtime/API release that removes parallel legacy
