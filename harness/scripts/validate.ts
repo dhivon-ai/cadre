@@ -11,7 +11,7 @@ import { CADRE_RUNTIME_VERSION } from "../src/domain/version.js";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const skills = [
   "create", "track", "implement", "review", "revise",
-  "archive", "refresh", "revert", "status", "wisp", "quick"
+  "refresh", "revert", "status", "wisp", "quick"
 ];
 const errors: string[] = [];
 
@@ -59,8 +59,8 @@ if (packageManifest.dependencies && Object.keys(packageManifest.dependencies).le
   errors.push("package: self-contained runtime must not have production dependencies");
 }
 if (!packageManifest.keywords?.includes("zed")) errors.push("package: keywords must include zed");
-if (CADRE_MCP_TOOL_NAMES.length !== 22 || new Set(CADRE_MCP_TOOL_NAMES).size !== 22) {
-  errors.push("MCP tools: expected 22 unique centralized tool names");
+if (CADRE_MCP_TOOL_NAMES.length !== 21 || new Set(CADRE_MCP_TOOL_NAMES).size !== 21) {
+  errors.push("MCP tools: expected 21 unique centralized tool names");
 }
 
 interface Marketplace {
@@ -100,11 +100,11 @@ for (const skill of ["track", "review", "revise", "refresh", "revert"]) {
     errors.push(`${skill}: staged plan guidance must use ${validationInterface}`);
   }
 }
-for (const skill of ["create", "track", "review", "revise", "archive", "refresh", "revert"]) {
+for (const skill of ["create", "track", "review", "revise", "refresh", "revert"]) {
   const body = readFileSync(join(root, "skills", skill, "SKILL.md"), "utf8");
   if (!body.includes("expectedFiles")) errors.push(`${skill}: candidate preparation must declare expectedFiles`);
 }
-for (const skill of ["track", "implement", "review", "revise", "archive", "refresh", "revert"]) {
+for (const skill of ["track", "implement", "review", "revise", "refresh", "revert"]) {
   const body = readFileSync(join(root, "skills", skill, "SKILL.md"), "utf8");
   if (!body.includes("project_status") || !/stop[^\n]*(?:invalid|`valid`|graph)/i.test(body)) {
     errors.push(`${skill}: mutating workflow must stop on invalid status or graph results`);
@@ -118,7 +118,7 @@ for (const skill of skills) {
 const exactPrepareFields: Record<string, string[]> = {
   create: ["request:", "mode:", "projectRoot", "projectName", "context", "gitDisposition", "baseCommit", "approvedAt", "stagedFiles", "styleguideIds"],
   review: ["request:", "mode:", "projectRoot", "trackId", "approval", "acceptedRisks"],
-  archive: ["request:", "mode:", "projectRoot", "candidateId", "selectedTracks", "updates"],
+  refresh: ["request:", "mode:", "projectRoot", "candidateId", "selectedTracks", "files"],
   implement: ["request:", "mode:", "projectRoot", "trackId", "executionId", "nodeId"]
 };
 for (const [skill, fields] of Object.entries(exactPrepareFields)) {
@@ -187,15 +187,6 @@ try {
   if (execution.schemaVersion !== 1 || execution.nodes == null) errors.push("template provider: invalid execution.json");
 } catch (error) {
   errors.push(`template provider: execution.json: ${errorMessage(error)}`);
-}
-const archiveOperationTemplate = join(templateRoot, "project", "archive-operation.json");
-try {
-  const operation = readJson<{ action?: string; selectedTracks?: unknown[] }>(archiveOperationTemplate);
-  if (operation.action !== "archive" || !Array.isArray(operation.selectedTracks)) {
-    errors.push("template provider: invalid archive-operation.json");
-  }
-} catch (error) {
-  errors.push(`template provider: archive-operation.json: ${errorMessage(error)}`);
 }
 const refreshOperationTemplate = join(templateRoot, "project", "refresh-operation.json");
 try {
@@ -307,7 +298,7 @@ try {
   await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
   const tools = await client.listTools();
   const catalogBytes = Buffer.byteLength(JSON.stringify(tools.tools));
-  if (tools.tools.length !== 22) errors.push(`MCP catalog: expected 25 tools, found ${tools.tools.length}`);
+  if (tools.tools.length !== 21) errors.push(`MCP catalog: expected 21 tools, found ${tools.tools.length}`);
   if (catalogBytes > 80 * 1024) errors.push(`MCP catalog: ${catalogBytes} bytes exceeds the 80 KiB limit`);
   for (const tool of tools.tools) {
     if (!tool.outputSchema) errors.push(`MCP catalog: ${tool.name} has no output schema`);

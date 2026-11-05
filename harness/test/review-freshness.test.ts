@@ -1,3 +1,4 @@
+import { prepareRefreshArchive } from "./helpers/complete-fixture.js";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { existsSync, unlinkSync } from "node:fs";
@@ -5,7 +6,6 @@ import { ProposalTokenStore } from "../src/mcp/proposals.js";
 import { previewReviewComplete, type ReviewCompleteInput } from "../src/domain/governance.js";
 import { promoteOperation } from "../src/domain/operation-receipts.js";
 import { validateProject } from "../src/domain/state.js";
-import { prepareCandidateStage } from "../src/domain/staging.js";
 import { fixture, finishCurrent, read, write, git, commit, json } from "./helpers/revision-fixture.js";
 
 let boundary = 0;
@@ -57,9 +57,9 @@ for (const requestedMode of ["sequential", "parallel"]) {
     write(root, "second.txt", product + "Later product change\n");
     assert.equal((await call("review_complete", {request: {mode: "apply", proposalToken: proposal.proposalToken}})).receipt.status, "committed");
     assert.equal(read(root, "second.txt"), product + "Later product change\n"); write(root, "second.txt", product);
-    prepareCandidateStage(root, "archive-sample", []);
-    const archive = await call("archive_batch_candidate", {request: {mode: "prepare", projectRoot: root, candidateId: "archive-sample", updates: []}});
-    commit(root, (await call("archive_batch_candidate", {request: {mode: "apply", proposalToken: archive.proposalToken}})).receipt);
+    const archive = await prepareRefreshArchive(root, call, ["sample"]);
+    const archived = await call("candidate_apply", {request: {mode: "apply", proposalToken: archive.proposalToken}});
+    commit(root, {operationId: archived.operationId, trailers: archived.trailers});
     assert.deepEqual(validateProject(root).errors, []); assert.equal(git(root, "status", "--porcelain"), "");
   });
 }

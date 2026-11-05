@@ -36,6 +36,16 @@ for (const clientName of ["codex", "claude-code", "zed"]) for (const requestedMo
     git(root, "add", ".cadre"); git(root, "commit", "-m", "cadre: record verified blocker");
     const {input, proposal} = await retry(f, "The external check is now available; resume review under explicit human approval.");
     assert.throws(() => previewCandidateApply({...input, workflow: "revise"}), /requires the refresh workflow/);
+    assert.deepEqual(proposal.selectedTracks, []);
+    assert.throws(() => previewCandidateApply({...input, selectedTracks: ["sample"]}), /Review retry cannot archive/);
+    const extra = "guidelines.md";
+    write(root, `.cadre/stage/${input.candidateId}/${extra}`, read(root, ".cadre/guidelines.md"));
+    assert.throws(() => previewCandidateApply({...input, files: [...input.files, extra]}), /unrelated maintenance/);
+    rmSync(join(root, ".cadre/stage", input.candidateId, extra));
+    const recordPath = `.cadre/stage/${input.candidateId}/${input.reviewRetry.refreshPath}`, originalRecord = read(root, recordPath);
+    write(root, recordPath, originalRecord + `\n<!-- cadre:quick-sources:start -->\n${JSON.stringify([{quickId: "unrelated", sha256: "a".repeat(64), disposition: "no-change", reason: "Separate maintenance"}])}\n<!-- cadre:quick-sources:end -->\n`);
+    assert.throws(() => previewCandidateApply(input), /cannot consolidate quick outcomes/);
+    write(root, recordPath, originalRecord);
     const before = read(root, parent + "state.json");
     write(root, parent + "state.json", json({...load(), title: "Changed concurrent input"}));
     await assert.rejects(call("candidate_apply", {request: {mode: "apply", proposalToken: proposal.proposalToken}}), /unchanged current track state/);

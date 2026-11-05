@@ -20,7 +20,6 @@ export interface TemplateDescriptor extends Omit<TemplateRecord, "relativePath">
 }
 
 export const TEMPLATE_IDS = [
-  "project/archive-operation",
   "project/gitignore",
   "project/guidelines",
   "project/pattern",

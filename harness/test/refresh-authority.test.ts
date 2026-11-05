@@ -1,7 +1,7 @@
+import { prepareRefreshArchive } from "./helpers/complete-fixture.js";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { previewCandidateApply, applyCandidate } from "../src/domain/candidate-apply.js";
-import { prepareCandidateStage } from "../src/domain/staging.js";
 import { readExecution } from "../src/domain/execution.js";
 import { validateProject } from "../src/domain/state.js";
 import { json, git, read, write, commit, stage, fixture, finishCurrent } from "./helpers/revision-fixture.js";
@@ -43,9 +43,9 @@ for (const clientName of ["codex", "claude-code", "zed"]) for (const requestedMo
     assert.equal(review.commitRange, `${original.autonomousReview.initialBaseCommit}..${state.lastExecution.headCommit}`);
     assert.ok(git(root, "rev-list", review.commitRange).split("\n").includes(firstCommit));
     commit(root, (await call("review_complete", {request: {mode: "apply", proposalToken: review.proposalToken}})).receipt);
-    prepareCandidateStage(root, "archive-sample", []);
-    const archive = await call("archive_batch_candidate", {request: {mode: "prepare", projectRoot: root, candidateId: "archive-sample", selectedTracks: ["sample"], updates: []}});
-    commit(root, (await call("archive_batch_candidate", {request: {mode: "apply", proposalToken: archive.proposalToken}})).receipt);
+    const archive = await prepareRefreshArchive(root, call, ["sample"]);
+    const archived = await call("candidate_apply", {request: {mode: "apply", proposalToken: archive.proposalToken}});
+    commit(root, {operationId: archived.operationId, trailers: archived.trailers});
     assert.deepEqual(validateProject(root).errors, []); assert.equal(git(root, "status", "--porcelain"), "");
   });
 }

@@ -56,7 +56,7 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const templateRoot = join(root, "templates", "v5", "init");
 const legacyTemplateRoot = join(root, "templates", "v1", "init");
-const providerRoot = join(root, "templates", "v7");
+const providerRoot = join(root, "templates", "v8");
 
 test("published v1 templates remain byte-for-byte immutable", () => {
   const files = (directory: string): string[] => readdirSync(directory, { withFileTypes: true })
@@ -1674,7 +1674,7 @@ test("installer prepares a shared three-client payload", async () => {
   assert.ok(existsSync(join(pluginRoot, "skills", "track", "SKILL.md")));
   for (const workflow of [
     "create", "track", "implement", "review", "revise",
-    "archive", "refresh", "revert", "status", "wisp", "quick"
+    "refresh", "revert", "status", "wisp", "quick"
   ]) {
     const zedSkill = readFileSync(join(pluginRoot, "zed-skills", `cadre-${workflow}`, "SKILL.md"), "utf8");
     assert.match(zedSkill, new RegExp(`^name: cadre-${workflow}$`, "m"));
@@ -1690,8 +1690,8 @@ test("installer prepares a shared three-client payload", async () => {
   assert.equal(codexManifest.version, `${CADRE_RUNTIME_VERSION}+codex.test-build`);
   assert.equal(claudeManifest.version, `${CADRE_RUNTIME_VERSION}+claude.test-build`);
   assert.ok(existsSync(join(pluginRoot, "dist", "cadre-mcp.mjs")));
-  assert.ok(existsSync(join(pluginRoot, "templates", "v7", "track", "spec.md")));
-  assert.ok(existsSync(join(pluginRoot, "templates", "v7", "init", "gitignore.template")));
+  assert.ok(existsSync(join(pluginRoot, "templates", "v8", "track", "spec.md")));
+  assert.ok(existsSync(join(pluginRoot, "templates", "v8", "init", "gitignore.template")));
   assert.ok(existsSync(join(pluginRoot, "agents", "cadre-phase-worker.md")));
   assert.ok(existsSync(join(pluginRoot, "agents", "cadre-task-worker.md")));
   assert.equal(existsSync(join(pluginRoot, "scripts")), false);
@@ -1716,7 +1716,8 @@ test("installer prepares a shared three-client payload", async () => {
   await client.connect(transport);
   try {
     const tools = await client.listTools();
-    assert.equal(tools.tools.length, 22);
+    assert.equal(tools.tools.length, 21);
+    assert.equal(tools.tools.some((tool) => tool.name === "archive_batch_candidate"), false);
     assert.deepEqual(Object.keys(CADRE_MCP_OUTPUT_SCHEMAS).sort(), [...CADRE_MCP_TOOL_NAMES].sort());
     assert.deepEqual(
       tools.tools.map((tool) => tool.name).sort(),
@@ -1725,7 +1726,7 @@ test("installer prepares a shared three-client payload", async () => {
     assert.ok(tools.tools.some((tool) => tool.name === "project_status"));
     const resources = await client.listResources();
     assert.deepEqual(
-      resources.resources.map((resource) => resource.uri.replace("cadre://templates/v7/", "")),
+      resources.resources.map((resource) => resource.uri.replace("cadre://templates/v8/", "")),
       [...TEMPLATE_IDS]
     );
   } finally {
@@ -1992,14 +1993,15 @@ test("compiled MCP exposes versioned templates and initializes projects without 
   await client.connect(transport);
   try {
     const tools = await client.listTools();
-    assert.equal(tools.tools.length, 22);
+    assert.equal(tools.tools.length, 21);
+    assert.equal(tools.tools.some((tool) => tool.name === "archive_batch_candidate"), false);
     assert.ok(Buffer.byteLength(JSON.stringify(tools.tools)) <= 80 * 1024);
     for (const name of [
       "workflow_elicit", "template_get_many", "styleguide_resolve", "context_read", "project_status",
       "state_validate", "candidate_stage_prepare", "candidate_inspect", "project_init_candidate",
       "tracks_render",
       "execution_graph_validate",
-      "review_complete", "archive_batch_candidate",
+      "review_complete",
       "execution_start", "execution_checkpoint", "execution_status", "execution_finish", "worktree_create",
       "integration", "worktree_cleanup"
     ]) {
@@ -2007,7 +2009,7 @@ test("compiled MCP exposes versioned templates and initializes projects without 
       assert.ok(tool, `missing MCP tool ${name}`);
       assert.ok(tool.outputSchema, `${name} must advertise an output schema`);
     }
-    for (const name of ["project_init_candidate", "archive_batch_candidate", "review_complete", "integration"]) {
+    for (const name of ["project_init_candidate", "review_complete", "integration"]) {
       const schema = tools.tools.find((tool) => tool.name === name)?.inputSchema as {
         properties?: Record<string, { oneOf?: Array<{ properties?: Record<string, unknown>; required?: string[]; additionalProperties?: boolean }> }>;
         required?: string[];
@@ -2072,22 +2074,22 @@ test("compiled MCP exposes versioned templates and initializes projects without 
     );
     agentVisibleResult(fallback);
     const resources = await client.listResources();
-    assert.ok(resources.resources.some((resource) => resource.uri === "cadre://templates/v7/track/spec"));
+    assert.ok(resources.resources.some((resource) => resource.uri === "cadre://templates/v8/track/spec"));
     assert.ok(resources.resources.some(
-      (resource) => resource.uri === "cadre://templates/v7/track/revise-operation"
+      (resource) => resource.uri === "cadre://templates/v8/track/revise-operation"
     ));
     assert.ok(resources.resources.some(
-      (resource) => resource.uri === "cadre://templates/v7/project/refresh-operation"
+      (resource) => resource.uri === "cadre://templates/v8/project/refresh-operation"
     ));
     assert.ok(resources.resources.some(
-      (resource) => resource.uri === "cadre://templates/v7/project/gitignore"
+      (resource) => resource.uri === "cadre://templates/v8/project/gitignore"
     ));
     assert.ok(resources.resources.some(
-      (resource) => resource.uri === "cadre://templates/v7/track/revert-operation"
+      (resource) => resource.uri === "cadre://templates/v8/track/revert-operation"
     ));
 
-    const workflow = await client.readResource({ uri: "cadre://templates/v7/project/workflow" });
-    assert.equal(workflow.contents[0]?.uri, "cadre://templates/v7/project/workflow");
+    const workflow = await client.readResource({ uri: "cadre://templates/v8/project/workflow" });
+    assert.equal(workflow.contents[0]?.uri, "cadre://templates/v8/project/workflow");
     assert.match((workflow.contents[0] as { text?: string }).text ?? "", /^# Cadre Workflow/);
 
     const bundle = await client.callTool({
@@ -2693,7 +2695,7 @@ test("compiled MCP exposes versioned templates and initializes projects without 
     writeFileSync(archivedJournalPath, `${JSON.stringify(archivedJournal, null, 2)}\n`);
     gitText(archiveRoot, ["add", ".cadre"]);
     gitText(archiveRoot, ["commit", "-m", "cadre(test): record reachable archive provenance"]);
-    const archiveCandidateId = "archive-mcp-proposal";
+    const archiveCandidateId = "refresh-mcp-proposal";
     const archivePattern = "# Pattern: MCP staged pattern\n\n## Provenance\n- Track: `mcp-archive-candidate`\n";
     const archiveIndex = "# Pattern Catalog\n\n- [MCP staged pattern](mcp-staged-pattern.md)\n";
     const archivePatternPath = join(
@@ -2703,17 +2705,19 @@ test("compiled MCP exposes versioned templates and initializes projects without 
     mkdirSync(dirname(archivePatternPath), { recursive: true });
     writeFileSync(archivePatternPath, archivePattern);
     writeFileSync(archiveIndexPath, archiveIndex);
+    writeFileSync(join(archiveRoot, ".cadre/stage", archiveCandidateId, "project.json"), readFileSync(archiveProjectPath, "utf8"));
+    writeFileSync(join(archiveRoot, ".cadre/stage", archiveCandidateId, "workflow.md"), readFileSync(join(providerRoot, "init/workflow.md"), "utf8"));
+    mkdirSync(join(archiveRoot, ".cadre/stage", archiveCandidateId, "refreshes"));
+    writeFileSync(join(archiveRoot, ".cadre/stage", archiveCandidateId, "refreshes/refresh-archive.md"), "# Refresh\nConsolidate tested learning and archive completed work.\n");
     const archiveCandidatePreview = await client.callTool({
-      name: "archive_batch_candidate",
+      name: "candidate_apply",
       arguments: { request: {
         mode: "prepare",
         projectRoot: archiveRoot,
         candidateId: archiveCandidateId,
         selectedTracks: ["mcp-archive-candidate"],
-        updates: [
-          { kind: "pattern", slug: "mcp-staged-pattern" },
-          { kind: "pattern_index" }
-        ]
+        workflow: "refresh",
+        files: ["project.json", "workflow.md", "refreshes/refresh-archive.md", "patterns/mcp-staged-pattern.md", "patterns/index.md"]
       } }
     });
     assert.equal(
@@ -2734,14 +2738,14 @@ test("compiled MCP exposes versioned templates and initializes projects without 
     assert.doesNotMatch(archiveProposalRecord, /MCP staged pattern/);
     assert.doesNotMatch(archiveProposalRecord, /"content"/);
     const archiveCandidateApply = await client.callTool({
-      name: "archive_batch_candidate",
+      name: "candidate_apply",
       arguments: { request: { mode: "apply", proposalToken: archiveCandidateToken } }
     });
     assert.equal(archiveCandidateApply.isError, undefined);
     agentVisibleResult(archiveCandidateApply);
     assert.equal(
-      (archiveCandidateApply.structuredContent as { commandStatus?: string }).commandStatus,
-      "applied"
+      (archiveCandidateApply.structuredContent as { status?: string }).status,
+      "commit_pending"
     );
     assert.equal(Object.hasOwn(archiveCandidateApply.structuredContent ?? {}, "proposalToken"), false);
     assert.ok(Buffer.byteLength(JSON.stringify(archiveCandidateApply)) <= 8 * 1024);
@@ -2832,7 +2836,7 @@ test("compiled MCP exposes versioned templates and initializes projects without 
     assert.doesNotMatch(proposalRecord, /"content"/);
     assert.match(proposalRecord, /"stagedFiles"/);
     const wrongApply = await client.callTool({
-      name: "archive_batch_candidate",
+      name: "candidate_apply",
       arguments: { request: { mode: "apply", proposalToken } }
     });
     assert.equal(wrongApply.isError, true);
@@ -3050,7 +3054,7 @@ test("compiled MCP presents and normalizes a client-native workflow form", async
 test("plugin namespace is not repeated in skill identities", () => {
   for (const skill of [
     "create", "track", "implement", "review", "revise",
-    "archive", "refresh", "revert", "status", "wisp", "quick"
+    "refresh", "revert", "status", "wisp", "quick"
   ]) {
     const body = readFileSync(join(root, "skills", skill, "SKILL.md"), "utf8");
     assert.ok(body.startsWith(`---\nname: ${skill}\n`));
@@ -3060,7 +3064,7 @@ test("plugin namespace is not repeated in skill identities", () => {
 
 test("every post-create command loads the shared workflow", () => {
   for (const skill of [
-    "track", "implement", "review", "revise", "archive",
+    "track", "implement", "review", "revise",
     "refresh", "revert", "status", "wisp", "quick"
   ]) {
     const body = readFileSync(join(root, "skills", skill, "SKILL.md"), "utf8");
@@ -3071,7 +3075,7 @@ test("every post-create command loads the shared workflow", () => {
 test("interactive workflows prefer bounded client-native forms with one chat fallback", () => {
   for (const skill of [
     "create", "track", "implement", "review", "revise",
-    "archive", "refresh", "revert", "wisp"
+    "refresh", "revert", "wisp"
   ]) {
     const body = readFileSync(join(root, "skills", skill, "SKILL.md"), "utf8");
     assert.match(body, /workflow_elicit/, `${skill} must prefer the shared form tool`);
@@ -3162,9 +3166,9 @@ test("implementation guidance preserves approval, permission, semantic checkpoin
   assert.match(taskWorker, /unexpected host permission/);
 });
 
-test("review and archive guidance coalesces exact approval decisions", () => {
+test("review and refresh guidance coalesces exact approval decisions", () => {
   const review = readFileSync(join(root, "skills", "review", "SKILL.md"), "utf8");
-  const archive = readFileSync(join(root, "skills", "archive", "SKILL.md"), "utf8");
+  const archive = readFileSync(join(root, "skills", "refresh", "SKILL.md"), "utf8");
   const workflow = readFileSync(join(templateRoot, "workflow.md"), "utf8");
 
   assert.match(review, /One response may approve both the finding disposition and the unchanged exact artifacts/);
@@ -3175,7 +3179,7 @@ test("review and archive guidance coalesces exact approval decisions", () => {
   assert.match(workflow, /Combine related decisions into one complete authorization envelope/);
   assert.match(review, /review_complete/);
   assert.match(review, /Do not inspect the installed runtime/);
-  assert.match(archive, /archive_batch_candidate/);
+  assert.match(archive, /candidate_apply/);
   assert.match(archive, /use descriptor tools when an ID must be resolved/i);
   assert.match(archive, /(?:needs no second approval|without another approval)/);
   assert.doesNotMatch(archive, /call `tracks_render`/);
@@ -3186,7 +3190,7 @@ test("review and archive guidance coalesces exact approval decisions", () => {
 
 test("commands reuse status validation and batch related template reads", () => {
   for (const skill of [
-    "track", "implement", "review", "revise", "archive",
+    "track", "implement", "review", "revise",
     "refresh", "revert", "status"
   ]) {
     const body = readFileSync(join(root, "skills", skill, "SKILL.md"), "utf8");
@@ -3197,7 +3201,7 @@ test("commands reuse status validation and batch related template reads", () => 
       `${skill} must not repeat full validation at entry`);
   }
 
-  for (const skill of ["create", "track", "review", "revise", "archive", "refresh", "revert"]) {
+  for (const skill of ["create", "track", "review", "revise", "refresh", "revert"]) {
     const body = readFileSync(join(root, "skills", skill, "SKILL.md"), "utf8");
     assert.match(body, /template_get_many/, `${skill} must batch related template reads`);
     assert.doesNotMatch(body, /`template_get`(?!_many)/, `${skill} must not request templates one at a time`);
@@ -3322,15 +3326,15 @@ test("default styleguide catalog covers the supported stack", () => {
   }
 });
 
-test("archive supports a resumable multi-track batch", () => {
-  const archive = readFileSync(join(root, "skills", "archive", "SKILL.md"), "utf8");
+test("refresh supports batch archival and retains legacy journal validation", () => {
+  const archive = readFileSync(join(root, "skills", "refresh", "SKILL.md"), "utf8");
   assert.match(archive, /one or more `completed` tracks in a single batch/);
   assert.match(archive, /all completed/);
   assert.match(archive, /Reject the batch without partial mutation/);
-  assert.match(archive, /archive_batch_candidate/);
+  assert.match(archive, /candidate_apply/);
   assert.match(archive, /commit all approved moves and derived changes together|commit all approved moves and derived changes/i);
 
-  const operation = JSON.parse(readFileSync(join(providerRoot, "project", "archive-operation.json"), "utf8"));
+  const operation = JSON.parse(readFileSync(join(root, "templates", "v7", "project", "archive-operation.json"), "utf8"));
   assert.equal(operation.action, "archive");
   assert.ok(Array.isArray(operation.selectedTracks));
   assert.ok(Array.isArray(operation.completedTracks));

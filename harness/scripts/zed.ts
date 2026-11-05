@@ -15,7 +15,7 @@ import { dirname, join, resolve } from "node:path";
 
 export const CADRE_WORKFLOWS = [
   "create", "track", "implement", "review", "revise",
-  "archive", "refresh", "revert", "status", "wisp", "quick"
+  "refresh", "revert", "status", "wisp", "quick"
 ] as const;
 
 const ZED_COMPATIBILITY = `## Zed compatibility
@@ -68,7 +68,7 @@ export function createZedSkillAdapters(pluginRoot: string): void {
   }
 }
 
-function expectedSkillLink(marketplaceRoot: string, workflow: typeof CADRE_WORKFLOWS[number]) {
+function expectedSkillLink(marketplaceRoot: string, workflow: typeof CADRE_WORKFLOWS[number] | "archive") {
   return {
     destination: join(zedSkillsRoot(), `cadre-${workflow}`),
     target: join(zedAdapterRoot(marketplaceRoot), `cadre-${workflow}`)
@@ -95,6 +95,8 @@ export function preflightZedSkillLinks(marketplaceRoot: string): void {
 export function installZedSkillLinks(marketplaceRoot: string): string[] {
   preflightZedSkillLinks(marketplaceRoot);
   mkdirSync(zedSkillsRoot(), { recursive: true });
+  const obsolete = expectedSkillLink(marketplaceRoot, "archive");
+  if (linkTarget(obsolete.destination) === obsolete.target) unlinkSync(obsolete.destination);
   const installed: string[] = [];
   for (const workflow of CADRE_WORKFLOWS) {
     const link = expectedSkillLink(marketplaceRoot, workflow);
@@ -109,7 +111,7 @@ export function installZedSkillLinks(marketplaceRoot: string): string[] {
 export function removeZedSkillLinks(marketplaceRoot: string): { removed: string[]; retained: string[] } {
   const removed: string[] = [];
   const retained: string[] = [];
-  for (const workflow of CADRE_WORKFLOWS) {
+  for (const workflow of [...CADRE_WORKFLOWS, "archive"] as const) {
     const link = expectedSkillLink(marketplaceRoot, workflow);
     if (!pathExists(link.destination)) continue;
     if (linkTarget(link.destination) === link.target) {

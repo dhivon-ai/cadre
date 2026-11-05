@@ -1,3 +1,4 @@
+import { requireRefreshArchives } from "./refresh-archive.js";
 import { requireQuickFreshness } from "./quick.js";
 import { quickRecordSchema } from "./quick-record.js";
 import { verifyQuickCommit } from "./quick-git.js";
@@ -82,7 +83,8 @@ function transitionEvidence(root: string, kind: string, files: PromotionFile[], 
   requireProjectOverlay(root, files);
   if (kind === "review") return requireReviewPreservation(root, files, saved, base);
   if (kind === "refresh") {
-    const evidence = [...requireJournalPreservation(root, files, saved, base), ...requireRefreshPreservation(root, files, saved, base)];
+    const archived = requireRefreshArchives(root, files, saved, base);
+    const evidence = [...archived.evidence, ...requireJournalPreservation(root, files, saved, base, true, archived.paths), ...requireRefreshPreservation(root, files, saved, base, archived.paths)];
     requireRefreshRecord(root, files);
     requireQuickRefreshSources(root, files);
     return [...new Map(evidence.map((file) => [file.path, file])).values()];

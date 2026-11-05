@@ -1,4 +1,4 @@
 interface:
   display_name: "Cadre: Refresh"
-  short_description: "Refresh Cadre project context"
-  default_prompt: "Use $refresh to refresh project context from user input and repository changes."
+  short_description: "Refresh context and archive completed work"
+  default_prompt: "Use $refresh to refresh project context, consolidate learning, and archive eligible completed tracks in one approved operation."

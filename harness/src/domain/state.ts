@@ -553,7 +553,7 @@ function validateProjectSnapshot(projectRoot: string): ValidationResult {
     );
     if (existsSync(learningPath)) {
       const memory = inspectMemory({ trackId: track.id, path: learningPath, body: readFileSync(learningPath, "utf8"),
-        graph: planGraph, required: ["v3", "v4", "v5", "v6", "v7"].includes(project.templateSetVersion ?? "") && !["drafting-spec", "drafting-plan"].includes(track.status),
+        graph: planGraph, required: ["v3", "v4", "v5", "v6", "v7", "v8"].includes(project.templateSetVersion ?? "") && !["drafting-spec", "drafting-plan"].includes(track.status),
         historical: ["completed", "archived"].includes(track.status),
         readPattern: (path) => readSafeArtifact(projectRoot, `.cadre/${path}`) });
       errors.push(...memory.errors);
@@ -623,7 +623,7 @@ function validateProjectSnapshot(projectRoot: string): ValidationResult {
 function nextCommand(track: DiscoveredTrack): string {
   return ({
     "drafting-spec": "track", "drafting-plan": "track", planned: "implement",
-    in_progress: "implement", ready_for_review: "review", completed: "archive", archived: "—"
+    in_progress: "implement", ready_for_review: "review", completed: "refresh", archived: "—"
   })[track.status] ?? "—";
 }
 

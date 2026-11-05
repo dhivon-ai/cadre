@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {
-  chmodSync, cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, unlinkSync, writeFileSync
+  chmodSync, cpSync, existsSync, lstatSync, symlinkSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, unlinkSync, writeFileSync
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -84,19 +84,19 @@ test("npm package carries every workflow and immutable template asset", () => {
     ".claude-plugin/plugin.json", ".mcp.codex.json", ".mcp.json",
     "CHANGELOG.md",
     "agents/cadre-phase-worker.md", "agents/cadre-task-worker.md",
-    "templates/v7/init/wisps/.gitkeep"
+    "templates/v8/init/wisps/.gitkeep"
   ]) {
     assert.ok(files.has(path), `npm package is missing ${path}`);
   }
   for (const skill of [
     "create", "track", "implement", "review", "revise",
-    "archive", "refresh", "revert", "status", "wisp", "quick"
+    "refresh", "revert", "status", "wisp", "quick"
   ]) {
     assert.ok(files.has(`skills/${skill}/SKILL.md`), `npm package is missing the ${skill} workflow`);
   }
-  assert.ok([...files].filter((path): path is string => typeof path === "string" && path.startsWith("templates/")).every(path => path.startsWith("templates/v7/")), "historical template sets must not ship");
+  assert.ok([...files].filter((path): path is string => typeof path === "string" && path.startsWith("templates/")).every(path => path.startsWith("templates/v8/")), "historical template sets must not ship");
   for (const template of templateCatalog()) {
-    const path = `templates/v7/${template.relativePath}`;
+    const path = `templates/v8/${template.relativePath}`;
     assert.ok(files.has(path), `npm package is missing template ${template.id} at ${path}`);
   }
 });
@@ -106,7 +106,7 @@ test("doctor and installer reject an incomplete immutable template catalog", () 
   for (const entry of ["dist", ".codex-plugin", ".claude-plugin", "skills", "templates"]) {
     cpSync(join(root, entry), join(packageRoot, entry), { recursive: true });
   }
-  unlinkSync(join(packageRoot, "templates", "v7", "init", "gitignore.template"));
+  unlinkSync(join(packageRoot, "templates", "v8", "init", "gitignore.template"));
 
   const doctor = spawnSync(process.execPath, [join(packageRoot, "dist", "cadre-cli.mjs"), "doctor"], {
     cwd: packageRoot,
@@ -143,13 +143,18 @@ test("global CLI installs and uninstalls Codex, Claude, and Zed from packaged as
   const marketplace = join(cadreHome, "marketplaces", "cadre");
   const zedSettings = join(home, ".config", "zed", "settings.json");
   mkdirSync(dirname(zedSettings), { recursive: true });
-  writeFileSync(zedSettings, "// Preserve this comment\n{\n  \"theme\": \"One Dark\"\n}\n");
+  writeFileSync(zedSettings, "// Preserve this comment\n" + JSON.stringify({theme: "One Dark", agent: {tool_permissions: {tools: {"mcp:cadre:archive_batch_candidate": {default: "allow"}}}}}, null, 2));
+  const obsolete = join(home, ".agents/skills/cadre-archive");
+  mkdirSync(dirname(obsolete), {recursive: true});
+  symlinkSync(join(marketplace, "plugins/cadre/zed-skills/cadre-archive"), obsolete, "dir");
 
   const install = runCli([
     "install", "--target", "all", "--home", cadreHome, "--cachebuster", "global-test"
   ], environment);
   assert.equal(install.status, 0, install.stderr || install.stdout);
   const plugin = join(marketplace, "plugins", "cadre");
+  assert.throws(() => lstatSync(obsolete), /ENOENT/);
+  assert.equal(existsSync(join(plugin, "skills/archive")), false);
   assert.ok(existsSync(join(plugin, "dist", "cadre-mcp.mjs")));
   assert.equal(existsSync(join(plugin, "dist", "cadre-cli.mjs")), false);
   assert.ok(existsSync(join(plugin, "skills", "create", "SKILL.md")));
@@ -157,7 +162,7 @@ test("global CLI installs and uninstalls Codex, Claude, and Zed from packaged as
   assert.ok(existsSync(join(home, ".claude", "settings.json")));
   for (const workflow of [
     "create", "track", "implement", "review", "revise",
-    "archive", "refresh", "revert", "status", "wisp", "quick"
+    "refresh", "revert", "status", "wisp", "quick"
   ]) {
     const adapter = join(plugin, "zed-skills", `cadre-${workflow}`, "SKILL.md");
     const link = join(home, ".agents", "skills", `cadre-${workflow}`);
@@ -180,6 +185,7 @@ test("global CLI installs and uninstalls Codex, Claude, and Zed from packaged as
     }
   }
   const zedBody = readFileSync(zedSettings, "utf8");
+  assert.doesNotMatch(zedBody, /archive_batch_candidate/);
   assert.match(zedBody, /\/\/ Preserve this comment/);
   assert.match(zedBody, /"theme": "One Dark"/);
   assert.match(zedBody, new RegExp(join(plugin, "dist", "cadre-mcp.mjs").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
@@ -187,11 +193,18 @@ test("global CLI installs and uninstalls Codex, Claude, and Zed from packaged as
     assert.match(zedBody, new RegExp(`"mcp:cadre:${tool}"`));
   }
 
+  // Uninstall also removes a retired owned link left by an older installation.
+  symlinkSync(join(plugin, "zed-skills/cadre-archive"), obsolete, "dir");
+  const oldSettings = parseJsonc(zedBody);
+  oldSettings.agent.tool_permissions.tools["mcp:cadre:archive_batch_candidate"] = {default: "allow"};
+  writeFileSync(zedSettings, JSON.stringify(oldSettings));
   const uninstall = runCli(["uninstall", "--target", "all", "--home", cadreHome], environment);
+  assert.throws(() => lstatSync(obsolete), /ENOENT/);
   assert.equal(uninstall.status, 0, uninstall.stderr || uninstall.stdout);
   assert.equal(existsSync(marketplace), false);
   assert.equal(existsSync(join(home, ".agents", "skills", "cadre-create")), false);
   const retainedZedBody = readFileSync(zedSettings, "utf8");
+  assert.doesNotMatch(retainedZedBody, /archive_batch_candidate/);
   const retainedZed = parseJsonc(retainedZedBody) as { context_servers?: { cadre?: unknown } };
   assert.equal(retainedZed.context_servers?.cadre, undefined);
   assert.match(retainedZedBody, /"mcp:cadre:project_status"/);
@@ -273,4 +286,23 @@ test("Zed install fails before packaging when a skill destination is not Cadre-o
   assert.match(install.stderr, /is not owned by Cadre/);
   assert.equal(existsSync(cadreHome), false);
   assert.equal(readFileSync(join(conflictingSkill, "SKILL.md"), "utf8"), "user owned\n");
+});
+
+test("Zed refresh retirement retains user-owned archive skills and custom permissions", () => {
+  const home = mkdtempSync(join(tmpdir(), "cadre-retired-owned-")), bin = join(home, "bin"), cadreHome = join(home, ".cadre");
+  mkdirSync(bin, {recursive: true}); installFakeClient(bin, "zed", join(home, "commands.log"));
+  const skill = join(home, ".agents/skills/cadre-archive/SKILL.md"), settings = join(home, ".config/zed/settings.json");
+  mkdirSync(dirname(skill), {recursive: true}); writeFileSync(skill, "User-owned archive workflow\n");
+  mkdirSync(dirname(settings), {recursive: true});
+  const custom = {default: "allow", always_confirm: ["custom policy"]};
+  writeFileSync(settings, JSON.stringify({theme: "Custom", agent: {tool_permissions: {tools: {"mcp:cadre:archive_batch_candidate": custom}}}}));
+  const env = cliEnv(home, bin);
+  const result = runCli(["install", "--target", "zed", "--home", cadreHome], env);
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.equal(readFileSync(skill, "utf8"), "User-owned archive workflow\n");
+  assert.deepEqual(parseJsonc(readFileSync(settings, "utf8")).agent.tool_permissions.tools["mcp:cadre:archive_batch_candidate"], custom);
+  const removed = runCli(["uninstall", "--target", "zed", "--home", cadreHome], env);
+  assert.equal(removed.status, 0, removed.stderr || removed.stdout);
+  assert.equal(readFileSync(skill, "utf8"), "User-owned archive workflow\n");
+  assert.deepEqual(parseJsonc(readFileSync(settings, "utf8")).agent.tool_permissions.tools["mcp:cadre:archive_batch_candidate"], custom);
 });

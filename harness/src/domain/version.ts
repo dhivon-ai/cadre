@@ -6,8 +6,8 @@ export function isCompatibleRuntimeVersion(version: unknown): boolean {
   return typeof version === "string" && (version === CADRE_RUNTIME_VERSION
     || (COMPATIBLE_RUNTIME_VERSIONS as readonly string[]).includes(version));
 }
-export const TEMPLATE_SET_VERSION = "v7";
-export const COMPATIBLE_TEMPLATE_SET_VERSIONS = ["v5", "v6", TEMPLATE_SET_VERSION] as const;
+export const TEMPLATE_SET_VERSION = "v8";
+export const COMPATIBLE_TEMPLATE_SET_VERSIONS = ["v5", "v6", "v7", TEMPLATE_SET_VERSION] as const;
 export function isCompatibleTemplateSet(version: unknown): boolean {
   return typeof version === "string" && (COMPATIBLE_TEMPLATE_SET_VERSIONS as readonly string[]).includes(version);
 }

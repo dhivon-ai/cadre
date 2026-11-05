@@ -11,7 +11,6 @@ export const CADRE_MCP_TOOLS = {
   candidateApply: "candidate_apply",
   executionGraphValidate: "execution_graph_validate",
   reviewComplete: "review_complete",
-  archiveBatchCandidate: "archive_batch_candidate",
   executionStart: "execution_start",
   executionCheckpoint: "execution_checkpoint",
   executionStatus: "execution_status",

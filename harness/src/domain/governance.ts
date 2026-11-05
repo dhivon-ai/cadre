@@ -1,3 +1,4 @@
+import { dependencyOrder, directorySnapshot } from "./archive-artifacts.js";
 import { requireSupportedProjectFormat } from "./project-format.js";
 import { parsePlanContent } from "./plan.js";
 import { inspectDependencyContext } from "./dependency-context.js";
@@ -12,7 +13,7 @@ import { createHash } from "node:crypto";
 import {
   existsSync, readFileSync, readdirSync
 } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { safeProjectRoot } from "./paths.js";
 import { readCandidateFiles } from "./staging.js";
 import { isGitAncestor, resolveGitCommit, readGitFileAtCommit, requireReviewedProductUnchanged } from "./git.js";
@@ -289,27 +290,6 @@ interface ArchiveOperation {
   archiveCommit: string | null;
 }
 
-function dependencyOrder(tracks: DiscoveredTrack[]): string[] {
-  const included = new Set(tracks.map((track) => track.id));
-  const byId = new Map(tracks.map((track) => [track.id, track]));
-  const ordered: string[] = [];
-  const visiting = new Set<string>();
-  const visited = new Set<string>();
-  const visit = (trackId: string) => {
-    if (visited.has(trackId)) return;
-    if (visiting.has(trackId)) throw new Error(`track dependency cycle includes ${trackId}`);
-    visiting.add(trackId);
-    for (const dependency of byId.get(trackId)?.dependencies ?? []) {
-      if (included.has(dependency)) visit(dependency);
-    }
-    visiting.delete(trackId);
-    visited.add(trackId);
-    ordered.push(trackId);
-  };
-  for (const track of tracks) visit(track.id);
-  return ordered;
-}
-
 function deriveMaterializedArchiveBatch(input: MaterializedArchiveRequest): MaterializedArchiveBatch {
   const root = safeProjectRoot(input.projectRoot);
   const validation = requireCurrentProject(root);
@@ -427,21 +407,6 @@ function assertArchiveUpdate(path: string, selected: Set<string>): void {
   const seed = path.match(/^tracks\/([a-z0-9]+(?:-[a-z0-9]+)*)\/(?:learning\.md|dependency-context\.json)$/);
   if (seed && !selected.has(seed[1]!)) return;
   throw new Error(`archive update path is not allowed: ${path}`);
-}
-
-function directorySnapshot(path: string): Array<{ path: string; content: string }> {
-  const files: Array<{ path: string; content: string }> = [];
-  function visit(directory: string): void {
-    for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-      const target = join(directory, entry.name);
-      if (entry.isSymbolicLink()) throw new Error(`refusing archive source symbolic link ${target}`);
-      if (entry.isDirectory()) visit(target);
-      else if (entry.isFile()) files.push({ path: relative(path, target), content: readFileSync(target, "utf8") });
-      else throw new Error(`unsupported archive source entry ${target}`);
-    }
-  }
-  visit(path);
-  return files;
 }
 
 function previewMaterializedArchiveBatch(input: MaterializedArchiveBatch): {

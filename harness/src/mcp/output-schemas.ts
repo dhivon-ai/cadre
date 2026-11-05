@@ -375,34 +375,6 @@ const reviewAppliedSchema = z.strictObject({
   derivedStateCurrent: z.boolean()
 });
 
-const archiveMovePrepareSchema = z.strictObject({
-  trackId: z.string(), sourcePath: pathSchema, targetPath: pathSchema, needsMove: z.boolean()
-});
-const archivePrepareSchema = z.strictObject({
-  ...approvalBase,
-  digest: digestSchema,
-  batchId: z.string(),
-  selectedTracks: stringArray,
-  operationPath: pathSchema,
-  checkpoint: z.string(),
-  resuming: z.boolean(),
-  moves: z.array(archiveMovePrepareSchema),
-  stateChanges: z.array(z.strictObject({ sourcePath: pathSchema, path: pathSchema, sha256: digestSchema,
-    changes: z.array(z.strictObject({ field: z.string(), action: z.enum(["set", "append"]), value: z.unknown() })) })),
-  writes: z.array(artifactSchema),
-  tracks: artifactSchema
-});
-const archiveAppliedSchema = z.strictObject({
-  receipt: receiptResultSchema.optional(),
-  ...appliedReceiptBase,
-  batchId: z.string(),
-  selectedTracks: stringArray,
-  operationPath: pathSchema,
-  checkpoint: z.string(),
-  moves: z.array(z.strictObject({ trackId: z.string(), targetPath: pathSchema })),
-  valid: z.boolean(),
-  derivedStateCurrent: z.boolean()
-});
 const executionStartOutputSchema = z.strictObject({
   buildCachePath: pathSchema.optional(),
   commandStatus: z.literal("applied"),
@@ -513,6 +485,7 @@ const workflowOutcomeSchema = z.strictObject({
 export const CADRE_MCP_OUTPUT_SCHEMAS = {
   [CADRE_MCP_TOOLS.contextRead]: compatibleOutputSchema(contextPageSchema),
   [CADRE_MCP_TOOLS.candidateApply]: compatibleOutputSchema(receiptResultSchema, z.strictObject({status: z.literal("draft"), candidateId: z.string(), stagePath: pathSchema, baseCommit: commitSchema}), z.strictObject({ commandStatus: z.literal("approval_required"), proposalToken: proposalTokenSchema, operationId: z.string(), files: z.array(z.strictObject({path: pathSchema, sha256: digestSchema.nullable()})),
+    selectedTracks: stringArray.optional(), moves: z.array(z.strictObject({trackId: z.string(), sourcePath: pathSchema, targetPath: pathSchema})).optional(),
     stateChanges: z.array(z.strictObject({ path: pathSchema, changes: z.array(z.strictObject({ field: z.string(), action: z.enum(["set", "append"]), value: z.unknown() })) })),
     digest: digestSchema, validation: z.strictObject({ valid: z.boolean(), errors: stringArray }) })),
   [CADRE_MCP_TOOLS.diagnosticRead]: compatibleOutputSchema(z.strictObject({ diagnosticId: z.string(), content: z.string(), offset: z.number().int(), nextOffset: z.number().int().nullable(), totalBytes: z.number().int() })),
@@ -530,7 +503,6 @@ export const CADRE_MCP_OUTPUT_SCHEMAS = {
   [CADRE_MCP_TOOLS.candidateInspect]: compatibleOutputSchema(candidateInspectSchema),
   [CADRE_MCP_TOOLS.executionGraphValidate]: compatibleOutputSchema(graphValidationSchema),
   [CADRE_MCP_TOOLS.reviewComplete]: compatibleOutputSchema(reviewPrepareSchema, reviewAppliedSchema),
-  [CADRE_MCP_TOOLS.archiveBatchCandidate]: compatibleOutputSchema(archivePrepareSchema, archiveAppliedSchema),
   [CADRE_MCP_TOOLS.executionStart]: compatibleOutputSchema(executionStartOutputSchema),
   [CADRE_MCP_TOOLS.executionCheckpoint]: compatibleOutputSchema(checkpointOutputSchema),
   [CADRE_MCP_TOOLS.executionStatus]: compatibleOutputSchema(executionStatusSchema),

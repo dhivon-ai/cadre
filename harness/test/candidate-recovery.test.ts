@@ -1,3 +1,4 @@
+import { prepareRefreshArchive } from "./helpers/complete-fixture.js";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { existsSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
@@ -84,10 +85,10 @@ async function reviewAndArchive({root, call, load}: Fixture) {
   commit(root, (await call("review_complete", {request: {mode: "apply", proposalToken: proposal.proposalToken}})).receipt);
   assert.equal(load().status, "completed");
   assert.equal((await call("review_complete", {request: {mode: "apply", proposalToken: proposal.proposalToken}})).receipt.status, "committed");
-  prepareCandidateStage(root, "archive-sample", []);
-  const archive = await call("archive_batch_candidate", {request: {mode: "prepare", projectRoot: root, candidateId: "archive-sample", selectedTracks: ["sample"], updates: []}});
-  commit(root, (await call("archive_batch_candidate", {request: {mode: "apply", proposalToken: archive.proposalToken}})).receipt);
-  assert.equal((await call("archive_batch_candidate", {request: {mode: "apply", proposalToken: archive.proposalToken}})).receipt.status, "committed");
+    const archive = await prepareRefreshArchive(root, call, ["sample"]);
+  const archived = await call("candidate_apply", {request: {mode: "apply", proposalToken: archive.proposalToken}});
+    commit(root, {operationId: archived.operationId, trailers: archived.trailers});
+  assert.equal((await call("candidate_apply", {request: {mode: "apply", proposalToken: archive.proposalToken}})).status, "committed");
   assert.equal(JSON.parse(read(root, ".cadre/archive/sample/state.json")).status, "archived");
   assert.deepEqual(validateProject(root).errors, []);
 }

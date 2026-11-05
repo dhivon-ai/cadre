@@ -36,11 +36,11 @@ function requireJournalTransition(before: string, after: string, previous: Track
 }
 
 export function requireJournalPreservation(root: string, files: PromotionFile[], saved?: BeforeEvidence[],
-  base?: string | null, derived = true): BeforeEvidence[] {
+  base?: string | null, derived = true, archivePaths = new Set<string>()): BeforeEvidence[] {
   const evidence = promotionEvidence(root, files, saved, base), paths = new Set(files.map((file) => file.path));
   for (const file of files) {
     const match = /^\.cadre\/tracks\/([^/]+)\/executions\/execution-[^/]+\.json$/.exec(file.path);
-    if (!match) continue;
+    if (!match || archivePaths.has(file.path)) continue;
     if (file.content === null) throw new Error("Refresh/revision cannot delete an execution journal");
     const before = evidence.read(file.path);
     if (before === file.content) continue;

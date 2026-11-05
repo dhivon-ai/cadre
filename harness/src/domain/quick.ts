@@ -24,7 +24,7 @@ export const beginQuickInputSchema = z.strictObject({projectRoot: z.string().min
 
 export function requireQuickContract(root: string): void {
   const project = JSON.parse(readSafeArtifact(root, ".cadre/project.json"));
-  if (project.templateSetVersion !== "v7" || !readSafeArtifact(root, ".cadre/workflow.md").includes(QUICK_CONTRACT)) {
+  if (!["v7", "v8"].includes(project.templateSetVersion) || !readSafeArtifact(root, ".cadre/workflow.md").includes(QUICK_CONTRACT)) {
     throw new Error("QUICK_REFRESH_REQUIRED: adopt the quick contract through an approved refresh before quick delivery");
   }
 }

@@ -33,6 +33,16 @@ export const CLAUDE_APPROVAL = "mcp__cadre__*";
 export const CLAUDE_SERVER_APPROVAL = "cadre";
 export const ZED_MCP_PERMISSION_KEYS = CADRE_MCP_TOOL_NAMES.map((name) => `mcp:cadre:${name}`);
 
+const OBSOLETE_ZED_ARCHIVE_PERMISSION = "mcp:cadre:archive_batch_candidate";
+
+/** Remove only the exact approval shape previously installed by Cadre. */
+function removeObsoleteZedApproval(text: string, tools: Record<string, unknown>): string {
+  const rule = tools[OBSOLETE_ZED_ARCHIVE_PERMISSION];
+  if (!isRecord(rule) || rule.default !== "allow" || Object.keys(rule).length !== 1) return text;
+  return applyEdits(text, modify(text, ["agent", "tool_permissions", "tools", OBSOLETE_ZED_ARCHIVE_PERMISSION], undefined,
+    {formattingOptions: {insertSpaces: true, tabSize: 2, eol: "\n"}}));
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -296,7 +306,9 @@ export function configureZedCadre(
     ));
   }
 
-  let permissionsChanged = false;
+  const withoutObsolete = removeObsoleteZedApproval(proposed, tools);
+  let permissionsChanged = withoutObsolete !== proposed;
+  proposed = withoutObsolete;
   if (autoApproveMcp) {
     for (const key of ZED_MCP_PERMISSION_KEYS) {
       const current = isRecord(tools[key]) ? tools[key] : {};
@@ -346,17 +358,19 @@ export function removeZedCadreServer(
   const { existing, root } = parseJsoncSettings(settingsPath);
   const contextServers = assertRecordField(root, "context_servers", settingsPath);
   const currentServer = contextServers.cadre;
-  if (currentServer === undefined) return { changed: false, retainedConflict: false };
-  if (!zedServerTargetsMcp(currentServer, mcpPath)) {
+  if (currentServer !== undefined && !zedServerTargetsMcp(currentServer, mcpPath)) {
     return { changed: false, retainedConflict: true };
   }
   const formattingOptions = { insertSpaces: true, tabSize: 2, eol: "\n" };
-  const proposed = applyEdits(existing, modify(
+  let proposed = applyEdits(existing, modify(
     existing,
     ["context_servers", "cadre"],
     undefined,
     { formattingOptions }
   ));
-  atomicWrite(settingsPath, proposed.endsWith("\n") ? proposed : `${proposed}\n`);
-  return { changed: true, retainedConflict: false };
+  const agent = assertRecordField(root, "agent", settingsPath);
+  const permissions = assertRecordField(agent, "tool_permissions", settingsPath);
+  proposed = removeObsoleteZedApproval(proposed, assertRecordField(permissions, "tools", settingsPath));
+  if (proposed !== existing) atomicWrite(settingsPath, proposed.endsWith("\n") ? proposed : `${proposed}\n`);
+  return { changed: proposed !== existing, retainedConflict: false };
 }

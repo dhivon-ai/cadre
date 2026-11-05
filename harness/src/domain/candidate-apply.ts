@@ -1,5 +1,6 @@
+import { selectRefreshTracks, refreshArchiveFiles, relocateDependencyContext, requireRefreshArchives } from "./refresh-archive.js";
 import { previewQuick } from "./quick.js";
-import { quickRefreshMoves, requireQuickRefreshSources } from "./quick-consolidation.js";
+import { quickRefreshMoves, requireQuickRefreshSources, quickRefreshSources } from "./quick-consolidation.js";
 import { requireSupportedProjectFormat } from "./project-format.js";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -37,6 +38,7 @@ export interface CandidateApplyInput {
   workflow: "track" | "revise" | "refresh" | "review" | "revert" | "quick";
   files: string[];
   reviewRetry?: ReviewRetry | undefined;
+  selectedTracks?: string[] | undefined;
 }
 const json = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
 
@@ -54,6 +56,7 @@ function allowed(input: CandidateApplyInput, path: string): boolean {
 }
 
 export function previewCandidateApply(input: CandidateApplyInput) {
+  if (input.selectedTracks !== undefined && input.workflow !== "refresh") throw new Error("Track archival selection requires the refresh workflow");
   if (input.reviewRetry) {
     reviewRetrySchema.parse(input.reviewRetry);
     if (input.workflow !== "refresh") throw new Error("Explicit review retry requires the refresh workflow");
@@ -65,6 +68,11 @@ export function previewCandidateApply(input: CandidateApplyInput) {
   const staged = readCandidateFiles(root, input.candidateId, input.files);
   if (JSON.stringify(listCandidatePaths(root, input.candidateId)) !== JSON.stringify(staged.map((file) => file.path).sort())) throw new Error("Candidate stage must contain exactly the approved manifest");
   const original = new Map(staged.map((file) => [candidateArtifactPath(input.candidateId, file.path), file.content]));
+  if (input.reviewRetry) {
+    const retryFiles = new Set(["project.json", `tracks/${input.reviewRetry.trackId}/state.json`, input.reviewRetry.refreshPath]);
+    if ([...original.keys()].some((path) => !retryFiles.has(path))) throw new Error("Review retry cannot include unrelated maintenance");
+    if (quickRefreshSources(original.get(input.reviewRetry.refreshPath) ?? "").length) throw new Error("Review retry cannot consolidate quick outcomes");
+  }
   if (original.size !== staged.length) throw new Error("Candidate aliases an artifact");
   for (const path of original.keys()) if (!allowed(input, path)) {
     const hint = input.workflow === "review" ? "; review bug artifacts must use bugs/review-<cycle>.md or bugs/bug-<number>.md with numeric suffixes"
@@ -78,8 +86,10 @@ export function previewCandidateApply(input: CandidateApplyInput) {
   }
   const project = JSON.parse(readSafeArtifact(root, ".cadre/project.json"));
   requireSupportedProjectFormat(project);
-  const operationId = `${input.workflow}-${contentHash(JSON.stringify([root, baseCommit, [...original].sort(), ...(input.reviewRetry ? [input.reviewRetry] : [])])).slice(0, 32)}`;
+  const selectedTracks = input.workflow === "refresh" ? selectRefreshTracks(root, input.selectedTracks, Boolean(input.reviewRetry)) : [];
+  const operationId = `${input.workflow}-${contentHash(JSON.stringify([root, baseCommit, [...original].sort(), ...(input.reviewRetry ? [input.reviewRetry] : []), ...(input.workflow === "refresh" ? [selectedTracks] : [])])).slice(0, 32)}`;
   const reference = operationRef(operationId), overlay = new Map(original), unchanged = new Map<string, string>();
+  const archiveFiles = refreshArchiveFiles(root, selectedTracks, reference);
   if (input.workflow === "refresh") requireJournalPreservation(root,
     [...original].map(([path, content]) => ({path: `.cadre/${path}`, content})), undefined, undefined, false);
   unchanged.set("project.json", contentHash(readSafeArtifact(root, ".cadre/project.json")));
@@ -90,10 +100,11 @@ export function previewCandidateApply(input: CandidateApplyInput) {
   const trackIds = new Set([...overlay.keys()].map((path) => /^tracks\/([^/]+)\//.exec(path)?.[1]).filter((id): id is string => Boolean(id)));
   if (input.reviewRetry) trackIds.add(input.reviewRetry.trackId);
   if (input.workflow === "refresh") {
+    if (selectedTracks.length) read("workflow.md");
     if (!overlay.has("project.json")) throw new Error("Refresh requires proposed project.json");
     for (const entry of readdirSync(join(root, ".cadre/tracks"), { withFileTypes: true }).filter((entry) => entry.isDirectory())) {
       const previous = JSON.parse(readSafeArtifact(root, `.cadre/tracks/${entry.name}/state.json`));
-      if (!["completed", "archived"].includes(previous.status)) trackIds.add(entry.name);
+      if (!["completed", "archived"].includes(previous.status) && (!input.reviewRetry || entry.name === input.reviewRetry.trackId)) trackIds.add(entry.name);
       if (previous.operation && previous.operation.action !== "implement") throw new Error("Refresh requires reconciliation of the active operation");
       if (previous.operation?.action === "implement") {
         const path = `tracks/${entry.name}/${previous.operation.journal}`;
@@ -107,7 +118,7 @@ export function previewCandidateApply(input: CandidateApplyInput) {
     next.schemaVersion = 2; next.runtimeVersion = CADRE_RUNTIME_VERSION; next.templateSetVersion = TEMPLATE_SET_VERSION;
     const refreshPath = requireRefreshRecord(root, [...original].map(([path, content]) => ({path: `.cadre/${path}`, content})));
     next.lastRefresh = { ...(next.lastRefresh ?? {}), refreshPath, commit: reference };
-    next.history = [...(next.history ?? []), { action: "refresh", commit: reference, refreshPath }];
+    next.history = [...(next.history ?? []), { action: "refresh", commit: reference, refreshPath, selectedTracks }];
     overlay.set("project.json", json(next));
     const ignore = read(".gitignore");
     overlay.set(".gitignore", ignore.replace(/\s*$/, "\n") + ["/stage/", "/.build-cache/cadre/"].filter((line) => !ignore.split(/\r?\n/).includes(line)).map((line) => `${line}\n`).join(""));
@@ -173,7 +184,15 @@ export function previewCandidateApply(input: CandidateApplyInput) {
     const graph = parsePlanContent(read(`${parent}/plan.md`), `${parent}/plan.md`), errors: string[] = [];
     validatePlanGraph(`${parent}/plan.md`, graph, state.status, errors);
     if (errors.length) throw new Error(errors.join("; "));
-    inspectDependencyContext(root, read(`${parent}/dependency-context.json`), state.dependencies ?? [], graph.specRevision, graph.planRevision, (path) => read(path.replace(/^\.cadre\//, "")));
+    const dependencyPath = `${parent}/dependency-context.json`;
+    const context = inspectDependencyContext(root, read(dependencyPath), state.dependencies ?? [], graph.specRevision, graph.planRevision, (path) => read(path.replace(/^\.cadre\//, "")));
+    if (selectedTracks.length) {
+      const relocated = relocateDependencyContext(context, selectedTracks);
+      if (!isDeepStrictEqual(context, relocated)) {
+        overlay.set(dependencyPath, json(relocated));
+        state.commits = {...state.commits, dependencyContext: reference};
+      }
+    }
     overlay.set(path, json(state));
   }
   const files: CandidateFile[] = [...overlay].map(([path, content]) => ({ path, content, absolutePath: join(root, ".cadre", path) }));
@@ -186,17 +205,22 @@ export function previewCandidateApply(input: CandidateApplyInput) {
     if (location === "tracks") for (const id of trackIds) ids.add(id);
     for (const id of ids) {
       const state = JSON.parse(read(`${location}/${id}/state.json`));
-      tracks.push({ id, title: state.title, status: state.status, type: state.type, revision: state.revision });
+      tracks.push({ id, title: state.title, status: selectedTracks.includes(id) ? "archived" : state.status, type: state.type, revision: state.revision });
     }
   }
   overlay.set("tracks.md", buildTracks(tracks.sort((a, b) => a.id.localeCompare(b.id))));
   const promoted: ReceiptFile[] = [...overlay].map(([path, content]) => ({ path: `.cadre/${path}`, content }));
   if (input.workflow === "track" || input.workflow === "revise") requireWorkflowAdmission(root, input.workflow, promoted);
   if (input.workflow === "review") requireReviewPreservation(root, promoted);
-  if (["refresh", "revise"].includes(input.workflow)) requireJournalPreservation(root, promoted);
+  if (input.workflow === "revise") requireJournalPreservation(root, promoted);
   if (input.workflow === "refresh") {
-    requireRefreshPreservation(root, promoted);
-    promoted.push(...quickRefreshMoves(root, promoted));
+    promoted.push(...archiveFiles);
+    const archived = requireRefreshArchives(root, promoted);
+    requireJournalPreservation(root, promoted, undefined, undefined, true, archived.paths);
+    requireRefreshPreservation(root, promoted, undefined, undefined, archived.paths);
+    const quickMoves = quickRefreshMoves(root, promoted);
+    if (input.reviewRetry && quickMoves.length) throw new Error("Review retry cannot consolidate quick outcomes");
+    promoted.push(...quickMoves);
     requireQuickRefreshSources(root, promoted);
   }
   requireProjectOverlay(root, promoted);
@@ -207,10 +231,14 @@ export function previewCandidateApply(input: CandidateApplyInput) {
     path: `.cadre/${path}`,
     changes: candidateStateChanges(JSON.parse(original.get(path) ?? readSafeArtifact(root, `.cadre/${path}`)), JSON.parse(content))
   })).filter((item) => item.changes.length);
+  for (const id of selectedTracks) {
+    const sourcePath = `.cadre/tracks/${id}/state.json`, path = `.cadre/archive/${id}/state.json`;
+    stateChanges.push({path, changes: candidateStateChanges(JSON.parse(readSafeArtifact(root, sourcePath)), JSON.parse(archiveFiles.find((file) => file.path === path)!.content!))});
+  }
   const inputs = new Map([...unchanged, ...memory.inputs.map(({ path, sha256 }) => [path, sha256] as const)]);
   const recoveryInputs = [...inputs].filter(([path]) => !overlay.has(path)).sort(([a], [b]) => a.localeCompare(b))
     .map(([path, sha256]) => ({ path: `.cadre/${path}`, sha256 }));
-  return { operationId, baseCommit, files: promoted, manifest, digest, memory, stateChanges, recoveryInputs, validation: { valid: true as const, errors: [] as string[] } };
+  return { selectedTracks, moves: selectedTracks.map((trackId) => ({trackId, sourcePath: `.cadre/tracks/${trackId}`, targetPath: `.cadre/archive/${trackId}`})), operationId, baseCommit, files: promoted, manifest, digest, memory, stateChanges, recoveryInputs, validation: { valid: true as const, errors: [] as string[] } };
 }
 
 export function applyCandidate(input: CandidateApplyInput, digest: string) {

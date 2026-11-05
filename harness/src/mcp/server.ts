@@ -1,3 +1,4 @@
+import { selectedTracksSchema } from "../domain/refresh-archive.js";
 import { beginQuick, beginQuickInputSchema } from "../domain/quick.js";
 import { quickStatus } from "../domain/quick-history.js";
 import { requireSupportedProjectFormat, supportsProjectFormat } from "../domain/project-format.js";
@@ -71,14 +72,9 @@ import {
   type WorktreeIntegrationInput
 } from "../domain/worktrees.js";
 import {
-  applyArchiveBatchCandidate,
   applyReviewComplete,
-  deriveArchiveBatchCandidateInput,
   deriveReviewCompleteInput,
-  previewArchiveBatchCandidate,
   previewReviewComplete,
-  type ArchiveBatchCandidateInput,
-  type ArchiveBatchCandidateRequest,
   type ReviewCompleteInput,
   type ReviewCompleteRequest
 } from "../domain/governance.js";
@@ -705,7 +701,7 @@ export function createCadreServer(): McpServer {
   registerTool(CADRE_MCP_TOOLS.candidateApply, {
     title: "Apply candidate", description: "Preview or promote constrained Cadre artifacts; never writes product files or commits.",
     inputSchema: { request: z.discriminatedUnion("mode", [
-      z.strictObject({ mode: z.literal("prepare"), projectRoot: z.string().min(1), candidateId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), workflow: z.enum(["track", "revise", "refresh", "review", "revert", "quick"]), files: z.array(z.string()).min(1), reviewRetry: reviewRetrySchema.optional() }),
+      z.strictObject({ mode: z.literal("prepare"), projectRoot: z.string().min(1), candidateId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), workflow: z.enum(["track", "revise", "refresh", "review", "revert", "quick"]), files: z.array(z.string()).min(1), reviewRetry: reviewRetrySchema.optional(), selectedTracks: selectedTracksSchema.optional() }),
       z.strictObject({ mode: z.literal("apply"), proposalToken: proposalTokenSchema }),
       z.strictObject({ mode: z.literal("begin_quick"), ...beginQuickInputSchema.shape }),
       z.strictObject({ mode: z.literal("reconcile"), projectRoot: z.string(), operationId: z.string() }),
@@ -728,7 +724,10 @@ export function createCadreServer(): McpServer {
       const { mode: _mode, ...input } = request;
       requireCompatibleProject(input.projectRoot);
       const preview = previewCandidateApply(input);
-      return proposalResult("candidate_apply", input, { operationId: preview.operationId, files: preview.manifest,
+      const archival = input.workflow === "refresh" && "selectedTracks" in preview
+        ? {selectedTracks: preview.selectedTracks, moves: preview.moves} : undefined;
+      const frozenInput = archival ? {...input, selectedTracks: archival.selectedTracks} : input;
+      return proposalResult("candidate_apply", frozenInput, { ...archival, operationId: preview.operationId, files: preview.manifest,
         stateChanges: preview.stateChanges, digest: preview.digest, validation: preview.validation });
     } catch (error) { return failure(error); }
   });
@@ -805,79 +804,6 @@ export function createCadreServer(): McpServer {
           jsonArtifact(preview.statePath, preview.state),
           artifact(preview.tracksPath, preview.tracksContent)
         ]
-      });
-    } catch (error) {
-      return failure(error);
-    }
-  });
-
-  const archiveCandidateUpdateSchema = z.discriminatedUnion("kind", [
-    z.object({ kind: z.literal("pattern"), slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/) }),
-    z.object({ kind: z.literal("pattern_index") }),
-    z.object({
-      kind: z.enum(["active_track_seed", "active_dependency_context"]),
-      trackId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
-    })
-  ]);
-  const archiveBatchCandidateSchema = {
-    projectRoot: z.string().min(1),
-    candidateId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-    selectedTracks: z.array(z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)).min(1).optional(),
-    updates: z.array(archiveCandidateUpdateSchema)
-  };
-
-  registerTool(CADRE_MCP_TOOLS.archiveBatchCandidate, {
-    title: "Archive completed tracks",
-    description: "Apply archive batch.",
-    inputSchema: adaptiveInputSchema(archiveBatchCandidateSchema),
-    outputSchema: CADRE_MCP_OUTPUT_SCHEMAS[CADRE_MCP_TOOLS.archiveBatchCandidate],
-    annotations: { destructiveHint: false, openWorldHint: false }
-  }, async ({ request }) => {
-    try {
-      const adaptive = normalizeAdaptiveInput(
-        request as Record<string, unknown>,
-        ["projectRoot", "candidateId", "updates"],
-        "archive_batch_candidate"
-      );
-      if (adaptive.mode === "apply") {
-        const proposal = proposalTokens.resolve<ArchiveBatchCandidateInput>(
-          "archive_batch_candidate",
-          adaptive.proposalToken
-        );
-        requireCurrentProject(proposal.input.projectRoot);
-        const applied = applyArchiveBatchCandidate(proposal.input, proposal.digest);
-        const committed = "receipt" in applied && applied.receipt.status === "committed";
-        return result({
-          commandStatus: "applied" as const,
-          batchId: proposal.input.batchId,
-          ...("receipt" in applied ? { receipt: applied.receipt } : {}),
-          selectedTracks: proposal.input.selectedTracks,
-          operationPath: applied.operationPath,
-          checkpoint: applied.operation.checkpoint,
-          digest: proposal.digest,
-          moves: applied.moves.map(({ trackId, targetPath }) => ({ trackId, targetPath })),
-          changedPaths: committed ? [] : [...applied.writes.map((write) => write.path), applied.tracksPath],
-          changedCount: committed ? 0 : applied.writes.length + 1,
-          valid: applied.valid,
-          derivedStateCurrent: applied.derivedStateCurrent
-        });
-      }
-      requireCurrentProject(String(adaptive.request.projectRoot));
-      const derived = deriveArchiveBatchCandidateInput(adaptive.request as unknown as ArchiveBatchCandidateRequest);
-      const preview = previewArchiveBatchCandidate(derived);
-      return proposalResult("archive_batch_candidate", derived, {
-        digest: preview.digest,
-        batchId: derived.batchId,
-        selectedTracks: derived.selectedTracks,
-        operationPath: preview.operationPath,
-        checkpoint: preview.operation.checkpoint,
-        resuming: preview.resuming,
-        stateChanges: preview.stateChanges,
-        moves: preview.moves.map(({ trackId, sourcePath, targetPath, needsMove }) => ({
-          trackId, sourcePath, targetPath, needsMove
-        })),
-        writes: preview.writes.map((write) => artifact(write.path, write.content)),
-        tracks: artifact(preview.tracksPath, preview.tracksContent)
       });
     } catch (error) {
       return failure(error);

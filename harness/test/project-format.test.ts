@@ -13,7 +13,7 @@ import type { ProjectState } from "../src/domain/state.js";
 
 test("format admission preserves 3.9 contracts and rejects obsolete or unknown formats", () => {
   for (const runtimeVersion of ["3.9.0", "3.9.1", "3.9.2", CADRE_RUNTIME_VERSION]) {
-    for (const templateSetVersion of ["v5", "v6", "v7"]) {
+    for (const templateSetVersion of ["v5", "v6", "v7", "v8"]) {
       const project = {schemaVersion: 2, runtimeVersion, templateSetVersion};
       const before = json(project);
       assert.equal(supportsProjectFormat(project), true);
@@ -30,10 +30,10 @@ test("format admission preserves 3.9 contracts and rejects obsolete or unknown f
     assert.equal(supportsProjectFormat(project), false);
     assert.throws(() => requireSupportedProjectFormat(project), /Install cadre-ai@3\.9\.0/);
   }
-  for (const name of ["archive_batch_record", "setup_record_commit", "setup_record_git_initialized"]) {
+  for (const name of ["archive_batch_candidate", "archive_batch_record", "setup_record_commit", "setup_record_git_initialized"]) {
     assert.equal((CADRE_MCP_TOOL_NAMES as readonly string[]).includes(name), false);
   }
-  assert.equal(CADRE_MCP_TOOL_NAMES.length, 22);
+  assert.equal(CADRE_MCP_TOOL_NAMES.length, 21);
 });
 
 test("older project diagnostics expose the complete approved bridge without changing metadata", () => {
@@ -52,7 +52,7 @@ const versions = ["3.9.0", "3.9.1", "3.9.2"];
 for (const [versionIndex, runtimeVersion] of versions.entries()) for (const [modeIndex, approvalMode] of EXECUTION_APPROVAL_MODES.entries()) {
   for (const [scheduleIndex, requestedMode] of (["sequential", "parallel"] as const).entries()) {
     const client = ["codex", "claude-code", "zed"][(versionIndex + modeIndex + scheduleIndex) % 3]!;
-    test(`3.9 continuation without refresh: ${runtimeVersion}/${client}/${approvalMode}/${requestedMode}`, async (t) => {
+    test(`3.9 delivery then approved Refresh adoption: ${runtimeVersion}/${client}/${approvalMode}/${requestedMode}`, async (t) => {
       const f = await fixture(t, client), {root, call, load} = f;
       const project = JSON.parse(read(root, ".cadre/project.json"));
       project.runtimeVersion = runtimeVersion; project.templateSetVersion = "v5";
@@ -67,11 +67,12 @@ for (const [versionIndex, runtimeVersion] of versions.entries()) for (const [mod
       assert.equal(read(root, ".cadre/project.json"), before);
       await reviewAndArchive(f);
       const after = JSON.parse(read(root, ".cadre/project.json"));
-      assert.equal(after.runtimeVersion, runtimeVersion); assert.equal(after.templateSetVersion, "v5");
+      assert.equal(after.runtimeVersion, CADRE_RUNTIME_VERSION); assert.equal(after.templateSetVersion, "v8");
       assert.deepEqual(after.setup, project.setup);
       assert.deepEqual(after.history.slice(0, -1), project.history);
-      assert.equal(after.history.at(-1).action, "archive");
-      assert.equal(read(root, ".cadre/workflow.md"), workflow);
+      assert.equal(after.history.at(-1).action, "refresh");
+      assert.notEqual(read(root, ".cadre/workflow.md"), workflow);
+      assert.match(read(root, ".cadre/workflow.md"), /cadre:refresh-archival:v1/);
       assert.equal(JSON.parse(read(root, ".cadre/archive/sample/state.json")).status, "archived");
       assert.equal(git(root, "status", "--porcelain"), "");
     });
@@ -95,7 +96,6 @@ for (const client of ["codex", "claude-code", "zed"]) test(`older formats block 
     ["worktree_cleanup", {...scope, nodeId: "P1"}],
     ["integration", {request: {mode: "prepare", ...scope, nodeId: "P1"}}],
     ["review_complete", {request: {mode: "prepare", projectRoot: root, trackId: "sample", approval: "Fixture review evidence"}}],
-    ["archive_batch_candidate", {request: {mode: "prepare", projectRoot: root, candidateId: "archive-fixture", selectedTracks: ["sample"], updates: []}}],
     ["candidate_stage_prepare", {projectRoot: root, candidateId: "refresh-fixture", expectedFiles: []}],
     ["candidate_apply", {request: {mode: "prepare", projectRoot: root, candidateId: "refresh-fixture", workflow: "refresh", files: ["project.json"]}}],
     ["candidate_apply", {request: {mode: "resume", projectRoot: root, operationId: "refresh-fixture", approvalDigest: "a".repeat(64)}}],

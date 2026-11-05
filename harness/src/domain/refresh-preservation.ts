@@ -5,11 +5,11 @@ import type { TrackState } from "./state.js";
 import { requireRevisionPreservation } from "./revision-preservation.js";
 
 /** Refresh authority is narrower than arbitrary edits to an otherwise valid track state. */
-export function requireRefreshPreservation(root: string, files: PromotionFile[], saved?: BeforeEvidence[], base?: string | null): BeforeEvidence[] {
+export function requireRefreshPreservation(root: string, files: PromotionFile[], saved?: BeforeEvidence[], base?: string | null, archivePaths = new Set<string>()): BeforeEvidence[] {
   const evidence = promotionEvidence(root, files, saved, base);
   for (const file of files) {
     const match = /^\.cadre\/tracks\/([^/]+)\/state\.json$/.exec(file.path);
-    if (!match) continue;
+    if (!match || archivePaths.has(file.path)) continue;
     if (file.content === null) throw new Error("Refresh cannot delete a track");
     const previous = JSON.parse(evidence.read(file.path)) as TrackState, proposed = JSON.parse(file.content) as TrackState;
     const priorHistory = Array.isArray(previous.history) ? previous.history : [];
