@@ -1,7 +1,7 @@
 ---
 title: Architecture
 description: Package layout, plugin assembly, runtime boundaries, and generated artifacts.
-section: Contributor Guide
+section: Contribute
 order: 140
 ---
 
@@ -29,8 +29,8 @@ harness/
 ├── templates/
 │   ├── v1/                 # immutable published legacy set
 │   ├── v2/                 # immutable compact legacy set
-│   ├── v3–v5/              # immutable historical fixtures (not shipped)
-│   └── v6/                 # active receipt-based template set
+│   ├── v3–v7/              # immutable historical fixtures (not shipped)
+│   └── v8/                 # active Quick and unified Refresh templates
 ├── test/
 ├── .codex-plugin/plugin.json
 ├── .claude-plugin/plugin.json

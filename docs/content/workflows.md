@@ -2,7 +2,7 @@
 title: Workflow Guide
 navTitle: Workflows
 description: When and how to use Cadre's ten lifecycle skills.
-section: User Guide
+section: Deliver and maintain
 order: 60
 ---
 
@@ -51,8 +51,7 @@ Cadre workers or absorb pre-existing edits. Migrations, coordinated work, and
 changes to approved track requirements go through track or revise.
 
 Existing v5/v6 projects need a one-time approved refresh adopting the current quick
-contract. This is an unreleased source addition; installation alone does not
-rewrite project policy.
+contract. Installation alone does not rewrite project policy.
 
 ## track
 
@@ -155,6 +154,23 @@ instead of creating separate approval cycles.
 Refresh selects all eligible completed tracks in dependency order by default. Explicit track IDs limit the batch; an explicit empty selection excludes track archival. Prepare freezes the selection and shows moves, derived state changes, context and pattern updates together. One approval covers one receipt and commit. No new lessons are required to archive; record a justified no-change assessment. Active dependency references relocate within the same operation, while completed history remains immutable.
 
 Blocked-review retry remains focused and cannot archive tracks or consolidate quick outcomes. New archival on older supported projects requires adopting the v8 workflow contract in the same approved refresh diff. Existing archive journals retain their original recovery authority; unapplied archive proposals must be prepared again through Refresh.
+
+```mermaid
+flowchart TD
+  I["completed tracks + quick outcomes<br/>context + patterns + repository"] --> P["prepare Refresh"]
+  P --> D["freeze selection<br/>preview full diff + moves"]
+  D --> A["one approval"]
+  A --> R["one Refresh receipt"]
+  R --> G["one commit"]
+  G --> V["reconcile + validate"]
+```
+
+Preparation assesses up to 20 quick outcomes and has no track batch limit.
+Approval binds the selected tracks,
+source contents, destinations, and required context. Track moves, unchanged
+quick-record moves, guidance updates, active dependency references, the refresh
+record, and the final track index belong to this one operation. Recovery resumes
+the approved operation without expanding its selection or repeating its commit.
 
 ## revert
 

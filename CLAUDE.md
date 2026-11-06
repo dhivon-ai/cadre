@@ -53,6 +53,22 @@ catalogs, and templates are source files. `harness/dist/`, `node_modules/`, and
 the installed marketplace under `~/.cadre/marketplaces/cadre` are generated;
 never edit them as source.
 
+## Dhivon Identity And Licensing
+
+- Cadre is a product of Dhivon AI. Use the shared Dhivon wordmark with “Cadre”
+  for display identity; preserve `cadre-ai`, `cadre@cadre`, MCP names, and `.cadre/`.
+- The public site is `https://cadre.dhivon.ai` and the repository is
+  `https://github.com/dhivon-ai/cadre`.
+- Website assets are self-contained under `docs/public/brand/`. Follow the shared
+  light-only navy/emerald palette and Manrope typography. Do not add a runtime
+  dependency on a sibling Dhivon repository.
+- Current distributions use Apache-2.0. Use Dhivon AI as the sole Cadre author
+  and copyright attribution. Keep root and harness `LICENSE` and `NOTICE` in sync
+  and included in npm/client payloads. Preserve third-party notices, including
+  Manrope's OFL. Public legal downloads must match their source bytes.
+- Preserve existing guide routes and heading anchors when revising navigation.
+  Keep pending release features clearly distinguished from published behavior.
+
 ## Development Commands
 
 Run workspace commands from the repository root:

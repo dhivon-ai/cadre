@@ -1,7 +1,7 @@
 ---
 title: Capabilities
 description: What Cadre supports today and where its boundaries are.
-section: User Guide
+section: Understand Cadre
 order: 40
 ---
 
@@ -62,7 +62,7 @@ before the first artifact or Git mutation.
 
 ## Not In The Current Release
 
-Cadre 4.0 does not currently provide:
+Cadre 4.1 does not currently provide:
 
 - GitHub Copilot or Google Antigravity plugins;
 - project-scoped client installation;

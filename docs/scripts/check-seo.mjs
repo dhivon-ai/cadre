@@ -55,10 +55,14 @@ for (const route of ["/", ...slugs.map((slug) => `/${slug}/`)]) {
   check(oneMeta("og:url") === absolute(route), `${route}: Open Graph URL differs from canonical`)
   for (const key of ["og:title", "twitter:title"]) check(oneMeta(key) === title[0], `${route}: ${key} differs from title`)
   for (const key of ["og:description", "twitter:description"]) check(oneMeta(key) === description, `${route}: ${key} differs from description`)
-  oneMeta("twitter:card")
+  check(oneMeta("twitter:card") === "summary_large_image", `${route}: expected large social card`)
+  check(oneMeta("og:site_name") === "Dhivon Cadre", `${route}: incorrect brand`)
+  check(oneMeta("og:image:width") === "1200" && oneMeta("og:image:height") === "630", `${route}: incorrect social image dimensions`)
+  check(oneMeta("theme-color") === "#ffffff", `${route}: incorrect theme color`)
+  if (route === "/") check(title[0] === "Dhivon AI: Cadre - Spec-driven AI workflows for Codex, Claude Code and Zed.", "Homepage title differs from approved title")
   for (const key of ["og:image", "twitter:image"]) {
     const image = oneMeta(key)
-    check(image === absolute("/cadre-mark.png"), `${route}: missing canonical share image`)
+    check(image === absolute("/brand/cadre-social.png"), `${route}: missing canonical share image`)
   }
   oneMeta("og:image:alt")
   oneMeta("twitter:image:alt")
@@ -67,6 +71,10 @@ for (const route of ["/", ...slugs.map((slug) => `/${slug}/`)]) {
   })
   const article = data.find((item) => item["@type"] === (route === "/" ? "WebSite" : "TechArticle"))
   check(article?.url === absolute(route), `${route}: missing or incorrect page structured data`)
+  const publisher = data.find((item) => item["@type"] === "Organization")
+  check(publisher?.["@id"] === "https://dhivon.ai/#organization" && publisher?.name === "Dhivon AI" && publisher?.url === "https://dhivon.ai", `${route}: missing Dhivon organization`)
+  check(publisher?.logo === absolute("/brand/dhivon.svg"), `${route}: incorrect organization logo`)
+  check(article?.publisher?.["@id"] === publisher?.["@id"], `${route}: missing publisher reference`)
   if (route !== "/") {
     const crumbs = data.find((item) => item["@type"] === "BreadcrumbList")?.itemListElement
     check(crumbs?.at(-1)?.item === absolute(route), `${route}: incorrect breadcrumb destination`)
@@ -76,6 +84,14 @@ for (const route of ["/", ...slugs.map((slug) => `/${slug}/`)]) {
     elements,
     ids: new Set(elements.map((node) => attrs(node).id).filter(Boolean)),
   })
+}
+
+// Existing public guide links are an API: reorganizing navigation must not break them.
+const preservedAnchors = JSON.parse(fs.readFileSync(path.join(root, "scripts/fixtures/public-anchors.json"), "utf8"))
+for (const [route, ids] of Object.entries(preservedAnchors)) {
+  const page = pages.get(absolute(route))
+  check(Boolean(page), `Existing public route removed: ${route}`)
+  for (const id of ids) check(page?.ids.has(id), `Existing public anchor removed: ${route}#${id}`)
 }
 
 let links = 0
@@ -104,7 +120,16 @@ for (const url of pages.keys()) check(listed.includes(url), `Sitemap missing can
 const robots = fs.readFileSync(path.join(output, "robots.txt"), "utf8")
 check(/^Allow: \/$/m.test(robots) && !/^Disallow: \/$/m.test(robots), "robots.txt blocks crawling")
 check(robots.includes(`Sitemap: ${absolute("/sitemap.xml")}`), "robots.txt has incorrect sitemap")
-check(fs.existsSync(path.join(output, "cadre-mark.png")), "Share image absent from export")
+check(fs.existsSync(path.join(output, "brand/cadre-social.png")), "Share image absent from export")
+for (const [download, source] of [
+  ["LICENSE.txt", "../LICENSE"], ["NOTICE.txt", "../NOTICE"],
+  ["brand/fonts/OFL.txt", "public/brand/fonts/OFL.txt"],
+]) {
+  const exported = path.join(output, download)
+  check(fs.existsSync(exported) && fs.readFileSync(exported).equals(fs.readFileSync(path.join(root, source))), `Missing or changed notice: ${download}`)
+}
+const social = fs.readFileSync(path.join(output, "brand/cadre-social.png"))
+check(social.readUInt32BE(16) === 1200 && social.readUInt32BE(20) === 630, "Social PNG must be 1200×630")
 const notFound = fs.readFileSync(path.join(output, "404.html"), "utf8")
 check(/name="robots" content="[^"]*noindex/.test(notFound), "404 must remain noindex")
 if (failures.length) throw new Error(`${failures.length} SEO/export failures:\n${failures.slice(0, 40).join("\n")}`)

@@ -1,7 +1,7 @@
 ---
 title: Installation
 description: Install, update, verify, and remove stable Codex, Claude Code, and Zed Agent integrations.
-section: Start Here
+section: Get started
 order: 20
 ---
 
@@ -19,21 +19,31 @@ and executable are named `cadre-ai`.
 
 ## Install The CLI And Client Integration
 
+Choose your client, then run these commands in a terminal:
+
 ```bash
+# Codex
 npm install -g cadre-ai
-cadre-ai doctor
-cadre-ai install
-```
-
-With no target, installation auto-detects available clients. Select a client
-explicitly when needed:
-
-```bash
 cadre-ai install --target codex
+cadre-ai doctor
+
+# Claude Code
+npm install -g cadre-ai
 cadre-ai install --target claude
+cadre-ai doctor
+
+# Zed Agent
+npm install -g cadre-ai
 cadre-ai install --target zed
-cadre-ai install --target all
+cadre-ai doctor
 ```
+
+The npm command installs the latest stable release. Version **4.1.0** includes
+Quick and unified Refresh. See [release notes](/release-notes) for changes and
+upgrade guidance.
+
+Use `cadre-ai install` to auto-detect available clients or
+`cadre-ai install --target all` to select every supported client.
 
 The installer supports user scope only. It:
 
@@ -71,6 +81,8 @@ claude plugin list --json
 Codex and Claude should report `cadre@cadre` installed and enabled.
 For Zed, open AI → Skills to confirm all ten `cadre-*` skills and AI → MCP
 Servers to confirm that `cadre` is active.
+
+Once the integration is active, [create project context and choose your first workflow](/quickstart).
 
 ## MCP Permission Behavior
 
@@ -133,9 +145,9 @@ cadre-ai install
 Use `--replace-marketplace` only when a marketplace already named `cadre`
 points at a different location that you have reviewed and intend to replace.
 
-Cadre 4.0 accepts existing 3.9.0/3.9.1/3.9.2 projects using schema-2 state and v5 without a project refresh or migration. Update the installed runtime and start a new client session. Interrupted work still requires receipt reconciliation; inconsistent approval state requires an explicitly approved repair.
+Cadre 4.1.0 accepts existing 3.9.0/3.9.1/3.9.2 and 4.0.0 projects using supported schema-2 state and v5–v8 templates without a version-only refresh. Adopting Quick or unified archival requires an approved Refresh of the workflow contract. Update the installed runtime and start a new client session. Interrupted work still requires receipt reconciliation; inconsistent approval state requires an explicitly approved repair.
 
-For an older format, status reports `PROJECT_UPGRADE_REQUIRED`. Install `cadre-ai@3.9.0`, run `cadre-ai install --target all --scope user`, and reload the client. Reconcile interrupted operations and use Cadre refresh in 3.9.0 for an approved migration to schema-2/v5 at a quiescent boundary. Then install 4.0, reinstall the client integration and reload again. Never update version labels by hand. See [release notes](/release-notes) for the complete route.
+For an older format, status reports `PROJECT_UPGRADE_REQUIRED`. Install `cadre-ai@3.9.0`, run `cadre-ai install --target all --scope user`, and reload the client. Reconcile interrupted operations and use Cadre refresh in 3.9.0 for an approved migration to schema-2/v5 at a quiescent boundary. Then install 4.1.0, reinstall the client integration and reload again. Never update version labels by hand. See [release notes](/release-notes) for the complete route.
 
 ## Uninstall
 
@@ -163,6 +175,6 @@ node harness/dist/cadre-cli.mjs install --target all
 Use this path for harness development and release validation, not for normal
 package upgrades.
 
-The current source adds Quick and unified Refresh with template v8. Existing v5/v6 projects continue
+Cadre 4.1.0 includes Quick and unified Refresh with template v8. Existing v5/v6 projects continue
 track workflows unchanged; use an approved refresh to adopt quick before its
 first use. Do not edit version labels by hand.

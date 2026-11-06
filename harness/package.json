@@ -1,18 +1,18 @@
 {
   "name": "cadre-ai",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Cross-agent, human-governed software delivery harness",
   "author": {
-    "name": "Vishal Kumar",
-    "url": "https://github.com/vishal-kr-barnwal"
+    "name": "Dhivon AI",
+    "url": "https://dhivon.ai"
   },
-  "homepage": "https://cadre-docs.pages.dev/",
+  "homepage": "https://cadre.dhivon.ai/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vishal-kr-barnwal/cadre.git",
+    "url": "https://github.com/dhivon-ai/cadre.git",
     "directory": "harness"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "keywords": [
     "cadre",
     "cadre-ai",
@@ -39,7 +39,8 @@
     "marketplace/",
     "README.md",
     "skills/",
-    "templates/v8/"
+    "templates/v8/",
+    "NOTICE"
   ],
   "scripts": {
     "build": "node --import tsx scripts/build.ts",
@@ -47,6 +48,7 @@
     "install:plugin": "pnpm build && node dist/cadre-cli.mjs install --target all",
     "prepack": "pnpm build && node --import tsx scripts/validate.ts",
     "test": "pnpm build && node --import tsx --test test/*.test.ts",
+    "test:maintenance-matrix": "pnpm build && node --import tsx scripts/test-maintenance-matrix.ts",
     "validate": "pnpm build && node --import tsx scripts/validate.ts"
   },
   "publishConfig": {

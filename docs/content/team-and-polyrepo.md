@@ -2,7 +2,7 @@
 title: Roadmap — Coming Soon
 navTitle: Roadmap (Coming Soon)
 description: Optional GitHub/GitLab team coordination, a knowledge base built during delivery, and polyrepo support.
-section: Operations
+section: Understand Cadre
 order: 120
 ---
 
@@ -17,7 +17,7 @@ Cadre's upcoming roadmap has three capabilities, in this order:
 
 All three will be optional, independently opt-in and disabled by default. Teams
 will be able to use the core single-repository workflow without enabling any of
-these capabilities. They are planned beyond 4.0.0; no delivery dates are committed.
+these capabilities. They are planned beyond 4.1.0; no delivery dates are committed.
 
 ## GitHub / GitLab Coordination
 
@@ -38,7 +38,7 @@ The new knowledge-base capability and its use for context will be opt-in.
 
 Optional polyrepo coordination will connect work and dependencies across multiple
 repositories while preserving repository-specific commits, review evidence and
-approvals. Cadre 4.0 currently operates on one Git repository and one `.cadre/`
+approvals. Cadre 4.1 currently operates on one Git repository and one `.cadre/`
 control plane at a time. Cross-repository coordination is not implemented in the
 current runtime or workflow set.
 

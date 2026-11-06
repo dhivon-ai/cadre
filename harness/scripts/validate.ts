@@ -36,6 +36,8 @@ for (const manifest of [
 
 interface PackageManifest {
   name?: string;
+  license?: string;
+  author?: { name?: string };
   version?: string;
   private?: boolean;
   bin?: Record<string, string>;
@@ -48,11 +50,21 @@ const packageManifest = readJson<PackageManifest>(join(root, "package.json"));
 if (packageManifest.name !== "cadre-ai" || packageManifest.version !== CADRE_RUNTIME_VERSION) {
   errors.push(`package: expected publish identity cadre-ai@${CADRE_RUNTIME_VERSION}`);
 }
+if (packageManifest.license !== "Apache-2.0" || packageManifest.author?.name !== "Dhivon AI") {
+  errors.push("package: expected Apache-2.0 licensing and Dhivon AI attribution");
+}
+for (const file of ["LICENSE", "NOTICE"]) {
+  const packaged = join(root, file);
+  const canonical = join(root, "..", file);
+  if (!existsSync(packaged) || !existsSync(canonical) || !readFileSync(packaged).equals(readFileSync(canonical))) {
+    errors.push(`package: missing or inconsistent legal notice ${file}`);
+  }
+}
 if (packageManifest.private === true) errors.push("package: publishable CLI must not be private");
 if (packageManifest.bin?.["cadre-ai"] !== "dist/cadre-cli.mjs" || Object.keys(packageManifest.bin).length !== 1) {
   errors.push("package: cadre-ai must be the sole bin and point at dist/cadre-cli.mjs");
 }
-for (const entry of ["dist/", "skills/", `templates/${TEMPLATE_SET_VERSION}/`, ".codex-plugin/", ".claude-plugin/"]) {
+for (const entry of ["LICENSE", "NOTICE", "dist/", "skills/", `templates/${TEMPLATE_SET_VERSION}/`, ".codex-plugin/", ".claude-plugin/"]) {
   if (!packageManifest.files?.includes(entry)) errors.push(`package: files must include ${entry}`);
 }
 if (packageManifest.dependencies && Object.keys(packageManifest.dependencies).length > 0) {
@@ -269,9 +281,12 @@ for (const file of ["scripts/install.mjs", "scripts/package-plugin.mjs", "script
 }
 
 const codexManifest = readJson<{ version?: string; mcpServers?: string }>(join(root, ".codex-plugin", "plugin.json"));
-const claudeManifest = readJson<{ version?: string }>(join(root, ".claude-plugin", "plugin.json"));
+const claudeManifest = readJson<{ version?: string; license?: string; author?: { name?: string } }>(join(root, ".claude-plugin", "plugin.json"));
 if (codexManifest.version !== packageManifest.version || claudeManifest.version !== packageManifest.version) {
   errors.push("plugin manifests: Codex and Claude versions must match the package version");
+}
+if (claudeManifest.license !== "Apache-2.0" || claudeManifest.author?.name !== "Dhivon AI") {
+  errors.push("Claude manifest: expected Apache-2.0 licensing and Dhivon AI attribution");
 }
 if (codexManifest.mcpServers !== "./.mcp.codex.json") {
   errors.push("Codex manifest: MCP companion path is missing");

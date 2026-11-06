@@ -1,11 +1,11 @@
 import navigation from "@/navigation.json"
 
 export type DocSection =
-  | "Start Here"
-  | "User Guide"
-  | "Operations"
-  | "Contributor Guide"
+  | "Get started"
+  | "Deliver and maintain"
+  | "Understand Cadre"
   | "Reference"
+  | "Contribute"
 
 export const DOC_NAVIGATION = navigation as Array<{
   section: DocSection

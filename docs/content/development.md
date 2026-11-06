@@ -1,7 +1,7 @@
 ---
 title: Development
 description: Work safely in the Cadre harness and documentation workspace.
-section: Contributor Guide
+section: Contribute
 order: 170
 ---
 
@@ -85,7 +85,7 @@ changes.
 
 ### Search discovery and indexing
 
-The production site is `https://cadre-docs.pages.dev/`. The static build emits
+The production site is `https://cadre.dhivon.ai/`. The static build emits
 `/sitemap.xml` from the documentation catalog and `/robots.txt` with its sitemap
 location. Each page has a distinct canonical URL, title, description and social
 metadata. The homepage includes WebSite structured data, and guides include
@@ -93,13 +93,13 @@ breadcrumbs matching the visible navigation. These improve discovery and
 identification; they do not guarantee Google indexing or rankings.
 
 After deployment, use [Google Search Console](https://search.google.com/search-console/)
-to add the **URL-prefix property** `https://cadre-docs.pages.dev/`. For HTML-tag
+to add the **URL-prefix property** `https://cadre.dhivon.ai/`. For HTML-tag
 verification, copy only the supplied tag's `content` value into the Cloudflare Pages
 production build variable `GOOGLE_SITE_VERIFICATION`, then retry the production
 build for the published commit. The build includes the verification tag only when that
 value is configured. Keep it configured after verification to retain ownership.
 
-Submit `https://cadre-docs.pages.dev/sitemap.xml` in Search Console, inspect the
+Submit `https://cadre.dhivon.ai/sitemap.xml` in Search Console, inspect the
 homepage and a guide, and request indexing. Use the Page Indexing report to
 diagnose exclusions. npm's package page is outside this site's Search Console
 property. See [Google's sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap).
@@ -111,7 +111,7 @@ invented ratings, reviews or modification dates to search metadata.
 
 ## Release gates
 
-Run frozen-lockfile installation, harness type checking, full tests, package validation, `pnpm --filter cadre-ai pack --dry-run`, and the documentation check. Keep the changelog entry under Unreleased until publication is authorized and the candidate is verified.
+Run frozen-lockfile installation, harness type checking, full tests, package validation, `pnpm --filter cadre-ai pack --dry-run`, and the documentation check. During local release preparation, label the versioned notes as pending publication. Create a tag or publish only after explicit authorization and all release gates pass.
 
 Use disposable projects for native Claude and Codex workflow tests, including dirty-worktree revert preparation and fresh-session recovery. SDK client-identity tests cover wire compatibility but do not replace native activation. Before publishing, validate the packaged installer, enabled candidate version, narrow MCP approvals, and server activation in Codex, Claude Code, and Zed; Zed must discover all ten skills. Record absent or untested clients as incomplete gates. Personal-client installation and publication require their own authorization.
 

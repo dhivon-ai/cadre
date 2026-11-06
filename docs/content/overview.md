@@ -1,112 +1,70 @@
 ---
-title: Cadre
-navTitle: Overview
-description: Human-governed, Git-aware delivery for Codex, Claude Code, and the Zed Agent.
-section: Start Here
+title: Documentation
+navTitle: Documentation home
+description: Find the right Cadre guide for installation, your first workflow, maintenance, recovery, or contributing.
+section: Get started
 order: 10
 ---
 
-# Cadre
+# Documentation
 
-![Cadre logo](/cadre-logo.png)
-
-**Measure twice, code once.**
-
-Cadre is a human-governed, Git-aware delivery harness for OpenAI Codex, Claude
-Code, and the native Zed Agent. Codex, Claude Code, and native
-Zed Agent integrations are stable as of Cadre 3.9.1. Cadre turns approved project context into
-resumable feature and bug tracks, carries learning forward between phases, and
-records implementation provenance in Git.
-
-Cadre is installed as a user integration: stable native plugins for
-Codex/Claude and stable global skills plus a custom MCP server for Zed. Its bundled TypeScript MCP
-server provides immutable versioned templates and narrow state/Git operations.
-A target project keeps only approved mutable delivery state under `.cadre/`;
-runtime code, workflow skills, worker definitions, and templates stay in the
-installed payload.
-
-## Cadre 4.0.0
-
-The 4.0.0 release consolidates state mutations around immutable operation receipts
-and ships only template v6 with 22 MCP tools. All ten workflows and the existing
-approval/scheduling modes remain available. Compatible 3.9.0/3.9.1/3.9.2 projects
-using schema-2 state and v5 need no migration or version-only refresh. Older
-formats receive an explicit Cadre 3.9.0 bridge route.
-
-See [release notes](/release-notes) for breaking API changes, verification results
-and publication status, and [getting started](/getting-started) for installation
-and upgrade instructions.
-
-The [upcoming roadmap](/team-and-polyrepo) adds deeper GitHub / GitLab integration
-for multi-person coordination, a knowledge base built during work and reused as
-context, and polyrepo support. Each will be optional, independently opt-in and
-disabled by default.
-
-The current source adds `quick`, merges archival into `refresh`, and uses template v8 for bounded changes with one
-final approval and a durable outcome record. Existing projects enable it through
-an approved refresh; see [workflows](/workflows#quick).
-
-## Unified Refresh (unreleased source change)
-
-Refresh now combines context maintenance, learning consolidation and completed-track archival under one approval, receipt and commit. The current source exposes ten workflows and 21 MCP tools with template v8. The standalone archive skill and MCP tool are removed. Existing approved archive journals remain recoverable through candidate_apply. Older supported projects adopt the new workflow contract in an approved Refresh.
-
-## What Cadre Solves
-
-| Need | Cadre's approach |
-|---|---|
-| Project context | Human-approved product, engineering, stack, workflow, styleguide, and pattern artifacts. |
-| Delivery planning | Feature or bug specifications followed by a validated phase/task dependency DAG. |
-| Implementation | Parallel by default when safe, explicitly sequential when requested, with isolated worktrees. |
-| Human control | Every artifact and lifecycle transition is presented before mutation. |
-| Recovery | Durable setup, operation, and execution journals reconcile files and Git after interruption. |
-| Quality | Per-phase and track-level manual verification followed by evidence-backed review. |
-| Learning | Dependency-aware phase learning and durable pattern distillation during archive. |
-
-## Lifecycle
-
-```mermaid
-flowchart LR
-  A["create"] --> B["track"]
-  B --> C["implement"]
-  C --> D["review"]
-  D -->|approved bugs| C
-  D -->|clean approval| E["completed"]
-  E --> F["refresh + archival"]
-  B -. changed intent .-> G["revise"]
-  C -. changed intent .-> G
-  D -. changed intent .-> G
-  G --> B
-  G --> C
-```
-
-`refresh` updates project context, `revert` prepares additive Git reversals,
-`status` validates without mutation, and `wisp` explores without entering the
-tracked lifecycle.
-
-## Ten Workflow Skills
-
-| Skill | Purpose |
-|---|---|
-| `create` | Initialize or resume an approved `.cadre/` project. |
-| `quick` | Deliver a bounded change and retain its verified outcome (unreleased). |
-| `track` | Specify and plan a feature or bug. |
-| `implement` | Execute the approved dependency DAG. |
-| `review` | Record approved findings or complete a clean review. |
-| `revise` | Change active approved scope or propose a successor. |
-| `refresh` | Reconcile project context with current evidence. |
-| `revert` | Additively reverse a task, phase, or track. |
-| `status` | Validate and summarize current project state. |
-| `wisp` | Perform lightweight untracked exploration. |
+Cadre, a product of Dhivon AI, brings approved project context and resumable
+workflows to Codex, Claude Code, and Zed. Start with installation, then choose
+Quick or a planned track. Your repository keeps approved state in `.cadre/`.
 
 ## Start Here
 
-- [Installation](getting-started.md) covers the `cadre-ai` CLI, client
-  installation, permissions, update, and uninstall behavior.
-- [Quickstart](quickstart.md) walks through the first create-to-archive cycle.
-- [How Cadre Works](how-cadre-works.md) explains approval, journals, state, and
-  the MCP boundary.
-- [Workflows](workflows.md) describes when to use each skill.
-- [Parallel Execution](parallel-execution.md) explains workers and worktrees.
-- [Complex Parallel Execution Walkthrough](parallel-execution-walkthrough.md)
-  follows worker fan-out and phase integration end to end.
-- [Troubleshooting](troubleshooting.md) covers common recovery paths.
+- [Install for your client](/getting-started): copy the commands, reload, and verify the integration.
+- [Run your first workflow](/quickstart): create context, deliver a bounded Quick change or plan a feature, then Refresh.
+- [Choose a workflow](/workflows): decide what to invoke for the work in front of you.
+
+## What Cadre Solves
+
+| Your task | Guide |
+|---|---|
+| Understand context, approvals, and recovery | [How Cadre works](/how-cadre-works) |
+| Deliver work with parallel agents | [Parallel execution](/parallel-execution) and [worked example](/parallel-execution-walkthrough) |
+| Change approval or scheduling policy | [Configuration](/configuration) and [tuning](/tuning) |
+| Resume interrupted work | [Operations](/operations) and [troubleshooting](/troubleshooting) |
+| Understand current limits | [Capabilities](/capabilities) |
+| Explore future team and polyrepo support | [Roadmap](/team-and-polyrepo) |
+
+## Lifecycle
+
+Start with approved context. Use a track for specified and planned delivery, or
+Quick for a bounded change. Verify the result and approve completion. Bring the
+learning together through Refresh.
+
+[Follow the first-workflow walkthrough](/quickstart) or consult the
+[workflow reference](/workflow-reference) for lifecycle rules.
+
+## Unified Refresh
+
+Refresh updates context, consolidates learning, reassesses active-track seeds,
+and archives completed work under one approval, one receipt, and one commit.
+It remains valid without completed tracks or new guidance.
+
+[Use Refresh](/workflows#refresh) · [Maintain and recover](/operations)
+
+## Ten Workflow Skills
+
+[Create](/workflow-reference#create), [Track](/workflow-reference#track),
+[Implement](/workflow-reference#implement), [Review](/workflow-reference#review),
+[Revise](/workflow-reference#revise), [Quick](/workflow-reference#quick),
+[Refresh](/workflow-reference#refresh), [Revert](/workflow-reference#revert),
+[Status](/workflow-reference#status), and [Wisp](/workflow-reference#wisp).
+
+## Cadre 4.1.0
+
+Version 4.1.0 adds Quick and unified Refresh, with ten
+workflows, 21 MCP tools, and immutable template v8. Existing supported projects
+adopt the new workflow contract through an approved Refresh preserving custom policy.
+
+[Release notes](/release-notes) · [MCP reference](/mcp-reference) ·
+[Configuration reference](/configuration-reference) · [Licensing](/licensing)
+
+## Contribute
+
+Begin with the [architecture](/architecture) and [development guide](/development).
+Then explore [runtime and MCP](/runtime-and-mcp), the [workflow engine](/workflow-engine),
+[state and artifacts](/state-and-artifacts), and [testing and release](/testing-and-release).

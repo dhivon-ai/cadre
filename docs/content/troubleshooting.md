@@ -1,7 +1,7 @@
 ---
 title: Troubleshooting
 description: Resolve installation, MCP, state, journal, plan, worktree, integration, and review failures.
-section: Operations
+section: Deliver and maintain
 order: 130
 ---
 
@@ -101,7 +101,7 @@ Common legitimate recovery cases are:
 
 Anything else requires a deliberate reconciliation decision.
 
-Cadre 4.0 preserves the reviewed product HEAD across bookkeeping commits and
+Cadre 4.1 preserves the reviewed product HEAD across bookkeeping commits and
 recognizes already committed receipts. Upgrade the installed integration if
 implementation/review keeps requesting another bookkeeping commit. Resume the
 existing track and reconcile its original operation receipt; keep the verified
@@ -254,4 +254,4 @@ and marketplace catalogs. Do not edit ignored `harness/dist/` bundles as source.
 
 ## Older Project Format Warning
 
-`PROJECT_UPGRADE_REQUIRED` leaves project files unchanged. Use `npm install -g cadre-ai@3.9.0`, then `cadre-ai install --target all --scope user` and reload the client. Reconcile interrupted operations and perform the explicitly approved refresh to schema-2/v5 in 3.9.0. After that succeeds, install 4.0.0, reinstall the client integration and reload again. Compatible 3.9.0/3.9.1/3.9.2 schema-2/v5 projects do not need this bridge or a version-only refresh. Never fix the warning by changing version labels or deleting pending approval evidence.
+`PROJECT_UPGRADE_REQUIRED` leaves project files unchanged. Use `npm install -g cadre-ai@3.9.0`, then `cadre-ai install --target all --scope user` and reload the client. Reconcile interrupted operations and perform the explicitly approved refresh to schema-2/v5 in 3.9.0. After that succeeds, install 4.1.0, reinstall the client integration and reload again. Compatible 3.9.0/3.9.1/3.9.2 schema-2/v5 projects do not need this bridge or a version-only refresh. Never fix the warning by changing version labels or deleting pending approval evidence.

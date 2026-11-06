@@ -1,47 +1,88 @@
-import { ArchiveIcon, GitPullRequestIcon, NetworkIcon, PencilRulerIcon, ShieldCheckIcon } from "lucide-react"
-
-const steps = [
-  { label: "Create", icon: PencilRulerIcon },
-  { label: "Track", icon: NetworkIcon },
-  { label: "Implement", icon: GitPullRequestIcon },
-  { label: "Review", icon: ShieldCheckIcon },
-  { label: "Archive", icon: ArchiveIcon },
-]
+import {
+  ArrowDownIcon,
+  NetworkIcon,
+  PencilRulerIcon,
+  RefreshCwIcon,
+  ZapIcon,
+} from "lucide-react"
 
 export function WorkflowVisual() {
   return (
-    <div className="rounded-2xl border bg-card p-5 shadow-sm">
-      <div className="mb-5 flex items-center justify-between border-b pb-4">
+    <figure
+      aria-label="Approved context branches into Track or Quick, then feeds into Refresh"
+      className="rounded-lg border bg-card p-5 sm:p-6"
+    >
+      <div className="flex items-center gap-3 border-b pb-5">
+        <PencilRulerIcon
+          className="size-5 shrink-0 text-cadre-teal"
+          aria-hidden="true"
+        />
         <div>
-          <p className="text-sm font-medium text-foreground">Human-governed workflow</p>
-          <p className="text-xs text-muted-foreground">Cadre validates every durable transition.</p>
+          <p className="font-semibold">Create · approve the context</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            Product intent, engineering rules, and workflow policy.
+          </p>
         </div>
-        <div className="h-2 w-16 rounded-full bg-cadre-teal" />
+      </div>
+      <div className="flex justify-center py-4">
+        <ArrowDownIcon
+          className="size-4 text-muted-foreground"
+          aria-hidden="true"
+        />
       </div>
       <div className="grid grid-cols-2 gap-3">
-        {steps.map((step, index) => {
-          const Icon = step.icon
-          return (
-            <div key={step.label} className="relative rounded-xl border bg-background p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-xs font-medium text-muted-foreground">
-                  0{index + 1}
-                </span>
-                <Icon className="text-cadre-teal" />
-              </div>
-              <p className="text-sm font-semibold text-cadre-ink">{step.label}</p>
-              {index < steps.length - 1 && (
-                <span className="absolute -right-2 top-1/2 hidden h-px w-4 bg-border sm:block" />
-              )}
-            </div>
-          )
-        })}
+        <div className="rounded-md border p-4">
+          <NetworkIcon
+            className="mb-3 size-5 text-cadre-teal"
+            aria-hidden="true"
+          />
+          <p className="font-semibold">Track</p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Specify and plan.
+            <br />
+            Implement.
+            <br />
+            Verify and review.
+          </p>
+          <p className="mt-4 border-t pt-3 text-xs font-medium">
+            Approved completion
+          </p>
+        </div>
+        <div className="rounded-md border p-4">
+          <ZapIcon className="mb-3 size-5 text-cadre-teal" aria-hidden="true" />
+          <p className="font-semibold">Quick</p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Bound the change.
+            <br />
+            Implement.
+            <br />
+            Verify the outcome.
+          </p>
+          <p className="mt-4 border-t pt-3 text-xs font-medium">
+            Approved completion
+          </p>
+        </div>
       </div>
-      <div className="mt-5 grid grid-cols-3 gap-3 text-center text-xs font-medium text-muted-foreground">
-        <div className="rounded-lg bg-cadre-teal-soft px-3 py-2 text-cadre-ink">Templates</div>
-        <div className="rounded-lg bg-cadre-amber-soft px-3 py-2 text-cadre-ink">Digests</div>
-        <div className="rounded-lg bg-muted px-3 py-2 text-cadre-ink">Worktrees</div>
+      <div className="flex items-center justify-center gap-2 py-4 text-xs leading-5 text-muted-foreground">
+        <ArrowDownIcon className="size-4 shrink-0" aria-hidden="true" />
+        <span>Track learning + quick outcomes + context changes</span>
       </div>
-    </div>
+      <div className="rounded-md border bg-cadre-teal-soft p-4">
+        <div className="flex items-center gap-2">
+          <RefreshCwIcon className="size-5" aria-hidden="true" />
+          <p className="font-semibold">Refresh</p>
+        </div>
+        <p className="mt-2 text-sm leading-6">
+          Update context, consolidate learning, reassess active tracks, and
+          archive completed work.
+        </p>
+        <p className="mt-3 text-xs font-semibold">
+          One approval · one receipt · one commit
+        </p>
+      </div>
+      <figcaption className="mt-4 text-xs leading-5 text-muted-foreground">
+        Cadre 4.1.0 · Ten workflows
+      </figcaption>
+    </figure>
   )
 }

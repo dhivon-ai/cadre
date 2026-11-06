@@ -350,7 +350,7 @@ test("older formats require the 3.9.0 bridge before refresh and leave project fi
   assert.equal(readFileSync(join(root, ".cadre/project.json"), "utf8"), before);
   assert.equal(git(root, "rev-parse", "HEAD"), head);
   const warnings = validateProject(root).warnings.join("\n");
-  assert.match(warnings, /PROJECT_UPGRADE_REQUIRED/); assert.match(warnings, /Then install cadre-ai@4\.0\.0/);
+  assert.match(warnings, /PROJECT_UPGRADE_REQUIRED/); assert.ok(warnings.includes(`Then install cadre-ai@${CADRE_RUNTIME_VERSION}`));
 });
 
 test("archive rebases approved active dependency context without rewriting historical learning", (t) => {

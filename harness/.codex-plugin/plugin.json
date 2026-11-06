@@ -1,19 +1,23 @@
 {
   "name": "cadre",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "A human-governed, Git-aware product delivery harness for Codex, Claude Code, and Zed Agent.",
   "author": {
-    "name": "Cadre contributors"
+    "name": "Dhivon AI",
+    "url": "https://dhivon.ai"
   },
   "skills": "./skills/",
   "mcpServers": "./.mcp.codex.json",
   "interface": {
-    "displayName": "Cadre",
-    "shortDescription": "Govern spec-to-archive delivery workflows.",
-    "longDescription": "Cadre provides resumable create-to-archive workflows with parallel DAG execution, isolated Git worktrees, human approval gates, typed MCP tools, and versioned templates.",
-    "developerName": "Cadre contributors",
+    "displayName": "Dhivon Cadre",
+    "shortDescription": "Spec-driven AI delivery workflows.",
+    "longDescription": "Cadre, a product of Dhivon AI, provides approved plans, resumable delivery, Quick changes, and unified Refresh with parallel worktrees and human approval gates.",
+    "developerName": "Dhivon AI",
     "category": "Developer Tools",
-    "capabilities": ["Read", "Write"],
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
     "defaultPrompt": "Use Cadre to show the current project delivery status."
   }
 }

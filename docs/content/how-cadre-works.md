@@ -1,7 +1,7 @@
 ---
 title: How Cadre Works
 description: Approval gates, versioned templates, durable journals, Git provenance, and recovery.
-section: User Guide
+section: Understand Cadre
 order: 50
 ---
 
@@ -58,7 +58,7 @@ apply(token only)
 
 Apply recomputes against current state. Changed files, state, branches, commits,
 selection, or input invalidate the digest and require a new prepare. The two-step shape covers initialization, candidate-based track/revision/refresh/
-review/revert promotion, archive selection, clean review, and governed integration.
+review/revert promotion, refresh track selection, clean review, and governed integration.
 Already persisted Autonomous authority can authorize bounded remediation; it never
 replaces explicit final completion approval. Worktree creation/start and cleanup/completion are each
 coalesced into one resumable call.
@@ -79,7 +79,7 @@ Longer workflows write durable intent before changing artifacts or Git:
 
 Reconcile the original receipt after its one commit. Old journals under
 `.cadre/operations/` are historical or require recovery with Cadre 3.9.0; do not
-create that legacy journal format for new 4.0 operations.
+create that legacy journal format for new 4.1 operations.
 
 ## Recovery Rules
 
@@ -134,6 +134,10 @@ A one-task lifecycle uses six commits: initialization, combined track, product, 
 phases read that seed; later phases read learning from their declared dependency
 phases. Implementation records evidence and commit provenance as work advances.
 
-Archive distills durable learning across selected completed tracks, reconciles
-it with existing patterns, and reseeds non-completed tracks by semantic
-relevance. Track-specific trivia stays in the archived history.
+Refresh assesses selected completed-track learning, existing patterns, repository
+changes, and up to 20 quick outcomes together. It proposes a coherent guidance
+update and reassesses affected active-track seeds and dependency context.
+Selected tracks and assessed quick records move to the archive under that same
+approval, receipt, and commit. Track-specific detail stays in historical evidence;
+when no guidance changes are justified, the refresh records that assessment.
+Archival does not require manufacturing a lesson.

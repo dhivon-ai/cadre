@@ -8,7 +8,7 @@ order: 190
 
 # Project Artifact Reference
 
-Cadre 4.0 configuration and state are distributed across explicit approved
+Cadre 4.1 configuration and state are distributed across explicit approved
 artifacts. There is no current `cadre/config.json`.
 
 Unapproved artifact proposals live temporarily beneath
@@ -106,7 +106,7 @@ are `pending`, `running`, `awaiting_approval`, `committed`, `integrating`,
 Resolve `op:<operationId>` through receipt reconciliation before Git range
 commands. Preserve legacy `.cadre/operations/` refresh/archive journals as
 historical evidence. Pending operations using removed legacy mutation paths
-require recovery with Cadre 3.9.0 before returning to 4.0.
+require recovery with Cadre 3.9.0 before returning to 4.1.
 
 ## Ignored Runtime Paths
 

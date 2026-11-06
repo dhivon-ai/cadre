@@ -1,7 +1,14 @@
 import { HomePage } from "@/components/home/home-page"
 import { getAllDocs } from "@/lib/docs"
 import { StructuredData } from "@/components/structured-data"
-import { HOME_TITLE, pageMetadata, SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/seo"
+import {
+  HOME_TITLE,
+  ORGANIZATION_ID,
+  pageMetadata,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  siteUrl,
+} from "@/lib/seo"
 
 export const metadata = {
   ...pageMetadata(HOME_TITLE, SITE_DESCRIPTION, "/"),
@@ -13,12 +20,13 @@ const website = {
   "@type": "WebSite",
   "@id": `${siteUrl()}#website`,
   name: SITE_NAME,
+  publisher: { "@id": ORGANIZATION_ID },
   alternateName: ["cadre-ai", "Cadre"],
   url: siteUrl(),
   description: SITE_DESCRIPTION,
   inLanguage: "en",
   sameAs: [
-    "https://github.com/vishal-kr-barnwal/cadre",
+    "https://github.com/dhivon-ai/cadre",
     "https://www.npmjs.com/package/cadre-ai",
   ],
 }

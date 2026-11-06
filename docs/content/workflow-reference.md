@@ -50,8 +50,7 @@ Cadre workers or absorb pre-existing edits. Migrations, coordinated work, and
 changes to approved track requirements go through track or revise.
 
 Existing v5/v6 projects need a one-time approved refresh adopting the current quick
-contract. This is an unreleased source addition; installation alone does not
-rewrite project policy.
+contract. Installation alone does not rewrite project policy.
 
 ## track
 

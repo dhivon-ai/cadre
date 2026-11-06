@@ -1,7 +1,7 @@
 ---
 title: Runtime And MCP
 description: The stdio server, immutable resources, tool families, schemas, and mutation guarantees.
-section: Contributor Guide
+section: Contribute
 order: 150
 ---
 

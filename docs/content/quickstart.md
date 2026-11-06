@@ -1,7 +1,7 @@
 ---
 title: Quickstart
-description: Run a first human-approved Cadre track from project creation through archive.
-section: Start Here
+description: Create project context, choose Quick or a planned track, and bring the learning together with Refresh.
+section: Get started
 order: 30
 ---
 
@@ -38,6 +38,35 @@ authorization envelope. Cadre identifies unchanged bundled defaults concisely
 and asks separately only when a material choice is unresolved. After approval,
 it creates `.cadre/`, validates it, and records one setup/receipt commit without more
 approval prompts.
+
+## Choose Your First Workflow
+
+After Create, choose the smallest path that fits the work:
+
+- **Quick:** one bounded fix, test, refactor, or documentation change. Use the example below.
+- **Planned track:** a feature or bug that needs a specification and dependency plan. Continue with [step 2](#2-create-a-feature-or-bug-track).
+
+Quick and unified Refresh require [Cadre 4.1.0 or newer](/release-notes).
+
+### A Bounded Change With Quick
+
+```text
+# Codex
+$cadre:quick Fix the broken installation link in README and verify it
+
+# Claude Code
+/cadre:quick Fix the broken installation link in README and verify it
+
+# Zed Agent
+/cadre-quick Fix the broken installation link in README and verify it
+```
+
+Cadre implements the bounded change, verifies it, and presents the result and
+outcome record for one final approval and one combined commit. Material scope
+choices are clarified first. Quick does not create a track or require the track
+review lifecycle. Later, [Refresh](#6-refresh-and-archive-completed-work) assesses
+the outcome alongside project context and eligible completed tracks. For a
+Quick-only project, invoke Refresh without a track ID.
 
 ## 2. Create A Feature Or Bug Track
 
@@ -142,7 +171,16 @@ $cadre:refresh passwordless-login
 Refresh updates project context and can process one or more completed tracks in a single approved,
 resumable batch. It moves track history to the derived archive location,
 distills durable learning into project patterns, reseeds relevant active
-tracks, rebuilds `tracks.md`, and records Git provenance.
+tracks, rebuilds `tracks.md`, and records Git provenance under one approval,
+one receipt, and one commit. Omit track IDs to include all eligible completed
+tracks; explicit IDs limit the batch. An explicit empty selection performs
+context maintenance without track archival. Refresh also works when no tracks
+are completed and when archival justifies no guidance changes.
+
+For a bounded fix or documentation change, use `quick` instead of creating a
+track. One final approval covers the verified change and its outcome record. A
+later Refresh assesses up to 20 quick outcomes alongside the selected tracks;
+there is no separate track batch limit. See [Quick](workflows.md#quick).
 
 ## Supporting Commands
 

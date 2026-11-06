@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/public/cadre-logo.png" alt="Cadre" width="360">
+  <img src="docs/public/brand/dhivon.svg" alt="Dhivon AI" width="220">
 </p>
 
 <p align="center"><strong>Measure twice, code once.</strong></p>
@@ -10,47 +10,63 @@
 
 Cadre turns approved project context into resumable feature and bug tracks. It
 combines specification, dependency-aware planning, parallel implementation,
-manual verification, review, revision, refresh, revert, archive, and Git
+manual verification, review, revision, Quick changes, Refresh with archival, revert, and Git
 provenance without asking an agent to invent workflow state.
 
-**Documentation:** [cadre-docs.pages.dev](https://cadre-docs.pages.dev/) ·
-[Start the quickstart](https://cadre-docs.pages.dev/quickstart/) ·
-[Review release notes](https://cadre-docs.pages.dev/release-notes/)
+**Documentation:** [cadre.dhivon.ai](https://cadre.dhivon.ai/) ·
+[Start the quickstart](https://cadre.dhivon.ai/quickstart/) ·
+[Review release notes](https://cadre.dhivon.ai/release-notes/)
 
-**Cadre 4.0.0** simplifies the runtime around one receipt-based mutation path
-and its v6 template catalog. All ten workflows, four approval modes,
-both scheduling modes, and stable Codex, Claude Code and Zed integrations remain
-available. Install [cadre-ai from npm](https://www.npmjs.com/package/cadre-ai).
+Cadre is a product of [Dhivon AI](https://dhivon.ai).
 
-## What changes in 4.0.0
+**Cadre 4.1.0** adds Quick for bounded changes and brings completed-track
+archival into Refresh. Ten workflows, 21 MCP tools, and immutable template v8
+support Codex, Claude Code, and Zed Agent, with four approval modes and both
+sequential and parallel scheduling. See [cadre-ai on npm](https://www.npmjs.com/package/cadre-ai).
 
-- **One recovery contract:** initialization, implementation completion, clean
-  review and archive use immutable operation receipts. Commit each operation
-  once, then reconcile its receipt; no follow-up commit is needed to record its SHA.
-- **Smaller public surface:** 22 MCP tools and only template v6 in the installed
-  payload. Direct integrations must stop calling `archive_batch_record`,
-  `setup_record_commit` and `setup_record_git_initialized`.
-- **Existing projects:** 3.9.0/3.9.1/3.9.2 projects with schema-2 state and v5
-  templates continue without a project migration or version-only refresh.
-  Historical journals, approval evidence and interrupted receipt recovery remain
-  supported.
-- **Older formats:** `PROJECT_UPGRADE_REQUIRED` provides the bridge route:
-  install Cadre 3.9.0, reconcile interrupted work and run its approved refresh to
-  schema-2/v5, then install 4.0.0 and reload the client. Never change version labels
-  by hand. See the [release notes](https://cadre-docs.pages.dev/release-notes/).
+## What changes in 4.1.0
 
-Verification passed 480 harness tests and a dummy-project lifecycle across 14
-fresh Codex sessions: brownfield create, interrupted track drafting, active
-revision, review/remediation, manual-edit freshness checks, archive recovery and
-refresh. The dummy app passed 26 tests and 200,020 arithmetic comparisons. Native
-workflow coverage was Autonomous/sequential; it does not establish exhaustive
-coverage of every mode or client. See the [native lifecycle report](docs/development/cadre-4.0.0-native-flow.md).
+- **Quick changes:** deliver one bounded fix, refactor, documentation change,
+  test, or small feature with one final approval, one durable outcome record,
+  and one combined commit.
+- **Unified Refresh:** assess repository changes, project context, existing
+  patterns, selected track learning, and up to 20 quick outcomes together.
+  Update guidance, reassess active-track seeds and dependencies, and archive
+  completed work under one approval, one receipt, and one commit.
+- **Ten workflows, 21 tools:** remove the standalone archive skill and
+  `archive_batch_candidate`. New archival uses Refresh; approved historical
+  archive journals remain recoverable through `candidate_apply`.
+- **Compatible upgrades:** schema-2 projects from 3.9.0, 3.9.1, 3.9.2, and 4.0.0
+  remain readable and usable. Adopt new workflow contracts through an approved
+  Refresh that preserves custom policy, completed history, and recovery authority.
+- **Template v8 and client cleanup:** retain immutable v1–v7 source history;
+  safely remove obsolete Cadre-owned Zed archive links and exact tool permissions.
 
-## Unified Refresh (unreleased source change)
+Quick and Refresh verification includes 660 dummy-project protocol cases across
+Codex, Claude Code, and Zed identities, plus live Codex delivery and recovery.
+Claude Code and Zed coverage is protocol/installer coverage, not native model
+execution. See the [testing and release documentation](https://cadre.dhivon.ai/testing-and-release/).
 
-Refresh now combines context maintenance, learning consolidation and completed-track archival under one approval, receipt and commit. The current source exposes ten workflows and 21 MCP tools with template v8. The standalone archive skill and MCP tool are removed. Existing approved archive journals remain recoverable through candidate_apply. Older supported projects adopt the new workflow contract in an approved Refresh.
+## Unified Refresh
 
-## Quick changes (unreleased source addition)
+Refresh now combines context maintenance, learning consolidation and completed-track archival under one approval, receipt and commit. Cadre 4.1.0 exposes ten workflows and 21 MCP tools with template v8. The standalone archive skill and MCP tool are removed. Existing approved archive journals remain recoverable through `candidate_apply`. Older supported projects adopt the new workflow contract in an approved Refresh.
+
+```text
+Create → Track → Implement → Review → completed tracks ─┐
+   └──→ Quick → verified outcomes ─────────────────────┤
+Context + patterns + repository changes ────────────────┤
+                                                       ↓
+                                                    Refresh
+                          context + learning + active seeds + archival
+                                  one approval · one receipt · one commit
+```
+
+Omitting track IDs selects all eligible completed tracks in dependency order.
+Explicit IDs limit the batch; an explicit empty selection skips track archival.
+Refresh assesses up to 20 quick outcomes with the selected tracks, with no track
+batch limit. It also works without completed tracks or new guidance to add.
+
+## Quick changes
 
 Use `quick` for one bounded fix, refactor, documentation change, test, or small
 feature. It reads relevant Cadre context, implements and verifies the change,
@@ -61,13 +77,13 @@ and moves unchanged records to `.cadre/archive/.quick/`. Routine track context
 loads no quick history; focused search retrieves relevant outcomes when needed.
 
 Invoke `$cadre:quick` in Codex, `/cadre:quick` in Claude Code, or `/cadre-quick`
-in Zed. This source adds Quick and merges archival into Refresh, retaining ten workflows with template v8. Existing v5/v6
+in Zed. Cadre 4.1.0 includes Quick and unified Refresh with template v8. Existing v5/v6
 projects retain their workflows; enabling quick requires an approved refresh
 adopting its contract. Wisp remains stateless exploration.
 
 ## Upcoming roadmap
 
-Three optional capabilities are planned beyond 4.0.0:
+Three optional capabilities are planned beyond 4.1.0:
 
 1. **Deeper GitHub / GitLab integration** for coordinating work across multiple
    people, including shared work status, ownership and review handoffs.
@@ -78,8 +94,8 @@ Three optional capabilities are planned beyond 4.0.0:
 
 Each capability will be independently **opt-in and disabled by default**. The
 core single-repository workflow will remain usable without enabling any of them.
-These are upcoming roadmap items, not features shipped in 4.0.0; no delivery dates
-are committed. See the [roadmap](https://cadre-docs.pages.dev/team-and-polyrepo/).
+These are upcoming roadmap items, not features included in 4.1.0; no delivery dates
+are committed. See the [roadmap](https://cadre.dhivon.ai/team-and-polyrepo/).
 
 ## What Cadre Provides
 
@@ -93,7 +109,7 @@ are committed. See the [roadmap](https://cadre-docs.pages.dev/team-and-polyrepo/
   worktrees while the main agent alone schedules, integrates, resolves
   conflicts, updates Cadre state, and records approval.
 - **Incremental learning:** phase learning and durable patterns flow forward
-  through dependency-aware seeds and archive distillation.
+  through dependency-aware seeds and Refresh consolidation.
 - **Typed runtime:** a bundled MCP server provides immutable templates,
   validation, digest-gated state transitions, and constrained worktree
   operations.
@@ -205,7 +221,7 @@ pnpm --filter cadre-ai test
 pnpm --filter cadre-ai validate
 ```
 
-Cadre is licensed under the terms in [`LICENSE`](LICENSE).
+Cadre is licensed under [Apache-2.0](LICENSE). Copyright 2026 Dhivon AI. See [NOTICE](NOTICE).
 
 Release preparation includes regression tests, package inspection, and documentation checks. Publishing still requires native installer/discovery/activation checks for Codex, Claude Code, and Zed. Local model tests and byte benchmarks do not establish universal token savings or semantic correctness of generated learning.
 

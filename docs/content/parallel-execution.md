@@ -1,7 +1,7 @@
 ---
 title: Parallel Execution
 description: Dependency scheduling, isolated worktrees, approval gates, integration, and recovery.
-section: User Guide
+section: Deliver and maintain
 order: 80
 ---
 

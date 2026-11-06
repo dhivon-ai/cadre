@@ -2,7 +2,7 @@
 title: Complex Parallel Execution Walkthrough
 navTitle: Parallel Walkthrough
 description: Follow mixed phase concurrency, sequential tasks, task fan-out, worktree ancestry, approvals, and fan-in through one complete track.
-section: User Guide
+section: Deliver and maintain
 order: 85
 ---
 

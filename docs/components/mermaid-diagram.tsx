@@ -3,18 +3,16 @@
 import * as React from "react"
 import { AlertTriangleIcon } from "lucide-react"
 
-import { useTheme } from "@/components/theme-provider"
-
 type RenderState =
   | { status: "loading" }
   | { status: "ready"; svg: string }
   | { status: "error"; message: string }
 
 const MOBILE_FLOWCHART_QUERY = "(max-width: 640px)"
-const FLOWCHART_DIRECTION_PATTERN = /^(\s*(?:flowchart|graph)\s+)(TB|TD|BT|RL|LR)(\b)/im
+const FLOWCHART_DIRECTION_PATTERN =
+  /^(\s*(?:flowchart|graph)\s+)(TB|TD|BT|RL|LR)(\b)/im
 
 export function MermaidDiagram({ chart }: { chart: string }) {
-  const { resolvedTheme } = useTheme()
   const [useMobileDirection, setUseMobileDirection] = React.useState(false)
   const [state, setState] = React.useState<RenderState>({ status: "loading" })
   const chartSource = useMobileDirection ? toTopDownFlowchart(chart) : chart
@@ -39,12 +37,20 @@ export function MermaidDiagram({ chart }: { chart: string }) {
 
       try {
         const { default: mermaid } = await import("mermaid")
-        const theme = resolvedTheme === "dark" ? "dark" : "default"
 
         mermaid.initialize({
           startOnLoad: false,
           securityLevel: "strict",
-          theme,
+          theme: "base",
+          themeVariables: {
+            primaryColor: "#edf7f2",
+            primaryTextColor: "#102c4c",
+            primaryBorderColor: "#8191a3",
+            lineColor: "#52677f",
+            secondaryColor: "#f4f7fa",
+            tertiaryColor: "#ffffff",
+            fontFamily: "Manrope, sans-serif",
+          },
           fontFamily: "inherit",
           flowchart: {
             curve: "basis",
@@ -62,7 +68,10 @@ export function MermaidDiagram({ chart }: { chart: string }) {
         if (!cancelled) {
           setState({
             status: "error",
-            message: error instanceof Error ? error.message : "Unable to render diagram.",
+            message:
+              error instanceof Error
+                ? error.message
+                : "Unable to render diagram.",
           })
         }
       }
@@ -73,7 +82,7 @@ export function MermaidDiagram({ chart }: { chart: string }) {
     return () => {
       cancelled = true
     }
-  }, [chartSource, resolvedTheme])
+  }, [chartSource])
 
   if (state.status === "ready") {
     return (
@@ -100,7 +109,10 @@ export function MermaidDiagram({ chart }: { chart: string }) {
   }
 
   return (
-    <figure className="mermaid-diagram mermaid-diagram-loading" aria-busy="true">
+    <figure
+      className="mermaid-diagram mermaid-diagram-loading"
+      aria-busy="true"
+    >
       Rendering diagram...
     </figure>
   )

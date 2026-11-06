@@ -1,257 +1,224 @@
 import Link from "next/link"
-import { ArrowRightIcon, BookOpenIcon, GitBranchIcon, Layers3Icon, LifeBuoyIcon, MenuIcon, ShieldCheckIcon, WorkflowIcon } from "lucide-react"
-
-import { Brand } from "@/components/brand"
+import { ArrowRightIcon } from "lucide-react"
 import { WorkflowVisual } from "@/components/home/workflow-visual"
-import { SearchCommand } from "@/components/search-command"
-import { ThemeSwitcher } from "@/components/theme-switcher"
-import { Badge } from "@/components/ui/badge"
+import { SiteHeader } from "@/components/site-header"
+import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
 import type { DocMeta } from "@/lib/docs"
 
-const featureCards = [
+const tasks = [
   {
-    title: "Human approval gates",
+    title: "Install for your client",
     description:
-      "Approved scope and your chosen approval mode govern delivery. Every clean track completion requires your explicit approval.",
-    icon: WorkflowIcon,
+      "Connect Codex, Claude Code, or Zed. Reload, verify, and create your project context.",
+    href: "/getting-started",
+    action: "Install Cadre",
   },
   {
-    title: "Resumable delivery",
+    title: "Make a bounded change",
     description:
-      "Project, track, operation, and execution journals reconcile repository and Git state after interruptions.",
-    icon: ShieldCheckIcon,
+      "Use Quick for a small fix, test, or documentation change with a verified outcome.",
+    href: "/quickstart#choose-your-first-workflow",
+    action: "Try Quick",
   },
   {
-    title: "Safe parallel execution",
+    title: "Plan a feature",
     description:
-      "Dependency-ready workers use isolated worktrees while the main agent owns scheduling, integration, and approval recording.",
-    icon: GitBranchIcon,
+      "Approve a specification and dependency plan, then implement and review the work.",
+    href: "/quickstart#2-create-a-feature-or-bug-track",
+    action: "Start a track",
   },
-]
-
-const quickLinks = [
-  { title: "Getting Started", href: "/getting-started", icon: BookOpenIcon },
-  { title: "Architecture", href: "/architecture", icon: Layers3Icon },
-  { title: "Parallel Execution", href: "/parallel-execution", icon: GitBranchIcon },
-  { title: "Troubleshooting", href: "/troubleshooting", icon: LifeBuoyIcon },
+  {
+    title: "Maintain or recover",
+    description:
+      "Refresh context and learning, archive completed tracks, or resume interrupted work.",
+    href: "/operations",
+    action: "Maintain your project",
+  },
 ]
 
 export function HomePage({ docs }: { docs: DocMeta[] }) {
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="mx-auto flex h-[68px] max-w-screen-2xl items-center gap-5 px-4 sm:px-6 lg:px-8">
-          <Brand />
-          <nav className="hidden items-center gap-7 text-sm font-medium text-foreground xl:flex">
-            <Link className="hover:text-foreground" href="/overview">
-              Docs
-            </Link>
-            <Link className="hover:text-foreground" href="/getting-started">
-              Getting Started
-            </Link>
-            <Link className="hover:text-cadre-teal" href="/architecture">
-              Contributor Guide
-            </Link>
-            <Link className="hover:text-foreground" href="https://github.com/vishal-kr-barnwal/cadre">
-              GitHub
-            </Link>
-            <Link className="hover:text-cadre-teal" href="https://www.npmjs.com/package/cadre-ai">
-              npm
-            </Link>
-          </nav>
-          <div className="ml-auto flex items-center gap-2">
-            <SearchCommand docs={docs} mode="responsive" />
-            <ThemeSwitcher />
-            <Button className="hidden bg-cadre-teal text-white hover:bg-cadre-teal/90 xl:inline-flex" render={<Link href="/getting-started" />}>Install</Button>
-            <Sheet>
-              <SheetTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    size="icon-lg"
-                    className="size-11 xl:hidden"
-                    aria-label="Open site navigation"
-                  />
-                }
+      <SiteHeader docs={docs} />
+      <main id="main-content" tabIndex={-1}>
+        <section className="site-width grid items-center gap-14 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20 lg:py-24">
+          <div>
+            <p className="mb-6 text-sm font-semibold text-cadre-teal">
+              Spec-driven AI workflows · Dhivon Cadre
+            </p>
+            <h1 className="max-w-3xl text-[clamp(3.25rem,6.3vw,5.5rem)] leading-[1.08] font-[750] tracking-[-0.045em]">
+              Measure twice,
+              <br />
+              code once.
+            </h1>
+            <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground">
+              Turn approved intent into verified, resumable work. Cadre brings
+              project context, plans, and review to Codex, Claude Code, and Zed.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Button
+                className="h-13 px-6 text-base"
+                render={<Link href="/getting-started" />}
               >
-                <MenuIcon />
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[min(90vw,22rem)] p-0">
-                <SheetHeader className="border-b">
-                  <SheetTitle>Cadre documentation</SheetTitle>
-                  <SheetDescription>Choose a guide or reference section.</SheetDescription>
-                </SheetHeader>
-                <nav className="flex flex-col gap-2 p-4 text-sm">
-                  <Link className="rounded-lg px-3 py-3 hover:bg-muted" href="/overview">Docs overview</Link>
-                  <Link className="rounded-lg px-3 py-3 hover:bg-muted" href="/getting-started">Getting Started</Link>
-                  <Link className="rounded-lg px-3 py-3 hover:bg-muted" href="/operations">Operations</Link>
-                  <Link className="rounded-lg px-3 py-3 hover:bg-muted" href="/architecture">Contributor Guide</Link>
-                  <Link className="rounded-lg px-3 py-3 hover:bg-muted" href="/workflow-reference">Reference</Link>
-                  <Link className="rounded-lg px-3 py-3 hover:bg-muted" href="https://github.com/vishal-kr-barnwal/cadre">GitHub</Link>
-                  <Link className="rounded-lg px-3 py-3 hover:bg-muted" href="https://www.npmjs.com/package/cadre-ai">npm package</Link>
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </header>
-
-      <main>
-        <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:min-h-[min(56rem,calc(100vh-4rem))] lg:grid-cols-[1fr_0.86fr] lg:px-8">
-          <div className="flex max-w-3xl flex-col gap-8">
-            <div className="flex flex-col gap-5">
-              <h1 className="max-w-3xl text-5xl leading-[1.03] font-semibold tracking-normal text-cadre-ink sm:text-6xl lg:text-7xl">
-                Cadre AI
-              </h1>
-              <p className="text-2xl leading-snug font-medium text-cadre-ink sm:text-3xl">
-                Measure twice, code once.
-              </p>
-              <p className="max-w-2xl text-lg leading-8 text-muted-foreground">
-                Cadre AI is an open-source workflow harness for Codex, Claude Code,
-                and Zed Agent. Published on npm as{" "}
-                <Link className="underline underline-offset-4" href="https://www.npmjs.com/package/cadre-ai">cadre-ai</Link>,
-                it combines approved project context, spec-first plans, resumable
-                execution, review gates, and parallel Git worktrees. All three client integrations are stable.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button size="lg" render={<Link href="/getting-started" />}>
-                Get started
-                <ArrowRightIcon data-icon="inline-end" />
+                Get started <ArrowRightIcon />
               </Button>
-              <Button size="lg" variant="outline" render={<Link href="/architecture" />}>
-                Read the architecture
+              <Button
+                className="h-13 px-6 text-base"
+                variant="outline"
+                render={<Link href="/how-cadre-works" />}
+              >
+                How it works
               </Button>
             </div>
-            <div className="grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3">
-              {["Claude Code", "OpenAI Codex", "Zed Agent"].map((label) => (
-                <div key={label} className="rounded-xl border bg-card px-4 py-3 text-sm font-medium text-cadre-ink">
-                  {label}
-                </div>
-              ))}
-            </div>
+            <p className="mt-6 text-sm text-muted-foreground">
+              Open source · Local project state · Human approval
+            </p>
           </div>
           <WorkflowVisual />
         </section>
 
-        <Separator />
-
-        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="mb-10 flex max-w-3xl flex-col gap-3">
-            <h2 className="text-3xl font-semibold tracking-normal text-cadre-ink">
-              Durable delivery without hidden workflow state.
+        <section className="border-y bg-muted/50">
+          <div className="site-width site-section">
+            <p className="mb-4 text-sm font-semibold text-cadre-teal">
+              From intent to evidence
+            </p>
+            <h2 className="site-heading max-w-3xl">
+              A workflow you can inspect.
+              <br />
+              And pick up again.
             </h2>
-            <p className="text-muted-foreground">
-              The docs follow the actual create-to-archive lifecycle: context,
-              planning, implementation, verification, review, learning, and recovery.
-            </p>
-            <p className="text-muted-foreground">
-              Upcoming, independently opt-in capabilities include GitHub/GitLab
-              coordination for multiple people, a knowledge base built during work
-              and reused as context, and polyrepo support. Each will be disabled
-              by default. <Link className="underline underline-offset-4" href="/team-and-polyrepo">Explore the roadmap</Link>.
-            </p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            {featureCards.map((feature) => {
-              const Icon = feature.icon
-              return (
-                <Card key={feature.title}>
-                  <CardHeader>
-                    <Icon className="text-cadre-teal" />
-                    <CardTitle>{feature.title}</CardTitle>
-                    <CardDescription>{feature.description}</CardDescription>
-                  </CardHeader>
-                </Card>
-              )
-            })}
-          </div>
-        </section>
-
-        <section className="border-y bg-muted/35">
-          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
-            <div className="flex flex-col gap-4">
-              <h2 className="text-3xl font-semibold tracking-normal text-cadre-ink">
-                Documentation map
-              </h2>
-              <p className="text-muted-foreground">
-                Start with installation and the first track, then go deeper into
-                lifecycle rules, parallel execution, MCP tools, and recovery.
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {quickLinks.map((link) => {
-                const Icon = link.icon
-                return (
-                  <Card key={link.title} size="sm">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Icon className="text-cadre-amber" />
-                        {link.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardFooter>
-                      <Button variant="ghost" size="sm" aria-label={`Open ${link.title}`} render={<Link href={link.href} />}>
-                        Open guide
-                        <ArrowRightIcon data-icon="inline-end" />
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                )
-              })}
-            </div>
+            <ol className="mt-12 grid gap-8 md:grid-cols-4">
+              {[
+                [
+                  "Approve context",
+                  "Agree on the product, engineering rules, and project policy before delivery starts.",
+                ],
+                [
+                  "Choose the scope",
+                  "Use a planned track for substantial work or Quick for a bounded change.",
+                ],
+                [
+                  "Verify the result",
+                  "Keep checks, review evidence, and explicit completion approval with the work.",
+                ],
+                [
+                  "Refresh together",
+                  "Assess context and learning, update active seeds, and archive completed work.",
+                ],
+              ].map(([title, description], index) => (
+                <li key={title} className="border-t pt-5">
+                  <span className="text-sm font-semibold text-cadre-teal">
+                    0{index + 1}
+                  </span>
+                  <h3 className="mt-4 text-xl font-semibold">{title}</h3>
+                  <p className="mt-3 leading-7 text-muted-foreground">
+                    {description}
+                  </p>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <div className="flex flex-col gap-2">
-              <h2 className="text-3xl font-semibold tracking-normal text-cadre-ink">
-                All guides
+        <section className="site-width site-section">
+          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+            <div>
+              <p className="mb-4 text-sm font-semibold text-cadre-teal">
+                Your next step
+              </p>
+              <h2 className="site-heading">
+                Start with
+                <br />
+                your task.
               </h2>
-              <p className="text-muted-foreground">
-                Guides for installing cadre-ai, planning work, running coding agents,
-                and reviewing changes with human approval.
+              <p className="mt-6 max-w-sm text-lg leading-8 text-muted-foreground">
+                One shared workflow model across three coding clients. Choose
+                the path that fits the work.
               </p>
             </div>
-            <Badge variant="secondary">{docs.length} pages</Badge>
+            <div>
+              {tasks.map((task, index) => (
+                <Link
+                  key={task.href}
+                  href={task.href}
+                  className="group flex gap-5 border-t py-7 last:border-b"
+                >
+                  <span className="pt-1 text-sm text-cadre-teal">
+                    0{index + 1}
+                  </span>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold underline-offset-4 group-hover:underline">
+                      {task.title}
+                    </h3>
+                    <p className="mt-2 leading-7 text-muted-foreground">
+                      {task.description}
+                    </p>
+                    <p className="mt-4 flex items-center gap-2 text-sm font-semibold">
+                      {task.action}
+                      <ArrowRightIcon className="size-4" aria-hidden="true" />
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {docs.map((doc) => (
-              <Card key={doc.slug} size="sm">
-                <CardHeader>
-                  <Badge variant="outline">{doc.section}</Badge>
-                  <CardTitle>{doc.navTitle}</CardTitle>
-                  <CardDescription>{doc.description}</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button variant="outline" size="sm" aria-label={`Read ${doc.navTitle}`} render={<Link href={doc.href} />}>
-                    Read
-                    <ArrowRightIcon data-icon="inline-end" />
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+        </section>
+
+        <section className="border-t bg-muted/50">
+          <div className="site-width site-section grid gap-12 lg:grid-cols-2 lg:gap-24">
+            <div>
+              <p className="mb-4 text-sm font-semibold text-cadre-teal">
+                Current capabilities
+              </p>
+              <h2 className="site-heading">
+                Built around
+                <br />
+                approved work.
+              </h2>
+              <p className="mt-6 text-lg leading-8 text-muted-foreground">
+                Durable journals, dependency-aware plans, isolated Git
+                worktrees, and review gates keep delivery inspectable. Your
+                client supplies the model; Cadre supplies the workflow.
+              </p>
+              <p className="mt-4 leading-7 text-muted-foreground">
+                Version 4.1.0 adds Quick for bounded changes and unified Refresh
+                for context, learning, and completed-track archival.
+              </p>
+              <Link
+                className="site-link mt-6 inline-flex items-center gap-2 font-semibold"
+                href="/release-notes"
+              >
+                Read the release notes <ArrowRightIcon className="size-4" />
+              </Link>
+            </div>
+            <div className="lg:border-l lg:pl-12">
+              <p className="mb-4 text-sm font-semibold text-muted-foreground">
+                Roadmap · Coming soon
+              </p>
+              <h2 className="text-3xl leading-tight font-semibold tracking-tight">
+                More ways to coordinate.
+              </h2>
+              <p className="mt-6 text-lg leading-8 text-muted-foreground">
+                GitHub and GitLab coordination, a reusable knowledge base, and
+                polyrepo support are planned. Each will be independently opt-in
+                and disabled by default.
+              </p>
+              <p className="mt-4 leading-7 text-muted-foreground">
+                These are future capabilities. Current Cadre workflows operate
+                on the local repository and its approved project state.
+              </p>
+              <Link
+                className="site-link mt-6 inline-flex items-center gap-2 font-semibold"
+                href="/team-and-polyrepo"
+              >
+                Explore the roadmap <ArrowRightIcon className="size-4" />
+              </Link>
+            </div>
           </div>
         </section>
       </main>
+      <SiteFooter />
     </div>
   )
 }

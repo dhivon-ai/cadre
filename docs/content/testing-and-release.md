@@ -1,7 +1,7 @@
 ---
 title: Testing And Release
 description: Validate the runtime, package payload, native installers, and documentation before release.
-section: Contributor Guide
+section: Contribute
 order: 180
 ---
 
@@ -23,6 +23,38 @@ pnpm --filter cadre-ai validate
 - `validate` builds and verifies manifests, marketplace catalogs, package
   identity, the sole `cadre-ai` bin, self-contained dependency policy, skills,
   agent isolation rules, templates, MCP configs, and absence of retired source.
+
+## Extended Quick and Refresh Matrix
+
+```bash
+pnpm --filter cadre-ai test:maintenance-matrix
+```
+
+This opt-in suite runs 660 cases in disposable Git projects against the packaged
+stdio MCP server. Four isolated workers retain logs and JSON results under a
+printed temporary directory; set `CADRE_MATRIX_REPORT_DIR` to choose that directory.
+Failed dummy projects are retained for diagnosis. Successful projects are removed.
+
+- 576 combinations cross Codex/Claude Code/Zed protocol identities, four track
+  approval modes, two schedules, default/explicit/empty archive selection,
+  incorporated/no-change guidance assessments, and normal/intent/partial/receipt
+  interruption boundaries. Every case delivers Quick and then consolidates it
+  through Refresh alongside the selected completed tracks.
+- 60 Quick cases cross the three protocol identities, additions/edits/deletions/
+  executable modes/binary files, and all four interruption boundaries.
+- 24 cases cover Refresh without completed tracks, with and without Quick
+  outcomes, changed or unchanged guidance, and default or empty selection.
+
+Checks include frozen selection, one commit per receipt, unchanged historical
+artifacts, active dependency relocation and seed reassessment, recovery without
+candidate stages, committed replay, valid final project state, and a working
+dummy arithmetic app. Existing focused tests cover rejection and eligibility
+guards, legacy receipts, workflow adoption, and installer fixtures.
+
+Client names in this matrix identify MCP protocol clients, not native model
+sessions. The execution schedule is configured and validated; this suite does
+not run simultaneous model workers. Native skill following, authentication,
+discovery, and UI behavior require separate native-client tests.
 
 ## Package Inspection
 
@@ -74,6 +106,20 @@ There is no current `install --check` mode. Native listing and a real skill/MCP
 smoke test are the verification path. Zed has no plugin-list CLI, so verify its
 Skills and MCP Server pages and run `/cadre-status` in a native Zed Agent thread.
 
+## 4.1.0 Verification Scope
+
+Quick and unified Refresh passed 660 disposable-project protocol cases: 220 each
+for Codex, Claude Code, and Zed identities. Live Codex sessions also exercised
+Quick, combined context/pattern/track consolidation, active-track reseeding,
+interrupted promotion, and recovery without candidate stages. Claude Code and
+Zed were limited to protocol and installer coverage. This does not establish
+native model execution coverage for those two clients.
+
+The evidence and reproduction details are in
+[the Quick and Refresh verification report](https://github.com/dhivon-ai/cadre/blob/main/docs/development/cadre-quick-refresh-verification.md).
+The final 4.1.0 local validation record is maintained separately from those
+preparation runs; a local version bump does not imply publication or deployment.
+
 ## 4.0.0 Verification Record
 
 The local 4.0.0 implementation passed 480 harness tests, type checking, package
@@ -110,29 +156,37 @@ Publishing, tagging, pushing, and external release creation require explicit
 user authorization; local validation does not imply it.
 
 
-## Beta Tag Publishing
+## Stable Release Publishing
 
-The existing `release.yml` workflow publishes pushed `beta-*` tags using npm
-trusted publishing. Keep its workflow filename aligned with the package's npm
-trusted-publisher configuration. No npm token belongs in the repository.
+The `release.yml` workflow publishes only a published, non-prerelease GitHub
+release to npm's `latest` channel. A tag push alone does not publish. Prepare
+4.1.0 locally first; creating a tag, pushing, publishing a GitHub release, and
+publishing to npm require explicit authorization.
 
-- `beta-4.1.0` requires candidate version `4.1.0-beta.0`.
-- A later `beta-4.1.0-beta.1` requires candidate version `4.1.0-beta.1`.
-- Update the runtime, harness/docs packages and both plugin manifests together,
-  add the matching release-notes heading, and complete the release gates above.
-- Push the tag on the validated commit: `git push origin beta-4.1.0`.
-- The workflow checks the tag/version pair, runs harness checks, tests and package
-  validation, then publishes with `--tag beta --provenance`. A separate job waits
-  up to roughly 15 minutes for npm processing and verifies the channel. If it times
-  out, retry only the failed verification job; do not republish or move the tag.
-- After npm verifies a `release-*` tag on the `latest` channel, the workflow force-updates the
-  `release` branch to the commit used for publication. Cloudflare Pages deploys
-  production docs from that branch. It can move backward or across histories.
-- Beta pushes leave npm's `latest` channel and the `release` branch unchanged. Creating a GitHub
-  prerelease is optional and does not publish a second time.
-- Never move an existing release tag or reuse a published npm version. Fix a failed
-  candidate and validate a new beta version when its contents need to change.
+For `cadre-ai`, configure the GitHub Actions trusted publisher with organization
+`dhivon-ai`, repository `cadre`, and workflow filename `release.yml`. Leave the
+environment name empty to match the current workflow, allow `npm publish`, and
+leave dist-tag management disabled. The package repository URL must match
+`https://github.com/dhivon-ai/cadre.git` for provenance. After a repository
+transfer, replace the old npm trust connection; changing Git's `origin` alone
+does not update npm's publishing authorization. No npm token belongs in the repository.
 
-Users opt in with `npm install -g cadre-ai@beta` and then run the normal installer.
-For native installer validation without changing personal installations, use a disposable
-home and client configuration directories for all installer and client processes.
+- Keep the runtime, harness/docs packages, and both plugin manifests at `4.1.0`.
+  Complete the release gates and use the prepared 4.1.0 release notes.
+- Use `release-4.1.0` for the stable release tag after authorization. The tag's
+  version must exactly match the package; prerelease versions are rejected.
+- The workflow checks the tag/version pair, runs harness checks, tests and
+  package validation, then publishes with `--tag latest --provenance`.
+- A separate job waits up to roughly 15 minutes for npm processing and verifies
+  the channel. If it times out, retry only the failed verification job; do not
+  republish or move the release tag.
+- After npm verifies a `release-*` tag on `latest`, the workflow points the
+  `release` branch at the published commit. Cloudflare Pages deploys the
+  production documentation from that branch.
+- Never move an existing release tag or reuse a published npm version. Fix a
+  failed candidate and validate a new version when its contents need to change.
+
+After publication, users install with `npm install -g cadre-ai@4.1.0` and run
+the normal installer. For native installer validation without changing personal
+installations, use a disposable home and client configuration directories for
+all installer and client processes.

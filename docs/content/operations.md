@@ -1,7 +1,7 @@
 ---
 title: Operations
-description: Day-to-day status, recovery, refresh, review, archive, and plugin maintenance.
-section: Operations
+description: Day-to-day status, recovery, review, unified Refresh with archival, and plugin maintenance.
+section: Deliver and maintain
 order: 110
 ---
 

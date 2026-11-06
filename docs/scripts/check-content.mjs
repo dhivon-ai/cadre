@@ -93,6 +93,8 @@ function checkLinks(doc, docsBySlug) {
     if (!target) continue
     const slug = target.replace(/^\//, "").replace(/\.md$/, "").replace(/\/$/, "")
     if (!slug) continue
+    const publicDownloads = new Set(["/LICENSE.txt", "/NOTICE.txt", "/brand/fonts/OFL.txt"])
+    if (publicDownloads.has(target) && fs.existsSync(path.join(docsRoot, "public", target))) continue
     if (!docsBySlug.has(slug)) fail(`${doc.file}: broken internal link ${raw}`)
   }
 }

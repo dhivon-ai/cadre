@@ -1,7 +1,7 @@
 ---
 title: State And Artifacts
 description: Sources of truth, generated indexes, operation journals, and project layout.
-section: Contributor Guide
+section: Contribute
 order: 160
 ---
 
@@ -77,7 +77,7 @@ drafting-spec -> drafting-plan -> planned -> in_progress -> ready_for_review
                                       | approved bugs|
                                       +--------------+
 
-ready_for_review -> completed -> archived
+ready_for_review -- review --> completed -- refresh --> archived
 ```
 
 `revise` can move active work back to planning or implementation. Completed and
@@ -117,7 +117,7 @@ until the approved index repair is applied.
 ## Versioning
 
 `runtimeVersion` identifies Cadre behavior. `templateSetVersion` identifies the
-immutable artifact format bundle. The current source creates v8 projects with schema-2 state. Existing 3.9.x/schema-2/v5 projects need no migration. Older formats remain readable for diagnostics but require the approved 3.9.0 bridge before mutation in 4.0. Active resources use `cadre://templates/v8/...` URIs and include SHA-256 hashes. Artifact schemas are independent: execution journals and receipts still use schema 1.
+immutable artifact format bundle. Cadre 4.1.0 creates v8 projects with schema-2 state. Existing 3.9.x/schema-2/v5 projects need no migration. Older formats remain readable for diagnostics but require the approved 3.9.0 bridge before mutation in 4.1.0. Active resources use `cadre://templates/v8/...` URIs and include SHA-256 hashes. Artifact schemas are independent: execution journals and receipts still use schema 1.
 
 ## Candidate and historical evidence
 

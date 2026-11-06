@@ -7,14 +7,51 @@ order: 230
 
 # Release Notes
 
-## Unreleased — Quick changes
+## 4.1.0 - 2026-11-06
 
-- Add `quick` as the eleventh workflow for bounded fixes, refactors, docs, tests, and small features. Clear requests authorize reversible implementation; material choices get a scope discussion, and completion requires one final approval.
+Stable release dated 6 November 2026.
+
+### Quick and unified Refresh
+
+- Add `quick` for bounded fixes, refactors, docs, tests, and small features. Clear requests authorize reversible implementation; material choices get a scope discussion, and completion requires one final approval.
 - Retain an ignored starting checkpoint and one immutable outcome record. Bind final approval to product bytes/modes, verification inputs, context, and Git baseline; verify one combined local commit and resume interrupted promotion without repeating delivery.
 - Add project-scoped context without a track ID, selected quick outcomes/patterns, separate paginated quick status, and source-linked refresh consolidation. Preserve track lifecycle and dependency authority.
 - Bound quick history lookup by relevance; approved refresh batches distill findings and move unchanged records into `.cadre/archive/.quick/`. Keep archived history out of routine context and status rows.
-- Ship template v7 while preserving v6 source bytes. Existing v5/v6 projects retain their workflows; enabling quick requires an approved refresh adopting its contract.
-- Keep 22 MCP tools, a self-contained runtime, and all three client integrations. Extend candidate_apply with begin_quick and workflow quick; product editing and commits remain with the agent.
+- Merge completed-track archival into Refresh under one approval, receipt, and commit. Freeze default or explicit track selection during preparation, consolidate learning with context and quick outcomes, and preserve historical artifacts and approved recovery authority.
+- Ship template v8 while preserving v1–v7 source bytes. Existing v5/v6/v7 projects remain supported; enabling new workflow contracts requires an approved refresh preserving custom policy.
+- Expose ten workflows and 21 MCP tools with a self-contained runtime and all three client integrations. Remove the standalone archive skill and tool; retain historical archive receipt decoding and generic resume/reconcile support. Extend candidate_apply with begin_quick, workflow quick, and refresh-only selectedTracks; product editing and commits remain with the agent.
+- Clean up obsolete Cadre-owned Zed archive links and exact tool approvals during upgrade/uninstall while preserving unrelated settings and user-owned paths.
+- Align runtime, npm/docs packages, and native plugin manifests at 4.1.0. Keep existing 4.0.0 and 3.9.x schema-2 projects supported; adopt new workflow contracts only through an approved Refresh.
+- Use stable release publication through `release.yml` and npm's `latest` channel. Tag pushes and prerelease events do not publish.
+- Move documentation links, canonical metadata, sitemap, and social previews to `https://cadre.dhivon.ai`; use `https://github.com/dhivon-ai/cadre` for repository links and npm provenance.
+- Align Cadre with Dhivon AI: shared wordmark, Manrope typography, light-only documentation, task-oriented navigation, and an installation-first homepage. Preserve existing guide routes and section links.
+- Align repository, npm, and client payloads on Apache-2.0 with Dhivon AI as the sole Cadre author and copyright attribution. Publish a licensing guide and preserve the Manrope font license.
+- Add Dhivon publisher metadata, the approved homepage title, and a 1200×630 social preview. Document Quick and unified Refresh as current 4.1.0 capabilities.
+
+### Upgrade and recovery
+
+Install `cadre-ai@4.1.0` and reload the selected client integration.
+Existing schema-2 projects from 3.9.0, 3.9.1, 3.9.2, and 4.0.0 remain supported.
+Use an approved Refresh to adopt Quick and unified archival while preserving
+custom policy. Unapplied archive proposals must be prepared again through
+Refresh; already-approved archive journals retain their original recovery authority.
+Older unsupported project formats still require the approved Cadre 3.9.0 bridge.
+
+### Validation scope
+
+The implementation passed 660 dummy-project protocol cases across Codex, Claude
+Code, and Zed identities, plus live Codex Quick/Refresh consolidation and recovery.
+Claude Code and Zed coverage is protocol/installer coverage. Native model
+execution on those clients remains outside this verification record.
+
+The final 4.1.0 local regression run passed **532 tests** with no failures or
+skips. Type checking, package validation, package dry run, and the complete
+documentation check passed. Browser checks verified the homepage, release notes,
+workflow diagrams, search navigation, client command tabs, copying, and light-only
+rendering on desktop and mobile, including dark OS preference.
+These results are from the completed local validation. The final release uses
+the existing GitHub Actions publication workflow.
+
 
 ## 4.0.0 - 2026-10-14
 
@@ -231,7 +268,7 @@ Direct MCP clients should accept the additional `stateChanges` preview fields an
 
 ## 3.9.0 - 2026-09-25
 
-Cadre 3.9.0 reduces bookkeeping commits and repeated context while preserving human approval, verification, provenance, and interruption recovery. Track remains the default approval mode and Parallel remains the default scheduling mode. Codex and Claude Code are stable integrations; native Zed Agent remains beta.
+Cadre 3.9.0 reduces bookkeeping commits and repeated context while preserving human approval, verification, provenance, and interruption recovery. Track remains the default approval mode and Parallel remains the default scheduling mode. Codex and Claude Code are stable integrations; native Zed Agent remains preview.
 
 ### Cohesive commits and verifiable lineage
 
@@ -287,7 +324,7 @@ Curated dependency context requires human review for completeness. Fingerprints 
 Cadre 3.8.0 makes Track the default approval mode and introduces continuous
 Autonomous implementation, verification, cumulative review, and remediation.
 Parallel remains the scheduling default; Sequential is available with all four
-approval modes. Codex and Claude Code remain stable integrations; Zed remains beta.
+approval modes. Codex and Claude Code remain stable integrations; Zed remains preview.
 
 ### Approval modes
 
@@ -403,7 +440,7 @@ The 82 automated tests cover staged review, nested revision, repeated verificati
 cycles, replacement execution, historical context, and Codex/Claude structured
 responses plus Zed text responses. Release checks include type checking, package
 validation and dry-run inspection, documentation checks, and native installer,
-discovery, and MCP activation. Zed remains beta.
+discovery, and MCP activation. Zed remains preview.
 
 ## 3.7.0 - 2026-09-06
 
@@ -429,7 +466,7 @@ Start a new Codex task, run `/reload-plugins` in Claude Code, and open a new Zed
 
 ### Validation
 
-All 79 automated tests, package checks, and documentation checks passed. Native Claude/Codex audits and native Zed installation, discovery, MCP, staged-revert, and fresh-session recovery checks passed. Zed remains beta; native testing does not cover every possible workflow branch.
+All 79 automated tests, package checks, and documentation checks passed. Native Claude/Codex audits and native Zed installation, discovery, MCP, staged-revert, and fresh-session recovery checks passed. Zed remains preview; native testing does not cover every possible workflow branch.
 
 ## 3.6.0 - 2026-09-02
 
@@ -468,7 +505,7 @@ Zed Agent thread so each client loads the 3.6.0 schemas and runtime guidance.
 
 Cadre 3.5.1 hardens all ten workflows against validation, routing, stale-stage,
 and interrupted-write failures. Codex and Claude Code support remains stable;
-native Zed Agent support remains beta.
+native Zed Agent support remains preview.
 
 ### Candidate and status recovery
 
@@ -521,11 +558,11 @@ Zed Agent thread so each client loads the corrected schemas and skills.
 
 ## 3.5.0 - 2026-08-27
 
-Cadre 3.5.0 adds beta support for the native Zed Agent. Codex and Claude Code
+Cadre 3.5.0 adds preview support for the native Zed Agent. Codex and Claude Code
 remain stable integrations, and Cadre's lifecycle, governance, project state,
 and active v2 template semantics are unchanged.
 
-### Native Zed Agent beta
+### Native Zed Agent preview
 
 - `cadre-ai install --target zed` installs all ten workflows as global
   `/cadre-*` skills and configures the packaged Cadre MCP server.
@@ -559,7 +596,7 @@ cadre-ai install --target all --scope user
 ```
 
 Start a new Codex conversation, run `/reload-plugins` in Claude Code, and open
-a new Zed Agent thread. In Zed, verify the ten beta `cadre-*` skills, the
+a new Zed Agent thread. In Zed, verify the ten preview `cadre-*` skills, the
 active Cadre MCP server, and `/cadre-status`.
 
 ## 3.4.0 - 2026-08-27
@@ -900,7 +937,7 @@ package-boundary safeguards for every native workflow and immutable template.
   `revert`, `status`, and `wisp`; no other workflow asset was missing from the
   published package.
 - Points both the repository README and the npm package README to the canonical
-  [Cadre documentation](https://cadre-docs.pages.dev/).
+  [Cadre documentation](https://cadre.dhivon.ai/).
 
 There are no command, state-schema, template-content, or migration changes from
 3.0.0. Existing initialized projects remain compatible.

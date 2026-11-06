@@ -67,6 +67,8 @@ test("global CLI exposes publish identity and self-contained runtime diagnostics
   const manifest = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
   assert.deepEqual(manifest.bin, { "cadre-ai": "dist/cadre-cli.mjs" });
   assert.equal(manifest.dependencies, undefined);
+  assert.equal(manifest.license, "Apache-2.0");
+  assert.equal(manifest.author.name, "Dhivon AI");
 });
 
 test("npm package carries every workflow and immutable template asset", () => {
@@ -82,7 +84,7 @@ test("npm package carries every workflow and immutable template asset", () => {
   for (const path of [
     "dist/cadre-cli.mjs", "dist/cadre-mcp.mjs", ".codex-plugin/plugin.json",
     ".claude-plugin/plugin.json", ".mcp.codex.json", ".mcp.json",
-    "CHANGELOG.md",
+    "CHANGELOG.md", "LICENSE", "NOTICE",
     "agents/cadre-phase-worker.md", "agents/cadre-task-worker.md",
     "templates/v8/init/wisps/.gitkeep"
   ]) {
@@ -153,6 +155,20 @@ test("global CLI installs and uninstalls Codex, Claude, and Zed from packaged as
   ], environment);
   assert.equal(install.status, 0, install.stderr || install.stdout);
   const plugin = join(marketplace, "plugins", "cadre");
+  // All three clients consume this shared payload. Preserve legal notices byte-for-byte.
+  for (const file of ["LICENSE", "NOTICE"]) {
+    assert.deepEqual(readFileSync(join(plugin, file)), readFileSync(join(root, file)));
+    assert.deepEqual(readFileSync(join(root, file)), readFileSync(join(root, "..", file)));
+  }
+  assert.deepEqual(
+    readFileSync(join(plugin, "NOTICE"), "utf8").split("\n").filter(line => line.startsWith("Copyright")),
+    ["Copyright 2026 Dhivon AI"]
+  );
+  const claudeManifest = JSON.parse(readFileSync(join(plugin, ".claude-plugin/plugin.json"), "utf8"));
+  const codexManifest = JSON.parse(readFileSync(join(plugin, ".codex-plugin/plugin.json"), "utf8"));
+  assert.equal(claudeManifest.license, "Apache-2.0");
+  assert.equal(claudeManifest.author.name, "Dhivon AI");
+  assert.equal(codexManifest.interface.developerName, "Dhivon AI");
   assert.throws(() => lstatSync(obsolete), /ENOENT/);
   assert.equal(existsSync(join(plugin, "skills/archive")), false);
   assert.ok(existsSync(join(plugin, "dist", "cadre-mcp.mjs")));

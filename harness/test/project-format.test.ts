@@ -11,8 +11,8 @@ import { CADRE_MCP_TOOL_NAMES } from "../src/mcp/tool-names.js";
 import { CADRE_RUNTIME_VERSION, LEGACY_RUNTIME_VERSIONS, LEGACY_TEMPLATE_SET_VERSIONS } from "../src/domain/version.js";
 import type { ProjectState } from "../src/domain/state.js";
 
-test("format admission preserves 3.9 contracts and rejects obsolete or unknown formats", () => {
-  for (const runtimeVersion of ["3.9.0", "3.9.1", "3.9.2", CADRE_RUNTIME_VERSION]) {
+test("format admission preserves 3.9 and 4.0 contracts and rejects obsolete or unknown formats", () => {
+  for (const runtimeVersion of ["3.9.0", "3.9.1", "3.9.2", "4.0.0", CADRE_RUNTIME_VERSION]) {
     for (const templateSetVersion of ["v5", "v6", "v7", "v8"]) {
       const project = {schemaVersion: 2, runtimeVersion, templateSetVersion};
       const before = json(project);
@@ -24,7 +24,7 @@ test("format admission preserves 3.9 contracts and rejects obsolete or unknown f
   for (const patch of [
     ...LEGACY_RUNTIME_VERSIONS.map(runtimeVersion => ({runtimeVersion})),
     ...LEGACY_TEMPLATE_SET_VERSIONS.map(templateSetVersion => ({templateSetVersion})),
-    {schemaVersion: 1}, {schemaVersion: 99}, {runtimeVersion: "4.1.0"}, {templateSetVersion: "v99"}
+    {schemaVersion: 1}, {schemaVersion: 99}, {runtimeVersion: "99.0.0"}, {templateSetVersion: "v99"}
   ]) {
     const project = {schemaVersion: 2, runtimeVersion: "3.9.0", templateSetVersion: "v5", ...patch};
     assert.equal(supportsProjectFormat(project), false);
@@ -44,20 +44,20 @@ test("older project diagnostics expose the complete approved bridge without chan
   assert.deepEqual(errors, []);
   assert.ok(warnings.includes(`PROJECT_UPGRADE_REQUIRED: ${PROJECT_UPGRADE_INSTRUCTIONS}`));
   assert.match(warnings.join("\n"), /explicitly approved migration/);
-  assert.match(warnings.join("\n"), /Then install cadre-ai@4\.0\.0/);
+  assert.match(warnings.join("\n"), /Then install cadre-ai@4\.1\.0/);
   assert.equal(json(project), before);
 });
 
-const versions = ["3.9.0", "3.9.1", "3.9.2"];
+const versions = ["3.9.0", "3.9.1", "3.9.2", "4.0.0"];
 for (const [versionIndex, runtimeVersion] of versions.entries()) for (const [modeIndex, approvalMode] of EXECUTION_APPROVAL_MODES.entries()) {
   for (const [scheduleIndex, requestedMode] of (["sequential", "parallel"] as const).entries()) {
     const client = ["codex", "claude-code", "zed"][(versionIndex + modeIndex + scheduleIndex) % 3]!;
-    test(`3.9 delivery then approved Refresh adoption: ${runtimeVersion}/${client}/${approvalMode}/${requestedMode}`, async (t) => {
+    test(`compatible delivery then approved Refresh adoption: ${runtimeVersion}/${client}/${approvalMode}/${requestedMode}`, async (t) => {
       const f = await fixture(t, client), {root, call, load} = f;
       const project = JSON.parse(read(root, ".cadre/project.json"));
-      project.runtimeVersion = runtimeVersion; project.templateSetVersion = "v5";
+      project.runtimeVersion = runtimeVersion; project.templateSetVersion = runtimeVersion === "4.0.0" ? "v6" : "v5";
       write(root, ".cadre/project.json", json(project));
-      write(root, ".cadre/workflow.md", readFileSync(resolve("templates/v5/init/workflow.md"), "utf8"));
+      write(root, ".cadre/workflow.md", readFileSync(resolve(`templates/${project.templateSetVersion}/init/workflow.md`), "utf8"));
       git(root, "add", ".cadre"); git(root, "commit", "-m", `fixture: preserve ${runtimeVersion} project contract`);
       const before = read(root, ".cadre/project.json"), workflow = read(root, ".cadre/workflow.md");
       const status = await call("project_status", {projectRoot: root, view: "project"});
@@ -105,7 +105,7 @@ for (const client of ["codex", "claude-code", "zed"]) test(`older formats block 
     await assert.rejects(() => call(name, args), error => {
       assert.match(String(error), /PROJECT_UPGRADE_REQUIRED/, name);
       assert.match(String(error), /Install cadre-ai@3\.9\.0/, name);
-      assert.match(String(error), /Then install cadre-ai@4\.0\.0/, name);
+      assert.match(String(error), /Then install cadre-ai@4\.1\.0/, name);
       return true;
     });
   }

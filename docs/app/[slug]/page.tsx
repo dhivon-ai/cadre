@@ -6,11 +6,7 @@ import Link from "next/link"
 import { DocsShell } from "@/components/docs-shell"
 import { Markdown } from "@/components/markdown"
 import { InlineOnThisPage } from "@/components/on-this-page"
-import {
-  getAllDocs,
-  getAllSlugs,
-  getDocBySlug,
-} from "@/lib/docs"
+import { getAllDocs, getAllSlugs, getDocBySlug } from "@/lib/docs"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -21,7 +17,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import { StructuredData } from "@/components/structured-data"
-import { pageMetadata, siteUrl } from "@/lib/seo"
+import { ORGANIZATION_ID, pageMetadata, siteUrl } from "@/lib/seo"
 
 type PageProps = {
   params: Promise<{ slug: string }>
@@ -33,7 +29,9 @@ export function generateStaticParams() {
   return getAllSlugs().map((slug) => ({ slug }))
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params
   try {
     const doc = getDocBySlug(slug)
@@ -54,33 +52,40 @@ export default async function DocPage({ params }: PageProps) {
   const doc = getDocBySlug(slug)
   const breadcrumbs = [
     { name: "Home", href: "/" },
-    ...(doc.sectionHref !== doc.href ? [{ name: doc.section, href: `${doc.sectionHref}/` }] : []),
+    ...(doc.sectionHref !== doc.href
+      ? [{ name: doc.section, href: `${doc.sectionHref}/` }]
+      : []),
     { name: doc.title, href: `${doc.href}/` },
   ]
 
   return (
     <DocsShell docs={docs} headings={doc.headings}>
-      <StructuredData data={{
-        "@context": "https://schema.org",
-        "@type": "TechArticle",
-        "@id": `${siteUrl(`${doc.href}/`)}#article`,
-        headline: doc.title,
-        description: doc.description,
-        url: siteUrl(`${doc.href}/`),
-        mainEntityOfPage: siteUrl(`${doc.href}/`),
-        inLanguage: "en",
-        isPartOf: { "@id": `${siteUrl()}#website` },
-      }} />
-      <StructuredData data={{
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        itemListElement: breadcrumbs.map((crumb, index) => ({
-          "@type": "ListItem",
-          position: index + 1,
-          name: crumb.name,
-          item: siteUrl(crumb.href),
-        })),
-      }} />
+      <StructuredData
+        data={{
+          "@context": "https://schema.org",
+          "@type": "TechArticle",
+          "@id": `${siteUrl(`${doc.href}/`)}#article`,
+          headline: doc.title,
+          publisher: { "@id": ORGANIZATION_ID },
+          description: doc.description,
+          url: siteUrl(`${doc.href}/`),
+          mainEntityOfPage: siteUrl(`${doc.href}/`),
+          inLanguage: "en",
+          isPartOf: { "@id": `${siteUrl()}#website` },
+        }}
+      />
+      <StructuredData
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: breadcrumbs.map((crumb, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: crumb.name,
+            item: siteUrl(crumb.href),
+          })),
+        }}
+      />
       <div className="mx-auto flex max-w-3xl flex-col gap-8 xl:mx-0">
         <Breadcrumb>
           <BreadcrumbList>
@@ -91,7 +96,9 @@ export default async function DocPage({ params }: PageProps) {
             {doc.sectionHref !== doc.href ? (
               <>
                 <BreadcrumbItem>
-                  <BreadcrumbLink render={<Link href={doc.sectionHref} />}>{doc.section}</BreadcrumbLink>
+                  <BreadcrumbLink render={<Link href={doc.sectionHref} />}>
+                    {doc.section}
+                  </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
               </>
@@ -117,23 +124,36 @@ export default async function DocPage({ params }: PageProps) {
 
         <Separator className="mt-8" />
 
-        <nav aria-label="Documentation pagination" className="grid gap-5 sm:grid-cols-2">
+        <nav
+          aria-label="Documentation pagination"
+          className="grid gap-5 sm:grid-cols-2"
+        >
           {doc.previous ? (
-            <Link className="group flex min-h-16 items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-muted" href={doc.previous.href}>
+            <Link
+              className="group flex min-h-16 items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-muted"
+              href={doc.previous.href}
+            >
               <ArrowLeftIcon className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5" />
               <span className="flex min-w-0 flex-col gap-1">
                 <span className="text-xs text-muted-foreground">Previous</span>
-                <span className="font-medium text-foreground">{doc.previous.title}</span>
+                <span className="font-medium text-foreground">
+                  {doc.previous.title}
+                </span>
               </span>
             </Link>
           ) : (
             <div />
           )}
           {doc.next ? (
-            <Link className="group flex min-h-16 items-center justify-end gap-3 rounded-xl border p-4 text-right transition-colors hover:bg-muted" href={doc.next.href}>
+            <Link
+              className="group flex min-h-16 items-center justify-end gap-3 rounded-xl border p-4 text-right transition-colors hover:bg-muted"
+              href={doc.next.href}
+            >
               <span className="flex min-w-0 flex-col gap-1">
                 <span className="text-xs text-muted-foreground">Next</span>
-                <span className="font-medium text-foreground">{doc.next.title}</span>
+                <span className="font-medium text-foreground">
+                  {doc.next.title}
+                </span>
               </span>
               <ArrowRightIcon className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
             </Link>

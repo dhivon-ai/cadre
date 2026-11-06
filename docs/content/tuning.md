@@ -2,7 +2,7 @@
 title: Workflow Tuning
 navTitle: Tuning
 description: Adjust context, planning, execution, verification, and approval without bypassing Cadre state.
-section: Operations
+section: Deliver and maintain
 order: 100
 ---
 

@@ -1,13 +1,13 @@
 ---
 title: MCP Reference
-description: Immutable v6 resources and the 22 Cadre MCP tools.
+description: Immutable v8 resources and the 21 Cadre MCP tools.
 section: Reference
 order: 210
 ---
 
 # MCP Reference
 
-Cadre exposes immutable template resources and 22 narrow tools. Response format
+Cadre exposes immutable template resources and 21 narrow tools. Response format
 is selected from the MCP initialization client identity. Recognized Codex clients
 and Claude Code 2.0.21+ receive only `structuredContent` with `content: []` and
 advertised output schemas. Zed, older Claude Code, and unknown clients receive
@@ -113,7 +113,7 @@ refresh preserves current execution and scope authority. Quiescence checks use
 actual worker worktrees, paths, and branches while retaining cleaned historical
 provenance. Record-only revision proposals and inconsistent counters fail before
 promotion. Unsupported legacy formats must complete the approved 3.9.0 bridge
-before returning to 4.0 for a scope revision.
+before returning to 4.1 for a scope revision.
 Context refresh preserves the complete existing Autonomous loop and approval
 policy. Imported `drafting-plan` specification revisions retain the previous spec
 approval and leave the draft plan unapproved. Pending resume checks fingerprints
@@ -175,7 +175,7 @@ Removes a verified integrated worktree/branch and records node completion. Retry
 
 ## project_init_candidate
 
-Approval-aware initialization. Prepare requires staged `product.md`, `guidelines.md`, and `tech-stack.md`, optional workflow/styleguide overrides, and selected logical styleguide IDs. The server generates unchanged v6 workflow/default guides and digest-binds all outputs. Apply journals promotion and writes an immutable receipt with the initial project artifacts. Commit them once and reconcile through `candidate_apply`. Resume an interrupted approved promotion using its operation ID and approval digest; unexpected or differing bytes remain a hard stop. Matching committed receipt replay does not create another initialization commit.
+Approval-aware initialization. Prepare requires staged `product.md`, `guidelines.md`, and `tech-stack.md`, optional workflow/styleguide overrides, and selected logical styleguide IDs. The server generates unchanged v8 workflow/default guides and digest-binds all outputs. Apply journals promotion and writes an immutable receipt with the initial project artifacts. Commit them once and reconcile through `candidate_apply`. Resume an interrupted approved promotion using its operation ID and approval digest; unexpected or differing bytes remain a hard stop. Matching committed receipt replay does not create another initialization commit.
 
 ## tracks_render
 
@@ -187,7 +187,7 @@ Validates and atomically regenerates deterministic `tracks.md`.
   Both formats preserve `{ error: { code, message, details? } }` failures and
   elicitation outcomes.
 - Project roots, IDs, paths, timestamps, commits, strict adaptive shapes, and event-specific evidence are validated at the boundary.
-- Multi-file initialization, execution finish, clean review, and archive operations converge after interruption without duplicate cycles or history; byte, HEAD, hash, or journal drift remains a hard failure.
+- Multi-file initialization, execution finish, clean review, and refresh with archival converge after interruption without duplicate cycles or history; byte, HEAD, hash, or journal drift remains a hard failure.
 - `.cadre/stage/` is Git-ignored and never canonical or committed.
 - Older formats remain readable for diagnostics. Delivery and staging fail with `PROJECT_UPGRADE_REQUIRED` and the 3.9.0 bridge instructions.
 - Complete proposal manifests remain in structured proposals/journals; apply receipts stay compact.
@@ -195,7 +195,7 @@ Validates and atomically regenerates deterministic `tracks.md`.
 
 ## Upgrade and recovery
 
-The current source ships template set v8 and retains the schema-2 receipt contract. Existing 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no project refresh. Older formats receive a warning and must use Cadre 3.9.0 to reconcile interrupted operations and perform an explicitly approved schema-2/v5 refresh at a quiescent boundary. Then install 4.0 and reload the client. Preserve historical evidence and any required explicit approval-policy choice; never change labels by hand.
+Cadre 4.1.0 ships template set v8 and retains the schema-2 receipt contract. Existing 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no project refresh. Older formats receive a warning and must use Cadre 3.9.0 to reconcile interrupted operations and perform an explicitly approved schema-2/v5 refresh at a quiescent boundary. Then install 4.1.0 and reload the client. Preserve historical evidence and any required explicit approval-policy choice; never change labels by hand.
 
 Create, execution finish and clean review return `receipt` with `operationId`, `receiptHash`, exact Git `trailers`, and commit_pending. Include it in the operation's one commit and reconcile before dependent delivery. No separate execution-start, phase-record, final-verification-phase or clean-evidence-only commits are needed. Persist journals on disk throughout execution. An explicit handoff/blocker checkpoint remains available.
 

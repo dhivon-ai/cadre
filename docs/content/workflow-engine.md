@@ -1,7 +1,7 @@
 ---
 title: Workflow Engine
 description: How skills, MCP state transitions, journals, Git, and human decisions cooperate.
-section: Contributor Guide
+section: Contribute
 order: 155
 ---
 

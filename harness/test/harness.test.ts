@@ -2300,7 +2300,7 @@ test("compiled MCP exposes versioned templates and initializes projects without 
 
     const nestedCandidateId = "refresh-nested-plans";
     prepareCandidateStage(untouchedRoot, nestedCandidateId);
-    for (const path of ["tracks/alpha/plan.md", "tracks/beta/plan.md"]) {
+    for (const path of ["tracks/alpha/plan.md", "tracks/bravo/plan.md"]) {
       const absolutePath = join(untouchedRoot, ".cadre/stage", nestedCandidateId, path);
       mkdirSync(dirname(absolutePath), { recursive: true });
       writeFileSync(absolutePath, draftPlan);
@@ -2310,9 +2310,9 @@ test("compiled MCP exposes versioned templates and initializes projects without 
       arguments: {
         projectRoot: untouchedRoot,
         candidateId: nestedCandidateId,
-        files: ["tracks/beta/plan.md", "tracks/alpha/plan.md"],
+        files: ["tracks/bravo/plan.md", "tracks/alpha/plan.md"],
         planValidations: [
-          { path: "tracks/beta/plan.md", targetStatus: "in_progress" },
+          { path: "tracks/bravo/plan.md", targetStatus: "in_progress" },
           { path: "tracks/alpha/plan.md", targetStatus: "planned" }
         ]
       }
@@ -2320,17 +2320,17 @@ test("compiled MCP exposes versioned templates and initializes projects without 
     assert.equal(nestedCandidate.isError, undefined);
     assert.deepEqual(
       (nestedCandidate.structuredContent as { plans?: Array<{ path?: string }> }).plans?.map((plan) => plan.path),
-      ["tracks/alpha/plan.md", "tracks/beta/plan.md"]
+      ["tracks/alpha/plan.md", "tracks/bravo/plan.md"]
     );
     const reorderedNestedCandidate = await client.callTool({
       name: "candidate_inspect",
       arguments: {
         projectRoot: untouchedRoot,
         candidateId: nestedCandidateId,
-        files: ["tracks/alpha/plan.md", "tracks/beta/plan.md"],
+        files: ["tracks/alpha/plan.md", "tracks/bravo/plan.md"],
         planValidations: [
           { path: "tracks/alpha/plan.md", targetStatus: "planned" },
-          { path: "tracks/beta/plan.md", targetStatus: "in_progress" }
+          { path: "tracks/bravo/plan.md", targetStatus: "in_progress" }
         ]
       }
     });

@@ -3,7 +3,7 @@ import { CADRE_RUNTIME_VERSION, TEMPLATE_SET_VERSION, isCompatibleRuntimeVersion
 
 export interface ProjectFormat { schemaVersion?: unknown; runtimeVersion?: unknown; templateSetVersion?: unknown }
 
-export const PROJECT_UPGRADE_INSTRUCTIONS = "Install cadre-ai@3.9.0 and run cadre-ai install --target all --scope user; reload your client. Complete or reconcile interrupted operations, then use Cadre refresh in 3.9.0 for an explicitly approved migration to template v5 and schema-2 project/active-track state at a quiescent boundary. Preserve historical evidence and explicitly choose any required approval-policy migration. Then install cadre-ai@4.0.0, run cadre-ai install --target all --scope user, reload your client, and continue. Do not edit version labels or approval records by hand.";
+export const PROJECT_UPGRADE_INSTRUCTIONS = `Install cadre-ai@3.9.0 and run cadre-ai install --target all --scope user; reload your client. Complete or reconcile interrupted operations, then use Cadre refresh in 3.9.0 for an explicitly approved migration to template v5 and schema-2 project/active-track state at a quiescent boundary. Preserve historical evidence and explicitly choose any required approval-policy migration. Then install cadre-ai@${CADRE_RUNTIME_VERSION}, run cadre-ai install --target all --scope user, reload your client, and continue. Do not edit version labels or approval records by hand.`;
 
 /** One admission rule shared by status, diagnostics and mutation boundaries. */
 export function supportsProjectFormat(project: ProjectFormat | null | undefined): boolean {

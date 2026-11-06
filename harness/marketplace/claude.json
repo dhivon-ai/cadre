@@ -1,7 +1,8 @@
 {
   "name": "cadre",
   "owner": {
-    "name": "Cadre contributors"
+    "name": "Dhivon AI",
+    "url": "https://dhivon.ai"
   },
   "description": "Cadre plugin marketplace for human-governed software delivery workflows.",
   "plugins": [

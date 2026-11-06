@@ -1,0 +1,13 @@
+Dhivon Cadre
+A product of Dhivon AI
+
+Copyright 2026 Dhivon AI
+
+Licensed under the Apache License, Version 2.0.
+See LICENSE for the full license text.
+
+Third-party components retain their respective copyrights and licenses.
+The documentation website bundles Manrope under the SIL Open Font License 1.1.
+Its unchanged copyright and license are at docs/public/brand/fonts/OFL.txt in
+source and /brand/fonts/OFL.txt on the website. The font is not bundled in the
+npm or client plugin distributions.

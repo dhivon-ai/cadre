@@ -1,25 +1,51 @@
 [
-  { "section": "Start Here", "slugs": ["overview", "getting-started", "quickstart"] },
   {
-    "section": "User Guide",
+    "section": "Get started",
     "slugs": [
-      "capabilities",
-      "how-cadre-works",
-      "workflows",
-      "parallel-execution",
-      "parallel-execution-walkthrough"
+      "overview",
+      "getting-started",
+      "quickstart"
     ]
   },
   {
-    "section": "Operations",
-    "slugs": ["configuration", "tuning", "operations", "team-and-polyrepo", "troubleshooting"]
+    "section": "Deliver and maintain",
+    "slugs": [
+      "workflows",
+      "parallel-execution",
+      "parallel-execution-walkthrough",
+      "operations",
+      "configuration",
+      "tuning",
+      "troubleshooting"
+    ]
   },
   {
-    "section": "Contributor Guide",
-    "slugs": ["architecture", "runtime-and-mcp", "workflow-engine", "state-and-artifacts", "development", "testing-and-release"]
+    "section": "Understand Cadre",
+    "slugs": [
+      "capabilities",
+      "how-cadre-works",
+      "team-and-polyrepo"
+    ]
   },
   {
     "section": "Reference",
-    "slugs": ["configuration-reference", "workflow-reference", "mcp-reference", "release-notes"]
+    "slugs": [
+      "configuration-reference",
+      "workflow-reference",
+      "mcp-reference",
+      "release-notes",
+      "licensing"
+    ]
+  },
+  {
+    "section": "Contribute",
+    "slugs": [
+      "architecture",
+      "runtime-and-mcp",
+      "workflow-engine",
+      "state-and-artifacts",
+      "development",
+      "testing-and-release"
+    ]
   }
 ]
