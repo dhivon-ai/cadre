@@ -49,3 +49,13 @@ branch. Existing published release tags and remote history are preserved. Unpubl
 implementation commits were replaced before pushing to remove the default DSN.
 Release CI injects it from the `CADRE_SENTRY_DSN` repository secret; builds without
 a valid build-time DSN omit Sentry support.
+
+## Published outcome
+
+GitHub and npm published 4.2.0 with signed provenance. The release job passed
+all 546 tests and the 15-case telemetry build matrix. npm processing completed
+before updating the production branch. The first branch-update attempt could
+not establish ancestry from a shallow checkout; the maintainer's full checkout
+verified ancestry and fast-forwarded `release` to the immutable release commit.
+Future branch-update jobs fetch full history. The package and release tag were
+not republished or moved.

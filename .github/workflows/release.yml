@@ -101,5 +101,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.publish-npm.outputs.commit }}
+          fetch-depth: 0
       - name: Update Cloudflare production branch
         run: git push origin HEAD:refs/heads/release
