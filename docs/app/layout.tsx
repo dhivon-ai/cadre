@@ -26,9 +26,6 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   icons: { apple: siteUrl("/brand/apple-touch-icon.png") },
-  verification: process.env.GOOGLE_SITE_VERIFICATION
-    ? { google: process.env.GOOGLE_SITE_VERIFICATION }
-    : undefined,
 }
 
 export default function RootLayout({

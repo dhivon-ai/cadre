@@ -92,12 +92,9 @@ metadata. The homepage includes WebSite structured data, and guides include
 breadcrumbs matching the visible navigation. These improve discovery and
 identification; they do not guarantee Google indexing or rankings.
 
-After deployment, use [Google Search Console](https://search.google.com/search-console/)
-to add the **URL-prefix property** `https://cadre.dhivon.ai/`. For HTML-tag
-verification, copy only the supplied tag's `content` value into the Cloudflare Pages
-production build variable `GOOGLE_SITE_VERIFICATION`, then retry the production
-build for the published commit. The build includes the verification tag only when that
-value is configured. Keep it configured after verification to retain ownership.
+After deployment, use a verified [Google Search Console](https://search.google.com/search-console/)
+property covering `https://cadre.dhivon.ai/`. The documentation build does not
+include a Google verification meta tag or HTML verification file.
 
 Submit `https://cadre.dhivon.ai/sitemap.xml` in Search Console, inspect the
 homepage and a guide, and request indexing. Use the Page Indexing report to

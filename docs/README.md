@@ -34,7 +34,6 @@ Configure the `cadre-docs` Pages project to build from the repository root:
 - Build command: `pnpm --filter cadre-docs check` (includes the static build and export audit).
 - Output directory: `docs/out`.
 - Build environment: Node.js 22 and pnpm 11.4.0, matching the release workflow.
-- Optional production build variable: `GOOGLE_SITE_VERIFICATION`.
 
 The Git integration handles deployment without Cloudflare credentials in GitHub.
 The canonical site is [cadre.dhivon.ai](https://cadre.dhivon.ai/), served at the domain root.
@@ -55,8 +54,7 @@ Update that origin before deploying to a different canonical domain. Sitemap
 and metadata share this URL builder. Dates are not fabricated at build time;
 there is no artificial sitemap freshness claim.
 
-The optional `GOOGLE_SITE_VERIFICATION` build variable adds a verification meta
-tag. Deployment and Google Search Console indexing remain separate from local
+Deployment and Google Search Console indexing remain separate from local
 validation. Guidance follows [Google's SEO starter guide](https://developers.google.com/search/docs/fundamentals/seo-starter-guide)
 and [sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap).
 
