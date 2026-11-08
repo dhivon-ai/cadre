@@ -254,4 +254,22 @@ and marketplace catalogs. Do not edit ignored `harness/dist/` bundles as source.
 
 ## Older Project Format Warning
 
-`PROJECT_UPGRADE_REQUIRED` leaves project files unchanged. Use `npm install -g cadre-ai@3.9.0`, then `cadre-ai install --target all --scope user` and reload the client. Reconcile interrupted operations and perform the explicitly approved refresh to schema-2/v5 in 3.9.0. After that succeeds, install 4.1.0, reinstall the client integration and reload again. Compatible 3.9.0/3.9.1/3.9.2 schema-2/v5 projects do not need this bridge or a version-only refresh. Never fix the warning by changing version labels or deleting pending approval evidence.
+`PROJECT_UPGRADE_REQUIRED` leaves project files unchanged. Use `npm install -g cadre-ai@3.9.0`, then `cadre-ai install --target all --scope user` and reload the client. Reconcile interrupted operations and perform the explicitly approved refresh to schema-2/v5 in 3.9.0. After that succeeds, install 4.2.0, reinstall the client integration and reload again. Compatible 3.9.0/3.9.1/3.9.2 schema-2/v5 projects do not need this bridge or a version-only refresh. Never fix the warning by changing version labels or deleting pending approval evidence.
+
+## Telemetry Configuration And Missing Events
+
+**Since 4.2.0.** Run `cadre-ai telemetry status` or `cadre-ai doctor` to see
+the effective destination and disable reason; neither sends a test event.
+`DO_NOT_TRACK=1` wins over every enabled setting. An inherited
+`CADRE_TELEMETRY=1` overrides a saved opt-out, so remove that environment setting
+or use `DO_NOT_TRACK=1` to stop collection. Running MCP processes recheck saved
+preferences before subsequent operations and sends.
+
+Malformed preference JSON and empty/invalid DSNs disable delivery rather than
+falling back to Dhivon. Correct the file reported by `telemetry status` if it is
+malformed. Reinstalls do not erase preferences. Use the same `CADRE_HOME` as the
+installed client. A Sentry-free build cannot be enabled with an environment
+variable. Missing events can also reflect offline endpoints, bounded queues,
+rate limits, abrupt exits, or Sentry quotas. Inventory can be missing or incomplete
+until an existing state inspection observes it; a missing field is not zero.
+See [optional telemetry](/configuration/#optional-telemetry).

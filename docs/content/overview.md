@@ -54,6 +54,13 @@ It remains valid without completed tracks or new guidance.
 [Refresh](/workflow-reference#refresh), [Revert](/workflow-reference#revert),
 [Status](/workflow-reference#status), and [Wisp](/workflow-reference#wisp).
 
+## Cadre 4.2.0
+
+Version 4.2.0 adds optional timing, sanitized-error, and inventory telemetry.
+It is on by default outside CI with clear disclosure, persistent opt-out, own-DSN
+support, and Sentry-free builds. Existing 4.1.0 projects need no migration.
+[Configure or disable telemetry](/configuration#optional-telemetry).
+
 ## Cadre 4.1.0
 
 Version 4.1.0 adds Quick and unified Refresh, with ten

@@ -38,8 +38,9 @@ cadre-ai install --target zed
 cadre-ai doctor
 ```
 
-The npm command installs the latest stable release. Version **4.1.0** includes
-Quick and unified Refresh. See [release notes](/release-notes) for changes and
+The npm command installs the latest stable release. Version **4.2.0** includes
+optional telemetry, Quick, and unified Refresh. Telemetry-capable builds default on outside CI;
+use `cadre-ai install --telemetry off` to opt out before installing. See [release notes](/release-notes) for changes and
 upgrade guidance.
 
 Use `cadre-ai install` to auto-detect available clients or
@@ -145,9 +146,9 @@ cadre-ai install
 Use `--replace-marketplace` only when a marketplace already named `cadre`
 points at a different location that you have reviewed and intend to replace.
 
-Cadre 4.1.0 accepts existing 3.9.0/3.9.1/3.9.2 and 4.0.0 projects using supported schema-2 state and v5–v8 templates without a version-only refresh. Adopting Quick or unified archival requires an approved Refresh of the workflow contract. Update the installed runtime and start a new client session. Interrupted work still requires receipt reconciliation; inconsistent approval state requires an explicitly approved repair.
+Cadre 4.2.0 accepts existing 3.9.0/3.9.1/3.9.2, 4.0.0, and 4.1.0 projects using supported schema-2 state and v5–v8 templates without a version-only refresh. Adopting Quick or unified archival requires an approved Refresh of the workflow contract. Update the installed runtime and start a new client session. Interrupted work still requires receipt reconciliation; inconsistent approval state requires an explicitly approved repair.
 
-For an older format, status reports `PROJECT_UPGRADE_REQUIRED`. Install `cadre-ai@3.9.0`, run `cadre-ai install --target all --scope user`, and reload the client. Reconcile interrupted operations and use Cadre refresh in 3.9.0 for an approved migration to schema-2/v5 at a quiescent boundary. Then install 4.1.0, reinstall the client integration and reload again. Never update version labels by hand. See [release notes](/release-notes) for the complete route.
+For an older format, status reports `PROJECT_UPGRADE_REQUIRED`. Install `cadre-ai@3.9.0`, run `cadre-ai install --target all --scope user`, and reload the client. Reconcile interrupted operations and use Cadre refresh in 3.9.0 for an approved migration to schema-2/v5 at a quiescent boundary. Then install 4.2.0, reinstall the client integration and reload again. Never update version labels by hand. See [release notes](/release-notes) for the complete route.
 
 ## Uninstall
 
@@ -175,6 +176,18 @@ node harness/dist/cadre-cli.mjs install --target all
 Use this path for harness development and release validation, not for normal
 package upgrades.
 
-Cadre 4.1.0 includes Quick and unified Refresh with template v8. Existing v5/v6 projects continue
+Cadre 4.2.0 includes Quick and unified Refresh with template v8. Existing v5/v6 projects continue
 track workflows unchanged; use an approved refresh to adopt quick before its
 first use. Do not edit version labels by hand.
+
+## Optional Telemetry
+
+Telemetry-capable Cadre 4.2.0 builds default on outside CI and announce it before
+installation and on MCP startup. Disable before installing with
+`cadre-ai install --target all --telemetry off`, or use
+`cadre-ai telemetry disable` / `DO_NOT_TRACK=1`. Saved choices survive upgrades
+and `--yes`. Timings, sanitized errors, versions, counts, and random IDs help
+identify bottlenecks; prompts, files, names, paths, and raw MCP payloads are excluded.
+Use `cadre-ai telemetry configure --dsn <DSN>` for your own Sentry destination.
+See [configuration](https://cadre.dhivon.ai/configuration/#optional-telemetry)
+for precedence, privacy, delivery limitations, and Sentry-free builds.

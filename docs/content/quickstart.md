@@ -192,3 +192,15 @@ there is no separate track batch limit. See [Quick](workflows.md#quick).
 
 Continue with [How Cadre Works](how-cadre-works.md) or the complete
 [Workflow Guide](workflows.md).
+
+## Optional Telemetry
+
+Telemetry-capable Cadre 4.2.0 builds default on outside CI and announce it before
+installation and on MCP startup. Disable before installing with
+`cadre-ai install --target all --telemetry off`, or use
+`cadre-ai telemetry disable` / `DO_NOT_TRACK=1`. Saved choices survive upgrades
+and `--yes`. Timings, sanitized errors, versions, counts, and random IDs help
+identify bottlenecks; prompts, files, names, paths, and raw MCP payloads are excluded.
+Use `cadre-ai telemetry configure --dsn <DSN>` for your own Sentry destination.
+See [configuration](https://cadre.dhivon.ai/configuration/#optional-telemetry)
+for precedence, privacy, delivery limitations, and Sentry-free builds.

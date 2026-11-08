@@ -113,3 +113,68 @@ Run frozen-lockfile installation, harness type checking, full tests, package val
 Use disposable projects for native Claude and Codex workflow tests, including dirty-worktree revert preparation and fresh-session recovery. SDK client-identity tests cover wire compatibility but do not replace native activation. Before publishing, validate the packaged installer, enabled candidate version, narrow MCP approvals, and server activation in Codex, Claude Code, and Zed; Zed must discover all ten skills. Record absent or untested clients as incomplete gates. Personal-client installation and publication require their own authorization.
 
 The 100-node aggregate benchmark compares current request/response bytes with a captured response-only baseline and resets retained context halfway through. This is a conservative retrieval comparison, not a before/after live-delivery token experiment. Report small-fixture overhead and client-reported usage separately.
+
+## Telemetry Adapters And Sentry-Free Builds
+
+**Since 4.2.0.** `harness/src/telemetry/runtime.ts` exposes vendor-neutral
+operation, phase, counter, sanitized-error, observation, and bounded-flush APIs.
+Request-local context isolates concurrent operations. Only `sentry.ts` imports
+Sentry. The pinned `@sentry/node` 10.75.2 package is a build dependency; generated
+runtime distributions need no production dependencies or `node_modules`.
+No SDK management token, loader hook, profiling, or automatic instrumentation is
+required. The adapter constructs allowlisted envelopes and uses an isolated transport;
+global Sentry scopes and event processors cannot attach unrelated data. Bundled dependency licenses are in `dist/THIRD_PARTY_NOTICES.txt`.
+
+By default, source builds omit Sentry. To include it, supply a valid HTTPS
+public ingestion DSN through `CADRE_BUILD_SENTRY_DSN` in the build environment.
+The release workflow maps the repository's `CADRE_SENTRY_DSN` GitHub Actions
+secret into this variable. Never commit a real DSN or put one in a workflow literal.
+Missing, empty, and invalid build values produce telemetry-free artifacts without
+printing the value. The explicit exclusion below takes precedence even when a
+build DSN is present.
+
+```bash
+CADRE_BUILD_TELEMETRY=none pnpm --filter cadre-ai build
+CADRE_BUILD_TELEMETRY=none pnpm --filter cadre-ai pack --pack-destination /tmp
+```
+
+Keep the environment setting on commands that rebuild, including `prepack`.
+The build resolves the adapter/defaults to no-op alternatives, excluding Sentry,
+its dependencies, and the centralized DSN from generated runtime artifacts.
+Telemetry controls still explain that collection is unavailable; runtime DSN
+overrides cannot enable Sentry in these artifacts. An enabled distribution
+necessarily contains its public ingestion DSN in the generated bundle, even
+though source and Git history do not. Never supply a management token. For a source
+fork, these module boundaries also allow deleting the Sentry adapter and removing
+its build dependency without changing domain behavior. To send to your own
+Sentry, changing the DSN is sufficient; replacing the provider requires only the
+exporter interface, not changes throughout the MCP server.
+
+Tests use a recording transport and temporary homes, never the centralized DSN.
+For an intentional synthetic ingestion check only, first set `CADRE_SENTRY_DSN`
+in your environment to the destination to verify:
+
+```bash
+pnpm --filter cadre-ai exec node --import tsx scripts/verify-telemetry.ts --send
+```
+
+This sends synthetic traces, errors, metrics, and inventory in `telemetry-test`.
+It does not read a project. Keep production and test filters separate in the
+[Cadre bottlenecks](https://dhivonai.sentry.io/dashboard/6577996/) dashboard. Use operation percentiles, phase timings and
+error-code breakdowns; use distinct installation/project IDs for observed counts.
+Inventory views must show timestamped observations, never sums of snapshots.
+
+Package verification (missing/empty/invalid DSNs, explicit exclusion, enabled
+builds, Node 18/20/22, recording transport):
+
+```bash
+pnpm --filter cadre-ai exec node --import tsx scripts/verify-telemetry-package.ts
+```
+
+Use `cadre_project_id` for Cadre's random project ID; Sentry's built-in
+`project_id` identifies the Sentry ingestion project. Logs require typed columns
+such as `tags[tracks_active,number]` and `tags[complete,boolean]`. This avoids
+interpreting missing values as zero or counting the ingestion project as a user
+project. The dashboard's global environment selector supports `production` and
+`telemetry-test`; test events are synthetic and should be excluded from adoption
+reporting.

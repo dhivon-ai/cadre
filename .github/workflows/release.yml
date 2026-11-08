@@ -20,6 +20,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    env:
+      CADRE_BUILD_SENTRY_DSN: ${{ secrets.CADRE_SENTRY_DSN }}
     outputs:
       commit: ${{ steps.checkout.outputs.commit }}
       version: ${{ steps.release.outputs.version }}
@@ -50,6 +52,8 @@ jobs:
         run: pnpm --filter cadre-ai check
       - name: Test harness package
         run: pnpm --filter cadre-ai test
+      - name: Verify telemetry build variants
+        run: pnpm --filter cadre-ai exec node --import tsx scripts/verify-telemetry-package.ts
       - name: Validate harness package
         run: pnpm --filter cadre-ai validate
       - name: Pack dry-run
@@ -98,4 +102,4 @@ jobs:
         with:
           ref: ${{ needs.publish-npm.outputs.commit }}
       - name: Update Cloudflare production branch
-        run: git push --force origin HEAD:refs/heads/release
+        run: git push origin HEAD:refs/heads/release

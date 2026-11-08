@@ -1,5 +1,37 @@
 # Changelog
 
+## [4.2.0] - 2026-11-08
+
+### Optional telemetry
+
+- Add disclosed default-on MCP/installer telemetry with persistent opt-out,
+  environment controls, CI default-off, own-DSN replacement, and live disabling.
+- Record operation/phase timing, approval wait, sanitized errors, inspection
+  counters, versions, and timestamped track/Quick inventory observations.
+- Keep delivery bounded, optional, pseudonymous, and isolated from workflow
+  results. Exclude raw inputs/results, prompts, source, names, paths and Git data.
+- Inject the default DSN only at build time from GitHub Actions secrets. Missing,
+  empty, or invalid build DSNs produce Sentry-free artifacts. No destination is
+  hardcoded in source. Explicit `CADRE_BUILD_TELEMETRY=none` also excludes Sentry.
+- Bundle Sentry 10.75.2 with dependency notices only in telemetry-capable builds.
+- Expand help and guides. The documentation website receives no instrumentation.
+
+### Upgrade
+
+```bash
+npm install -g cadre-ai@4.2.0
+cadre-ai install --target all
+```
+
+Telemetry-capable builds enable collection by default outside CI. To opt out before installation, use
+`cadre-ai install --target all --telemetry off`. Existing saved opt-outs are
+preserved. `DO_NOT_TRACK=1` always disables collection. A custom DSN replaces the
+Dhivon destination completely; see [configuration](https://cadre.dhivon.ai/configuration/#optional-telemetry).
+
+The runtime retains template v8, ten workflows, and 21 tools. Existing 4.1.0,
+4.0.0, and supported 3.9.x schema-2 projects need no migration for this upgrade.
+The documentation website has no browser telemetry.
+
 ## [4.1.0] - 2026-11-06
 
 Stable release dated 6 November 2026.

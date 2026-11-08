@@ -106,6 +106,21 @@ There is no current `install --check` mode. Native listing and a real skill/MCP
 smoke test are the verification path. Zed has no plugin-list CLI, so verify its
 Skills and MCP Server pages and run `/cadre-status` in a native Zed Agent thread.
 
+## 4.2.0 Verification Scope
+
+Telemetry checks cover disclosure, persistent opt-out, environment precedence,
+custom DSN isolation, direct MCP startup, live disabling, bounded delivery,
+privacy allowlists, concurrent contexts, nested timing, and inventory counts.
+A recording transport checks that disabled modes send no requests and raw data
+cannot enter exported envelopes. Efficiency fixtures compare telemetry on/off
+without extra Git processes or full validation passes.
+
+Telemetry-enabled and Sentry-free self-contained packages are exercised on Node 18, 20,
+and 22. Native installation checks cover Codex, Claude Code, and Zed discovery,
+permissions, and MCP activation. The
+[4.2.0 release validation record](https://github.com/dhivon-ai/cadre/blob/main/docs/development/cadre-4.2.0-release.md)
+keeps the automated, native, and Sentry verification scopes distinct.
+
 ## 4.1.0 Verification Scope
 
 Quick and unified Refresh passed 660 disposable-project protocol cases: 220 each
@@ -160,7 +175,7 @@ user authorization; local validation does not imply it.
 
 The `release.yml` workflow publishes only a published, non-prerelease GitHub
 release to npm's `latest` channel. A tag push alone does not publish. Prepare
-4.1.0 locally first; creating a tag, pushing, publishing a GitHub release, and
+4.2.0 locally first; creating a tag, pushing, publishing a GitHub release, and
 publishing to npm require explicit authorization.
 
 For `cadre-ai`, configure the GitHub Actions trusted publisher with organization
@@ -171,9 +186,16 @@ leave dist-tag management disabled. The package repository URL must match
 transfer, replace the old npm trust connection; changing Git's `origin` alone
 does not update npm's publishing authorization. No npm token belongs in the repository.
 
-- Keep the runtime, harness/docs packages, and both plugin manifests at `4.1.0`.
-  Complete the release gates and use the prepared 4.1.0 release notes.
-- Use `release-4.1.0` for the stable release tag after authorization. The tag's
+Store the public ingestion DSN in the `CADRE_SENTRY_DSN` repository Actions
+secret. The release job supplies it as `CADRE_BUILD_SENTRY_DSN` on every rebuild,
+including prepack. Missing, empty, or invalid values produce Sentry-free packages;
+`CADRE_BUILD_TELEMETRY=none` forces that mode. The release gate exercises all
+five configurations on Node 18/20/22 using a recording transport. Never commit
+a real DSN or embed it in workflow YAML.
+
+- Keep the runtime, harness/docs packages, and both plugin manifests at `4.2.0`.
+  Complete the release gates and use the prepared 4.2.0 release notes.
+- Use `release-4.2.0` for the stable release tag after authorization. The tag's
   version must exactly match the package; prerelease versions are rejected.
 - The workflow checks the tag/version pair, runs harness checks, tests and
   package validation, then publishes with `--tag latest --provenance`.
@@ -186,7 +208,7 @@ does not update npm's publishing authorization. No npm token belongs in the repo
 - Never move an existing release tag or reuse a published npm version. Fix a
   failed candidate and validate a new version when its contents need to change.
 
-After publication, users install with `npm install -g cadre-ai@4.1.0` and run
+After publication, users install with `npm install -g cadre-ai@4.2.0` and run
 the normal installer. For native installer validation without changing personal
 installations, use a disposable home and client configuration directories for
 all installer and client processes.

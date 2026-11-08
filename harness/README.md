@@ -2,10 +2,11 @@
 
 Cadre is a product of [Dhivon AI](https://dhivon.ai).
 
-**Cadre 4.1.0** adds Quick for bounded changes and brings completed-track
-archival into Refresh. Ten workflows, 21 MCP tools, and immutable template v8
-support Codex, Claude Code, and Zed Agent, with four approval modes and both
-sequential and parallel scheduling. See [cadre-ai on npm](https://www.npmjs.com/package/cadre-ai).
+**Cadre 4.2.0** adds optional operation telemetry to help diagnose slow MCP
+operations and failures. Telemetry-capable builds default on outside CI, with clear
+installation/startup disclosure, persistent opt-out, and support for your own
+Sentry DSN or a Sentry-free build. Ten workflows, 21 MCP tools, and immutable
+template v8 support Codex, Claude Code, and Zed Agent. See [cadre-ai on npm](https://www.npmjs.com/package/cadre-ai).
 
 Cadre is a human-governed, Git-aware delivery harness for Codex, Claude Code,
 and Zed Agent. All three integrations are stable as of Cadre 3.9.1.
@@ -22,6 +23,24 @@ templates. A project keeps only approved, mutable delivery state under
 **Documentation:** [cadre.dhivon.ai](https://cadre.dhivon.ai/) ·
 [Quickstart](https://cadre.dhivon.ai/quickstart/) ·
 [Release notes](https://cadre.dhivon.ai/release-notes/)
+
+## What changes in 4.2.0
+
+- **Understand bottlenecks:** operation and nested-phase timing, approval wait,
+  sanitized error codes, inspection counters, and client/release/template versions.
+- **Observe usage:** timestamped project, track, and Quick inventories with random
+  IDs. Counts describe observed project installations; repeated snapshots are not totals.
+- **Control collection:** disable with `cadre-ai telemetry disable`,
+  `cadre-ai install --telemetry off`, or `DO_NOT_TRACK=1`. Saved preferences survive upgrades.
+- **Choose the destination:** replace the default with your own DSN, or build with
+  `CADRE_BUILD_TELEMETRY=none` to exclude Sentry and the default DSN.
+  Builds without `CADRE_BUILD_SENTRY_DSN` also omit Sentry entirely; release builds
+  receive it from the `CADRE_SENTRY_DSN` GitHub Actions secret.
+- **Keep project state compatible:** existing 3.9.x, 4.0.0, and 4.1.0 schema-2
+  projects remain supported. No migration is needed for telemetry.
+
+See [telemetry configuration](https://cadre.dhivon.ai/configuration/#optional-telemetry)
+for collected/excluded data, precedence, and best-effort delivery limits.
 
 ## What changes in 4.1.0
 
@@ -48,7 +67,7 @@ execution. See the [testing and release documentation](https://cadre.dhivon.ai/t
 
 ## Unified Refresh
 
-Refresh now combines context maintenance, learning consolidation and completed-track archival under one approval, receipt and commit. Cadre 4.1.0 exposes ten workflows and 21 MCP tools with template v8. The standalone archive skill and MCP tool are removed. Existing approved archive journals remain recoverable through `candidate_apply`. Older supported projects adopt the new workflow contract in an approved Refresh.
+Refresh now combines context maintenance, learning consolidation and completed-track archival under one approval, receipt and commit. Cadre 4.2.0 exposes ten workflows and 21 MCP tools with template v8. The standalone archive skill and MCP tool are removed. Existing approved archive journals remain recoverable through `candidate_apply`. Older supported projects adopt the new workflow contract in an approved Refresh.
 
 ```text
 Create → Track → Implement → Review → completed tracks ─┐
@@ -76,13 +95,13 @@ and moves unchanged records to `.cadre/archive/.quick/`. Routine track context
 loads no quick history; focused search retrieves relevant outcomes when needed.
 
 Invoke `$cadre:quick` in Codex, `/cadre:quick` in Claude Code, or `/cadre-quick`
-in Zed. Cadre 4.1.0 includes Quick and unified Refresh with template v8. Existing v5/v6
+in Zed. Cadre 4.2.0 includes Quick and unified Refresh with template v8. Existing v5/v6
 projects retain their workflows; enabling quick requires an approved refresh
 adopting its contract. Wisp remains stateless exploration.
 
 ## Upcoming roadmap
 
-Three optional capabilities are planned beyond 4.1.0:
+Three optional capabilities are planned beyond 4.2.0:
 
 1. **Deeper GitHub / GitLab integration** for coordinating work across multiple
    people, including shared work status, ownership and review handoffs.
@@ -93,7 +112,7 @@ Three optional capabilities are planned beyond 4.1.0:
 
 Each capability will be independently **opt-in and disabled by default**. The
 core single-repository workflow will remain usable without enabling any of them.
-These are upcoming roadmap items, not features included in 4.1.0; no delivery dates
+These are upcoming roadmap items, not features included in 4.2.0; no delivery dates
 are committed. See the [roadmap](https://cadre.dhivon.ai/team-and-polyrepo/).
 
 ## Capabilities
@@ -515,7 +534,7 @@ pnpm --filter cadre-ai validate
 
 ### Memory format upgrade
 
-Cadre 4.1.0 packages template set v8 and supports existing 4.0.0 projects. Existing 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no project migration or version-only refresh. Older formats must use Cadre 3.9.0 for an approved refresh to schema-2/v5 before installing 4.1.0. Published v1–v7 templates remain unchanged in source, and terminal learning remains historical evidence. Active Pattern Seeds record revisions and exact pattern fingerprints; changed guidance requires reassessment. Task handoffs preserve decisions, failed approaches, uncertainty, and next actions alongside existing checkpoints. Use all `context_read` pages before acting, and retain source inspection and approval gates. Routine `project_status` uses summaries; request `detail: "full"` for history/graph diagnostics. Filtered/paged listings never narrow validation coverage.
+Cadre 4.2.0 packages template set v8 and supports existing 4.0.0 and 4.1.0 projects. Existing 3.9.0/3.9.1/3.9.2 schema-2/v5 projects need no project migration or version-only refresh. Older formats must use Cadre 3.9.0 for an approved refresh to schema-2/v5 before installing 4.2.0. Published v1–v7 templates remain unchanged in source, and terminal learning remains historical evidence. Active Pattern Seeds record revisions and exact pattern fingerprints; changed guidance requires reassessment. Task handoffs preserve decisions, failed approaches, uncertainty, and next actions alongside existing checkpoints. Use all `context_read` pages before acting, and retain source inspection and approval gates. Routine `project_status` uses summaries; request `detail: "full"` for history/graph diagnostics. Filtered/paged listings never narrow validation coverage.
 
 Release preparation includes regression tests, package inspection, and documentation checks. Publishing still requires native installer/discovery/activation checks for Codex, Claude Code, and Zed. Local model tests and byte benchmarks do not establish universal token savings or semantic correctness of generated learning.
 
@@ -534,3 +553,15 @@ findings; a finding unresolved after two remediation attempts pauses for guidanc
 ## License
 
 Cadre is licensed under [Apache-2.0](https://cadre.dhivon.ai/LICENSE.txt). Copyright 2026 Dhivon AI. See the packaged `NOTICE` or the [licensing guide](https://cadre.dhivon.ai/licensing/).
+
+## Optional Telemetry
+
+Telemetry-capable Cadre 4.2.0 builds default on outside CI and announce it before
+installation and on MCP startup. Disable before installing with
+`cadre-ai install --target all --telemetry off`, or use
+`cadre-ai telemetry disable` / `DO_NOT_TRACK=1`. Saved choices survive upgrades
+and `--yes`. Timings, sanitized errors, versions, counts, and random IDs help
+identify bottlenecks; prompts, files, names, paths, and raw MCP payloads are excluded.
+Use `cadre-ai telemetry configure --dsn <DSN>` for your own Sentry destination.
+See [configuration](https://cadre.dhivon.ai/configuration/#optional-telemetry)
+for precedence, privacy, delivery limitations, and Sentry-free builds.

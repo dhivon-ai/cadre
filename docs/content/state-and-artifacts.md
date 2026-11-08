@@ -117,7 +117,7 @@ until the approved index repair is applied.
 ## Versioning
 
 `runtimeVersion` identifies Cadre behavior. `templateSetVersion` identifies the
-immutable artifact format bundle. Cadre 4.1.0 creates v8 projects with schema-2 state. Existing 3.9.x/schema-2/v5 projects need no migration. Older formats remain readable for diagnostics but require the approved 3.9.0 bridge before mutation in 4.1.0. Active resources use `cadre://templates/v8/...` URIs and include SHA-256 hashes. Artifact schemas are independent: execution journals and receipts still use schema 1.
+immutable artifact format bundle. Cadre 4.2.0 creates v8 projects with schema-2 state. Existing 3.9.x/schema-2/v5 projects need no migration. Older formats remain readable for diagnostics but require the approved 3.9.0 bridge before mutation in 4.2.0. Active resources use `cadre://templates/v8/...` URIs and include SHA-256 hashes. Artifact schemas are independent: execution journals and receipts still use schema 1.
 
 ## Candidate and historical evidence
 

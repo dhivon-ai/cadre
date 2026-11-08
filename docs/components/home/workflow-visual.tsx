@@ -81,7 +81,7 @@ export function WorkflowVisual() {
         </p>
       </div>
       <figcaption className="mt-4 text-xs leading-5 text-muted-foreground">
-        Cadre 4.1.0 · Ten workflows
+        Cadre 4.2.0 · Ten workflows
       </figcaption>
     </figure>
   )

@@ -182,8 +182,9 @@ export function HomePage({ docs }: { docs: DocMeta[] }) {
                 client supplies the model; Cadre supplies the workflow.
               </p>
               <p className="mt-4 leading-7 text-muted-foreground">
-                Version 4.1.0 adds Quick for bounded changes and unified Refresh
-                for context, learning, and completed-track archival.
+                Version 4.2.0 adds optional operation telemetry with clear disclosure,
+                persistent opt-out, and your own Sentry destination. Quick and
+                unified Refresh remain available for delivery and maintenance.
               </p>
               <Link
                 className="site-link mt-6 inline-flex items-center gap-2 font-semibold"

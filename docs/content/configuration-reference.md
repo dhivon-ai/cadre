@@ -106,7 +106,7 @@ are `pending`, `running`, `awaiting_approval`, `committed`, `integrating`,
 Resolve `op:<operationId>` through receipt reconciliation before Git range
 commands. Preserve legacy `.cadre/operations/` refresh/archive journals as
 historical evidence. Pending operations using removed legacy mutation paths
-require recovery with Cadre 3.9.0 before returning to 4.1.
+require recovery with Cadre 3.9.0 before returning to 4.2.
 
 ## Ignored Runtime Paths
 
@@ -144,3 +144,24 @@ reference and each finding’s retained `attemptBaseline`. The refresh history e
 keeps the full prior loop, instruction record path and reason. Existing attempts
 are never erased; the two-attempt limit counts new attempts beyond that approved
 prefix. Automatic remediation, ordinary refresh and revert cannot replace it.
+
+## User Telemetry Preferences
+
+**Since 4.2.0.** `${CADRE_HOME:-~/.cadre}/telemetry.json` is user configuration,
+not an approved project artifact. It accepts `enabled` (boolean), `dsn` (string),
+and an internal `revision` string. Use `cadre-ai telemetry` commands to update it
+atomically. Random IDs are stored alongside it in `telemetry-identities/`.
+
+| Setting | Effect |
+|---|---|
+| `DO_NOT_TRACK=1` | Always disables telemetry. |
+| `CADRE_TELEMETRY=0` or `1` | Overrides the saved enabled preference. |
+| `CADRE_SENTRY_DSN` | Replaces the destination; empty/invalid disables sending. |
+| `CI` | Defaults off unless explicitly enabled. |
+| `CADRE_HOME` | Selects the user preference and identity directory. |
+| `CADRE_BUILD_SENTRY_DSN` | Build-time default destination. Missing, empty, or invalid omits Sentry support. Release CI supplies it from the `CADRE_SENTRY_DSN` repository secret. |
+| `CADRE_BUILD_TELEMETRY=none` | Build-time exclusion of Sentry and the default DSN. |
+| `CADRE_TELEMETRY_ENVIRONMENT=telemetry-test` | Synthetic verification environment; otherwise production. |
+
+See [optional telemetry](/configuration/#optional-telemetry) for precedence,
+privacy exclusions, live disabling, delivery bounds, and inventory semantics.

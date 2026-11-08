@@ -17,7 +17,7 @@ Cadre's upcoming roadmap has three capabilities, in this order:
 
 All three will be optional, independently opt-in and disabled by default. Teams
 will be able to use the core single-repository workflow without enabling any of
-these capabilities. They are planned beyond 4.1.0; no delivery dates are committed.
+these capabilities. They are planned beyond 4.2.0; no delivery dates are committed.
 
 ## GitHub / GitLab Coordination
 
