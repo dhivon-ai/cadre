@@ -75,7 +75,14 @@ for (const route of ["/", ...slugs.map((slug) => `/${slug}/`)]) {
   check(publisher?.["@id"] === "https://dhivon.ai/#organization" && publisher?.name === "Dhivon AI" && publisher?.url === "https://dhivon.ai", `${route}: missing Dhivon organization`)
   check(publisher?.logo === absolute("/brand/dhivon.svg"), `${route}: incorrect organization logo`)
   check(article?.publisher?.["@id"] === publisher?.["@id"], `${route}: missing publisher reference`)
-  if (route !== "/") {
+  if (route === "/") {
+    check(data.filter((item) => item["@type"] === "WebSite").length === 1, "Homepage must have exactly one WebSite identity")
+    check(article?.name === "Dhivon Cadre", "Homepage WebSite name differs from the preferred search site name")
+    check(article?.["@id"] === `${absolute("/")}#website`, "Homepage WebSite identity differs from article references")
+    const alternatives = article?.alternateName
+    check(Array.isArray(alternatives) && alternatives.includes("Cadre") && alternatives.includes(new URL(origin).hostname), "Homepage WebSite needs brand and canonical hostname fallbacks")
+  } else {
+    check(article?.isPartOf?.["@id"] === `${absolute("/")}#website`, `${route}: missing canonical WebSite reference`)
     const crumbs = data.find((item) => item["@type"] === "BreadcrumbList")?.itemListElement
     check(crumbs?.at(-1)?.item === absolute(route), `${route}: incorrect breadcrumb destination`)
   }

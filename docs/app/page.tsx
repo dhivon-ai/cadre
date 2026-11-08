@@ -7,6 +7,7 @@ import {
   pageMetadata,
   SITE_DESCRIPTION,
   SITE_NAME,
+  SITE_ORIGIN,
   siteUrl,
 } from "@/lib/seo"
 
@@ -21,7 +22,8 @@ const website = {
   "@id": `${siteUrl()}#website`,
   name: SITE_NAME,
   publisher: { "@id": ORGANIZATION_ID },
-  alternateName: ["cadre-ai", "Cadre"],
+  // Google can use the canonical hostname if it cannot select a brand name.
+  alternateName: ["Cadre", "cadre-ai", new URL(SITE_ORIGIN).hostname],
   url: siteUrl(),
   description: SITE_DESCRIPTION,
   inLanguage: "en",
