@@ -17,7 +17,7 @@ import { requireProjectOverlay } from "./project-overlay.js";
 import { requireWorkflowAdmission } from "./workflow-admission.js";
 import { requireRefreshRecord } from "./refresh-record.js";
 import { createHash, randomUUID } from "node:crypto";
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "../telemetry/process.js";
 import { closeSync, fsyncSync, openSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, renameSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { z } from "zod/v4";

@@ -73,7 +73,7 @@ test("published v1 templates remain byte-for-byte immutable", () => {
 
 function childEnvironment(overrides: Record<string, string>): Record<string, string> {
   return Object.fromEntries(
-    Object.entries({ ...process.env, ...overrides }).filter((entry): entry is [string, string] => entry[1] != null)
+    Object.entries({ ...process.env, ...overrides, CADRE_TELEMETRY: "0" }).filter((entry): entry is [string, string] => entry[1] != null)
   );
 }
 
@@ -1709,6 +1709,7 @@ test("installer prepares a shared three-client payload", async () => {
 
   const client = new Client({ name: "cadre-packaged-test", version: "1.0.0" });
   const transport = new StdioClientTransport({
+    env: { CADRE_TELEMETRY: "0" },
     command: codexServer.command,
     args: codexServer.args,
     cwd: resolve(pluginRoot, codexServer.cwd)
@@ -1969,7 +1970,7 @@ test("compiled MCP starts through a symlinked payload path for native clients", 
   symlinkSync(root, linked, "dir");
   for (const name of ["codex_cli_rs", "claude-code", "zed"]) {
     const client = new Client({ name, version: "2.1.0" });
-    const transport = new StdioClientTransport({ command: process.execPath, args: [join(linked, "dist/cadre-mcp.mjs")] });
+    const transport = new StdioClientTransport({ command: process.execPath, env: { CADRE_TELEMETRY: "0" }, args: [join(linked, "dist/cadre-mcp.mjs")] });
     try {
       await client.connect(transport, { timeout: 2000 });
       const tools = await client.listTools();
@@ -3025,7 +3026,7 @@ test("compiled MCP presents and normalizes a client-native workflow form", async
   });
   const transport = new StdioClientTransport({
     command: process.execPath,
-    args: [join(root, "dist", "cadre-mcp.mjs")]
+    args: [join(root, "dist", "cadre-mcp.mjs")], env: { CADRE_TELEMETRY: "0" }
   });
   await client.connect(transport);
   try {

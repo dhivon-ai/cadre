@@ -21,7 +21,7 @@ export type Cleanup = {after(fn: () => void | Promise<void>): void};
 export async function packagedClient(t: Cleanup, name: string) {
   const client = new Client({name, version: "maintenance-matrix"});
   const transport = new StdioClientTransport({command: process.execPath,
-    args: [resolve("dist/cadre-mcp.mjs")], env: Object.fromEntries(Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined))});
+    args: [resolve("dist/cadre-mcp.mjs")], env: Object.fromEntries(Object.entries({...process.env, CADRE_TELEMETRY: "0"}).filter((entry): entry is [string, string] => entry[1] !== undefined))});
   await client.connect(transport);
   t.after(() => client.close());
   const catalog = await client.listTools();

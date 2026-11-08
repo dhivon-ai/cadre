@@ -5,17 +5,30 @@ import { runInstall } from "./install.js";
 import { runUninstall } from "./uninstall.js";
 import { TEMPLATE_IDS, templateCatalog } from "../src/domain/templates.js";
 import { CADRE_RUNTIME_VERSION } from "../src/domain/version.js";
+import { runTelemetryCommand } from "./telemetry-cli.js";
+import { telemetryNotice } from "../src/telemetry/config.js";
+import { operation, startTelemetry, flushTelemetry, stopTelemetry } from "../src/telemetry/runtime.js";
 
 function usage(): string {
   return [
     "Cadre CLI",
     "",
     "Usage:",
-    "  cadre-ai install [--target auto|codex|claude|zed|all] [--scope user] [--dry-run] [--replace-marketplace]",
+    "  cadre-ai install [--target auto|codex|claude|zed|all] [--scope user] [--dry-run] [--replace-marketplace] [--telemetry on|off]",
     "  cadre-ai uninstall [--target codex|claude|zed|all] [--scope user] [--dry-run]",
     "  cadre-ai doctor",
+    "  cadre-ai telemetry status|enable|disable",
+    "  cadre-ai telemetry configure --dsn <DSN>|--default-dsn",
     "  cadre-ai --version",
-    "  cadre-ai help"
+    "  cadre-ai help",
+    "",
+    "Telemetry-capable builds default ON: timings, sanitized errors, versions, counts and random IDs.",
+    "No source, prompts, file contents, names, paths or raw MCP data are sent.",
+    "Disable: cadre-ai telemetry disable, CADRE_TELEMETRY=0, or DO_NOT_TRACK=1.",
+    "Builds without CADRE_BUILD_SENTRY_DSN omit Sentry; runtime settings cannot enable it.",
+    "Own Sentry: CADRE_SENTRY_DSN or telemetry configure --dsn <DSN>.",
+    "Preferences: ${CADRE_HOME:-~/.cadre}/telemetry.json. CI defaults OFF.",
+    "Details: https://cadre.dhivon.ai/configuration/#optional-telemetry"
   ].join("\n");
 }
 
@@ -53,13 +66,19 @@ function runDoctor(): number {
     return 1;
   }
   process.stdout.write("self-contained runtime: ok\n");
+  process.stdout.write(telemetryNotice());
   return 0;
 }
 
 export function runCli(args: string[]): number {
   const command = args[0] ?? "help";
   if (command === "install") return runInstall(args.slice(1));
-  if (command === "uninstall" || command === "remove") return runUninstall(args.slice(1));
+  if (command === "uninstall" || command === "remove") {
+    if (args.includes("--dry-run")) return runUninstall(args.slice(1));
+    startTelemetry();
+    return operation("uninstall", "cli", () => runUninstall(args.slice(1)));
+  }
+  if (command === "telemetry") return runTelemetryCommand(args.slice(1));
   if (command === "doctor") return runDoctor();
   if (command === "--version" || command === "-v" || command === "version") {
     process.stdout.write(`${CADRE_RUNTIME_VERSION}\n`);
@@ -79,3 +98,5 @@ try {
   process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 }
+await flushTelemetry();
+stopTelemetry();

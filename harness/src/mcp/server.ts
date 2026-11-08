@@ -1,3 +1,4 @@
+import { bindProject, operation, phase, outcome, startTelemetry, flushTelemetry, stopTelemetry } from "../telemetry/runtime.js";
 import { selectedTracksSchema } from "../domain/refresh-archive.js";
 import { beginQuick, beginQuickInputSchema } from "../domain/quick.js";
 import { quickStatus } from "../domain/quick-history.js";
@@ -119,7 +120,9 @@ function jsonArtifact(path: string, value: unknown) {
 
 function requireCompatibleProject(projectRoot: string): string {
   const root = safeProjectRoot(projectRoot);
-  requireSupportedProjectFormat(JSON.parse(readSafeArtifact(root, ".cadre/project.json")));
+  const project = JSON.parse(readSafeArtifact(root, ".cadre/project.json"));
+  bindProject(root, project);
+  requireSupportedProjectFormat(project);
   return root;
 }
 
@@ -343,14 +346,19 @@ export function createCadreServer(): McpServer {
   const registeredTools: RegisteredTool[] = [];
   const registerTool: typeof server.registerTool = (name, config, callback) => {
     const tool = server.registerTool(name, config, (async (input: Record<string, unknown>, extra: Parameters<ToolCallback<z.ZodRawShape>>[1]) => {
+      const request = input.request && typeof input.request === "object" ? input.request as Record<string, unknown> : input;
+      return operation(name, "mcp", async () => {
       const response = await (callback as ToolCallback<z.ZodRawShape>)(input, extra);
+      if (response.isError) outcome("error");
       // Retain server-side variant validation even when no schema is advertised.
       if (!response.isError) {
         const payload = response.structuredContent
           ?? JSON.parse((response.content.at(-1) as { text: string }).text);
-        CADRE_MCP_OUTPUT_SCHEMAS[name as keyof typeof CADRE_MCP_OUTPUT_SCHEMAS].parse(payload);
+        phase("response.validate", () => CADRE_MCP_OUTPUT_SCHEMAS[name as keyof typeof CADRE_MCP_OUTPUT_SCHEMAS].parse(payload));
       }
       return response;
+      }, { projectRoot: typeof request.projectRoot === "string" ? request.projectRoot : undefined,
+        client: server.server.getClientVersion(), action: request.action ?? request.event ?? request.mode });
     }) as typeof callback);
     registeredTools.push(tool);
     return tool;
@@ -380,7 +388,7 @@ export function createCadreServer(): McpServer {
       return result(fallbackWorkflowElicitation(input, "The MCP client does not support form elicitation"));
     }
     try {
-      return result(normalizeWorkflowElicitation(input, await server.server.elicitInput(request)));
+      return result(normalizeWorkflowElicitation(input, await phase("approval.wait", () => server.server.elicitInput(request))));
     } catch {
       return result(fallbackWorkflowElicitation(input, "The MCP client or its active policy rejected form elicitation"));
     }
@@ -395,7 +403,7 @@ export function createCadreServer(): McpServer {
         description: `Immutable ${TEMPLATE_SET_VERSION} Cadre template`,
         mimeType: template.mimeType
       },
-      async () => ({ contents: [{ uri: template.uri, mimeType: template.mimeType, text: template.content }] })
+      async () => operation("template.read", "resource", () => ({ contents: [{ uri: template.uri, mimeType: template.mimeType, text: template.content }] }), { client: server.server.getClientVersion() })
     );
   }
 
@@ -1208,14 +1216,23 @@ export function createCadreServer(): McpServer {
 }
 
 export async function runCadreServer(): Promise<void> {
-  const server = createCadreServer();
-  await server.connect(new StdioServerTransport());
+  startTelemetry();
+  await operation("startup", "startup", async () => {
+    const server = createCadreServer();
+    const closeTelemetry = async () => { await flushTelemetry(); stopTelemetry(); };
+    server.server.onclose = () => { void closeTelemetry(); };
+    for (const [signal, code] of [["SIGINT", 130], ["SIGTERM", 143]] as const) {
+      process.once(signal, () => { void closeTelemetry().finally(() => process.exit(code)); });
+    }
+    await server.connect(new StdioServerTransport());
+  });
 }
 
 if (process.argv[1] && existsSync(process.argv[1])
   && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
-  runCadreServer().catch((error: unknown) => {
+  runCadreServer().catch(async (error: unknown) => {
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
+    await flushTelemetry(); stopTelemetry();
   });
 }

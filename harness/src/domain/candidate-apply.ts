@@ -1,3 +1,4 @@
+import { phase } from "../telemetry/runtime.js";
 import { selectRefreshTracks, refreshArchiveFiles, relocateDependencyContext, requireRefreshArchives } from "./refresh-archive.js";
 import { previewQuick } from "./quick.js";
 import { quickRefreshMoves, requireQuickRefreshSources, quickRefreshSources } from "./quick-consolidation.js";
@@ -56,6 +57,7 @@ function allowed(input: CandidateApplyInput, path: string): boolean {
 }
 
 export function previewCandidateApply(input: CandidateApplyInput) {
+  return phase("candidate.inspect", () => {
   if (input.selectedTracks !== undefined && input.workflow !== "refresh") throw new Error("Track archival selection requires the refresh workflow");
   if (input.reviewRetry) {
     reviewRetrySchema.parse(input.reviewRetry);
@@ -239,13 +241,18 @@ export function previewCandidateApply(input: CandidateApplyInput) {
   const recoveryInputs = [...inputs].filter(([path]) => !overlay.has(path)).sort(([a], [b]) => a.localeCompare(b))
     .map(([path, sha256]) => ({ path: `.cadre/${path}`, sha256 }));
   return { selectedTracks, moves: selectedTracks.map((trackId) => ({trackId, sourcePath: `.cadre/tracks/${trackId}`, targetPath: `.cadre/archive/${trackId}`})), operationId, baseCommit, files: promoted, manifest, digest, memory, stateChanges, recoveryInputs, validation: { valid: true as const, errors: [] as string[] } };
+
+  });
 }
 
 export function applyCandidate(input: CandidateApplyInput, digest: string) {
+  return phase("candidate.apply", () => {
   const committed = committedReceiptForDigest(input.projectRoot, input.workflow, digest);
   if (committed) return { ...committed, changedPaths: [], changedCount: 0, validation: { valid: true, errors: [] } };
   const preview = previewCandidateApply(input);
   if (preview.digest !== digest) throw new Error("Candidate or required context changed after approval; reassess and preview again");
   return { ...promoteOperation(input.projectRoot, { operationId: preview.operationId, kind: input.workflow, approvalDigest: digest, baseCommit: preview.baseCommit, inputs: preview.recoveryInputs }, preview.files),
     changedPaths: preview.files.map((file) => file.path), changedCount: preview.files.length, validation: preview.validation };
+
+  });
 }

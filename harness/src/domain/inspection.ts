@@ -1,3 +1,4 @@
+import { counter, phase } from "../telemetry/runtime.js";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -18,8 +19,9 @@ export function inspectionValue<T>(key: string, read: () => T): T {
 }
 export function readInspectionText(path: string, encoding: "utf8" = "utf8"): string {
   const cache = current.getStore(), key = resolve(path);
-  if (cache?.text.has(key)) { cache.metrics.reusedReads++; return cache.text.get(key)!; }
-  const body = readFileSync(path, encoding);
+  if (cache?.text.has(key)) { cache.metrics.reusedReads++; counter("reused_reads"); return cache.text.get(key)!; }
+  const body = phase("artifact.read", () => readFileSync(path, encoding));
+  counter("file_reads"); counter("read_bytes", Buffer.byteLength(body));
   if (cache) { cache.text.set(key, body); cache.metrics.fileReads++; cache.metrics.readBytes += Buffer.byteLength(body); }
   return body;
 }

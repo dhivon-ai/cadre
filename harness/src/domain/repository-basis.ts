@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "../telemetry/process.js";
 import { lstatSync, readFileSync, readlinkSync, readdirSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { isDeepStrictEqual } from "node:util";

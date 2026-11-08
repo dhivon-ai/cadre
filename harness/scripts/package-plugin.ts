@@ -6,7 +6,7 @@ import { createZedSkillAdapters } from "./zed.js";
 
 const sourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const requiredEntries = [
-  "skills", `templates/${TEMPLATE_SET_VERSION}`, "dist/cadre-mcp.mjs", ".mcp.json", ".mcp.codex.json", "LICENSE", "NOTICE", "README.md"
+  "skills", `templates/${TEMPLATE_SET_VERSION}`, "dist/cadre-mcp.mjs", "dist/THIRD_PARTY_NOTICES.txt", ".mcp.json", ".mcp.codex.json", "LICENSE", "NOTICE", "README.md"
 ];
 const optionalEntries = ["hooks", "hooks.json", ".app.json", "assets", "commands", "agents"];
 
@@ -58,6 +58,14 @@ export function packagePluginMarketplace(
   for (const entry of optionalEntries) {
     const source = join(sourceRoot, entry);
     if (existsSync(source)) cpSync(source, join(pluginRoot, entry), { recursive: true });
+  }
+  if (process.env.CADRE_HOME) {
+    for (const name of [".mcp.json", ".mcp.codex.json"]) {
+      const config = readJson<{mcpServers: Record<string, {env?: Record<string, string>}>}>(join(pluginRoot, name));
+      const server = config.mcpServers.cadre!;
+      server.env = { ...server.env, CADRE_HOME: resolve(process.env.CADRE_HOME) };
+      writeJson(join(pluginRoot, name), config);
+    }
   }
   createZedSkillAdapters(pluginRoot);
 

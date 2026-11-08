@@ -1,4 +1,4 @@
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "../src/telemetry/process.js";
 
 export const CLIENTS = ["codex", "claude", "zed"] as const;
 export type ClientName = typeof CLIENTS[number];

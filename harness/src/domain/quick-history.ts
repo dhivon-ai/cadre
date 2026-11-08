@@ -1,3 +1,4 @@
+import { observeQuick } from "../telemetry/runtime.js";
 import { existsSync, lstatSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod/v4";
@@ -22,9 +23,10 @@ function entries(root: string, directory: string): string[] {
   return readdirSync(path).sort();
 }
 export interface QuickEntry {path: string; sha256: string; record: QuickRecord; status: "completed" | "commit_pending" | "invalid"; error?: string}
-export function inspectQuickHistory(root: string): {records: QuickEntry[]; errors: string[]} {
+export function inspectQuickHistory(root: string): {records: QuickEntry[]; errors: string[]; unreadableRecords: number} {
   return inspectionValue(`quick-history:${root}`, () => {
     const records: QuickEntry[] = [], errors: string[] = [];
+    let unreadableRecords = 0;
     let considered = new Set<string>(), consolidationError: unknown;
     try {considered = quickConsolidated(root);} catch (error) {consolidationError = error; errors.push(String(error));}
     try {
@@ -45,7 +47,7 @@ export function inspectQuickHistory(root: string): {records: QuickEntry[]; error
             entry.status = error instanceof CadreError && error.code === "COMMIT_PENDING" ? "commit_pending" : "invalid";
             entry.error = String(error); throw error;
           }
-        } catch (error) {errors.push(`${path}: ${String(error)}`);}
+        } catch (error) {if (!records.some((entry) => entry.path === path)) unreadableRecords++; errors.push(`${path}: ${String(error)}`);}
       }
       for (const file of entries(root, "receipts").filter((file) => file.startsWith("quick-") && file.endsWith(".json"))) {
         const receipt = receiptSchema.parse(JSON.parse(readSafeArtifact(root, `.cadre/receipts/${file}`)));
@@ -57,7 +59,7 @@ export function inspectQuickHistory(root: string): {records: QuickEntry[]; error
         }
       }
     } catch (error) {errors.push(String(error));}
-    return {records, errors};
+    return {records, errors, unreadableRecords};
   });
 }
 
@@ -101,12 +103,13 @@ function quickStatusSnapshot(root: string, limit: number, cursor?: string) {
   const offset = Math.min(total, position.offset + limit);
   const page = records.slice(position.offset, offset);
   const stagedPage = staged.slice(Math.max(0, position.offset - records.length), Math.max(0, offset - records.length));
-  return {records: page, staged: stagedPage, errors,
-    counts: {completed: history.records.filter((entry) => entry.status === "completed").length,
+  const counts = {completed: history.records.filter((entry) => entry.status === "completed").length,
       archived: history.records.filter((entry) => entry.path.startsWith(`${QUICK_ARCHIVE}/`) && entry.status === "completed").length,
       staged: staged.length,
       commit_pending: records.filter((record) => record.status === "commit_pending").length,
-      unconsolidated: records.filter((record) => record.status === "completed" && !record.consolidated).length},
+      unconsolidated: records.filter((record) => record.status === "completed" && !record.consolidated).length};
+  observeQuick(counts, history.unreadableRecords + history.records.filter((entry) => entry.status === "invalid").length + staged.filter((entry) => entry.status === "invalid").length, errors.length);
+  return {records: page, staged: stagedPage, errors, counts,
     listing: {total, returned: page.length + stagedPage.length, complete: offset === total,
       nextCursor: offset === total ? null : Buffer.from(JSON.stringify({digest, offset})).toString("base64url")}};
 }

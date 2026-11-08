@@ -1,6 +1,6 @@
 import { lstatSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "../telemetry/process.js";
 import type { ExecutionJournal } from "./execution.js";
 import { gitRoot } from "./git.js";
 import { countGitProcess } from "./inspection.js";

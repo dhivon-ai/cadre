@@ -1,3 +1,4 @@
+import { bindProject, observeProject, phase } from "../telemetry/runtime.js";
 import { inspectQuickHistory, quickConsolidated } from "./quick-history.js";
 import { inspectOnce, readInspectionText as readFileSync, readInspectionJson, type InspectionMetrics } from "./inspection.js";
 import { inspectMemory, readSafeArtifact, type FreshnessFinding } from "./memory.js";
@@ -482,7 +483,12 @@ function discoverTracks(root: string, errors: string[]): {
 }
 
 export function validateProject(projectRoot: string, metrics?: InspectionMetrics): ValidationResult {
-  return inspectOnce(() => validateProjectSnapshot(projectRoot), metrics);
+  return phase("state.validate", () => {
+    const result = inspectOnce(() => validateProjectSnapshot(projectRoot), metrics);
+    bindProject(projectRoot);
+    observeProject(result.project, result.tracks, result.errors.length, result.warnings.length + result.staleMemory.length);
+    return result;
+  });
 }
 
 function validateProjectSnapshot(projectRoot: string): ValidationResult {

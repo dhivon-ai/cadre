@@ -1,3 +1,4 @@
+import { phase } from "../telemetry/runtime.js";
 import { readInspectionText as readFileSync } from "./inspection.js";
 import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
@@ -283,7 +284,10 @@ export function validatePlanGraph(path: string, graph: PlanGraph, status: string
 }
 
 export function readAndValidatePlan(path: string, status: string, errors: string[]): PlanGraph {
+  return phase("plan.validate", () => {
   const graph = parsePlan(path, errors);
   validatePlanGraph(path, graph, status, errors);
   return graph;
+
+  });
 }

@@ -11,3 +11,7 @@ The documentation website bundles Manrope under the SIL Open Font License 1.1.
 Its unchanged copyright and license are at docs/public/brand/fonts/OFL.txt in
 source and /brand/fonts/OFL.txt on the website. The font is not bundled in the
 npm or client plugin distributions.
+
+Bundled runtime distributions include dependency license texts in
+dist/THIRD_PARTY_NOTICES.txt. Telemetry-enabled builds include Sentry; telemetry-free
+builds omit Sentry and its dependency notices when those packages are absent.

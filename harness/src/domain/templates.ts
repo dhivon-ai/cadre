@@ -1,3 +1,4 @@
+import { phase } from "../telemetry/runtime.js";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
@@ -147,6 +148,7 @@ function assertCompleteCatalog(catalog: readonly TemplateRecord[]): void {
 }
 
 export function templateCatalog(): TemplateRecord[] {
+  return phase("template.load", () => {
   if (!catalogCache) {
     const root = locateTemplateRoot();
     const catalog = walk(root)
@@ -169,6 +171,8 @@ export function templateCatalog(): TemplateRecord[] {
     catalogCache = catalog;
   }
   return catalogCache.map((template) => ({ ...template }));
+
+  });
 }
 
 export function getTemplate(id: string): TemplateRecord {

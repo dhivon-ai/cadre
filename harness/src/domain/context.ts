@@ -1,3 +1,4 @@
+import { phase } from "../telemetry/runtime.js";
 import { quickSearchSchema, searchQuickRecords } from "./quick-search.js";
 import { inspectQuickHistory } from "./quick-history.js";
 import { readGitFileAtCommit } from "./git.js";
@@ -199,6 +200,7 @@ function collectContext(input: z.output<typeof contextInputSchema>) {
 }
 
 export function readContext(raw: ContextInput): ContextPage {
+  return phase("context.read", () => {
   const input = contextInputSchema.parse(raw);
   return inspectOnce(() => {
     const scope = JSON.stringify([safeProjectRoot(input.projectRoot), input.scope ?? "track", input.trackId, input.quickIds, input.patternIds, input.quickSearch]);
@@ -247,5 +249,7 @@ export function readContext(raw: ContextInput): ContextPage {
       page.retainedContextToken = issueContextToken(scope, [...inventory.values()].slice(-2048));
     }
     return page;
+  });
+
   });
 }

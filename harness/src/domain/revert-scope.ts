@@ -2,7 +2,7 @@ import { isDeepStrictEqual } from "node:util";
 import type { ExecutionNode, ExecutionJournal } from "./execution.js";
 import type { OperationState } from "./state.js";
 import { resolveGitCommit, isGitAncestor } from "./git.js";
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "../telemetry/process.js";
 import { countGitProcess } from "./inspection.js";
 
 type ScopeNode = Pick<ExecutionNode, "id" | "kind" | "phaseId" | "workerCommit" | "mergeCommit">;

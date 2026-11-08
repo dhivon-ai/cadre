@@ -6,6 +6,8 @@ import { CLIENTS, commandExists, runCommand, runJson, type ClientName } from "./
 import { packagePluginMarketplace } from "./package-plugin.js";
 import { configureClaudeMcpApproval, configureCodexMcpApproval, configureZedCadre } from "./permissions.js";
 import { installZedSkillLinks, preflightZedSkillLinks, zedSettingsPath } from "./zed.js";
+import { writePreferences, telemetryNotice } from "../src/telemetry/config.js";
+import { operation, phase, startTelemetry } from "../src/telemetry/runtime.js";
 
 const marketplaceName = "cadre";
 const pluginId = "cadre@cadre";
@@ -18,6 +20,8 @@ interface InstallOptions {
   promptMcpTools: boolean;
   prepareOnly: boolean;
   dryRun: boolean;
+  telemetry?: boolean;
+  home?: string;
 }
 
 interface MarketplaceEntry {
@@ -55,8 +59,13 @@ function parseInstallOptions(args: string[]): InstallOptions {
       options.marketplaceRoot = resolve(optionValue(args, index, arg));
       index += 1;
     } else if (arg === "--home") {
-      options.marketplaceRoot = marketplaceFromHome(optionValue(args, index, arg));
+      options.home = resolve(optionValue(args, index, arg));
+      options.marketplaceRoot = marketplaceFromHome(options.home);
       index += 1;
+    } else if (arg === "--telemetry") {
+      const value = optionValue(args, index++, arg);
+      if (value !== "on" && value !== "off") throw new Error("--telemetry must be on or off");
+      options.telemetry = value === "on";
     } else if (arg === "--cachebuster") {
       options.cachebuster = optionValue(args, index, arg);
       index += 1;
@@ -122,7 +131,7 @@ function installCodex(targetRoot: string, allowReplacement: boolean, autoApprove
   }
   if (autoApproveMcp) {
     const codexRoot = process.env.CODEX_HOME ? resolve(process.env.CODEX_HOME) : join(homedir(), ".codex");
-    const update = configureCodexMcpApproval(join(codexRoot, "config.toml"));
+    const update = phase("install.configure", () => configureCodexMcpApproval(join(codexRoot, "config.toml")));
     process.stdout.write(`${update.changed ? "Added" : "Retained"} Codex Cadre MCP approval in ${update.path}\n`);
   }
 }
@@ -144,7 +153,7 @@ function installClaude(targetRoot: string, allowReplacement: boolean, autoApprov
   }
   if (autoApproveMcp) {
     const claudeRoot = process.env.CLAUDE_HOME ?? process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), ".claude");
-    const update = configureClaudeMcpApproval(join(resolve(claudeRoot), "settings.json"));
+    const update = phase("install.configure", () => configureClaudeMcpApproval(join(resolve(claudeRoot), "settings.json")));
     process.stdout.write(`${update.changed ? "Added" : "Retained"} Claude Cadre MCP approval in ${update.path}\n`);
   }
 }
@@ -153,7 +162,7 @@ function installZed(targetRoot: string, autoApproveMcp: boolean): void {
   const pluginRoot = join(targetRoot, "plugins", "cadre");
   const mcpPath = join(pluginRoot, "dist", "cadre-mcp.mjs");
   const links = installZedSkillLinks(targetRoot);
-  const update = configureZedCadre(zedSettingsPath(), resolve(process.execPath), mcpPath, autoApproveMcp);
+  const update = phase("install.configure", () => configureZedCadre(zedSettingsPath(), resolve(process.execPath), mcpPath, autoApproveMcp, process.env.CADRE_HOME));
   process.stdout.write(`${update.changed ? "Updated" : "Retained"} Zed Cadre MCP configuration in ${update.path}\n`);
   process.stdout.write(`Installed ${links.length} Cadre workflow skill links for Zed Agent.\n`);
 }
@@ -189,8 +198,17 @@ function prepareMarketplace(targetRoot: string, cachebuster: string | null): str
 
 export function runInstall(args: string[]): number {
   const options = parseInstallOptions(args);
+  if (options.home) process.env.CADRE_HOME = options.home;
+  if (!options.dryRun) {
+    if (options.telemetry !== undefined) writePreferences((saved) => ({ ...saved, enabled: options.telemetry! }));
+    startTelemetry();
+  } else process.stdout.write(`Dry run: no telemetry is sent or preferences changed. ${telemetryNotice()}`);
+  return options.dryRun ? install(options) : operation("install", "cli", () => install(options));
+}
+
+function install(options: InstallOptions): number {
   assertSafeTarget(options.marketplaceRoot);
-  const clients = selectedClients(options.selection);
+  const clients = phase("install.discover", () => selectedClients(options.selection));
   if (!options.prepareOnly && clients.length === 0) {
     throw new Error("No supported client detected. Install Codex, Claude, or Zed, or pass --target codex|claude|zed|all");
   }
@@ -208,15 +226,17 @@ export function runInstall(args: string[]): number {
     return 0;
   }
   if (!options.prepareOnly && clients.includes("zed")) preflightZedSkillLinks(options.marketplaceRoot);
-  const backupRoot = prepareMarketplace(options.marketplaceRoot, options.cachebuster);
+  const backupRoot = phase("install.prepare", () => prepareMarketplace(options.marketplaceRoot, options.cachebuster));
   process.stdout.write(`Prepared Cadre plugin marketplace at ${options.marketplaceRoot}\n`);
   if (backupRoot) process.stdout.write(`Previous marketplace retained at ${backupRoot}\n`);
   if (options.prepareOnly) return 0;
   const autoApproveMcp = !options.promptMcpTools;
   for (const client of clients) {
+    phase("install.client", () => {
     if (client === "codex") installCodex(options.marketplaceRoot, options.replaceMarketplace, autoApproveMcp);
     else if (client === "claude") installClaude(options.marketplaceRoot, options.replaceMarketplace, autoApproveMcp);
     else installZed(options.marketplaceRoot, autoApproveMcp);
+    });
   }
   process.stdout.write(`Installed Cadre for ${clients.join(", ")}.\n`);
   process.stdout.write("Start a new client conversation; in Claude Code, run /reload-plugins first.\n");

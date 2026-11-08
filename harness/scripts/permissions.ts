@@ -264,7 +264,8 @@ export function configureZedCadre(
   settingsPath: string,
   nodePath: string,
   mcpPath: string,
-  autoApproveMcp: boolean
+  autoApproveMcp: boolean,
+  telemetryHome?: string
 ): ZedConfigurationUpdate {
   const { existing, root } = parseJsoncSettings(settingsPath);
   const contextServers = assertRecordField(root, "context_servers", settingsPath);
@@ -295,13 +296,14 @@ export function configureZedCadre(
   }
 
   const formattingOptions = { insertSpaces: true, tabSize: 2, eol: "\n" };
-  const serverChanged = currentServer === undefined || !zedServerMatches(currentServer, nodePath, mcpPath);
+  const previousEnv = isRecord(currentServer) && isRecord(currentServer.env) ? currentServer.env : {};
+  const serverChanged = currentServer === undefined || !zedServerMatches(currentServer, nodePath, mcpPath) || (telemetryHome !== undefined && previousEnv.CADRE_HOME !== telemetryHome);
   let proposed = existing;
   if (serverChanged) {
     proposed = applyEdits(proposed, modify(
       proposed,
       ["context_servers", "cadre"],
-      { command: nodePath, args: [mcpPath], env: {} },
+      { command: nodePath, args: [mcpPath], env: { ...previousEnv, ...(telemetryHome ? { CADRE_HOME: telemetryHome } : {}) } },
       { formattingOptions }
     ));
   }

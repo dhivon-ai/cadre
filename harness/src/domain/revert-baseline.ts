@@ -1,7 +1,7 @@
 import { isDeepStrictEqual } from "node:util";
 import { captureRepositoryBasis, repositoryBasisSchema, reversalScopes, type RepositoryBasis } from "./repository-basis.js";
 import { gitRoot, resolveGitCommit } from "./git.js";
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "../telemetry/process.js";
 import { countGitProcess } from "./inspection.js";
 
 /** Pre-existing edits are authorized inputs, never a blanket exemption from freshness. */

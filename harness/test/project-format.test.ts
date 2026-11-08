@@ -11,8 +11,8 @@ import { CADRE_MCP_TOOL_NAMES } from "../src/mcp/tool-names.js";
 import { CADRE_RUNTIME_VERSION, LEGACY_RUNTIME_VERSIONS, LEGACY_TEMPLATE_SET_VERSIONS } from "../src/domain/version.js";
 import type { ProjectState } from "../src/domain/state.js";
 
-test("format admission preserves 3.9 and 4.0 contracts and rejects obsolete or unknown formats", () => {
-  for (const runtimeVersion of ["3.9.0", "3.9.1", "3.9.2", "4.0.0", CADRE_RUNTIME_VERSION]) {
+test("format admission preserves 3.9, 4.0 and 4.1 contracts and rejects obsolete or unknown formats", () => {
+  for (const runtimeVersion of ["3.9.0", "3.9.1", "3.9.2", "4.0.0", "4.1.0", CADRE_RUNTIME_VERSION]) {
     for (const templateSetVersion of ["v5", "v6", "v7", "v8"]) {
       const project = {schemaVersion: 2, runtimeVersion, templateSetVersion};
       const before = json(project);
@@ -44,7 +44,7 @@ test("older project diagnostics expose the complete approved bridge without chan
   assert.deepEqual(errors, []);
   assert.ok(warnings.includes(`PROJECT_UPGRADE_REQUIRED: ${PROJECT_UPGRADE_INSTRUCTIONS}`));
   assert.match(warnings.join("\n"), /explicitly approved migration/);
-  assert.match(warnings.join("\n"), /Then install cadre-ai@4\.1\.0/);
+  assert.ok(warnings.join("\n").includes(`Then install cadre-ai@${CADRE_RUNTIME_VERSION}`));
   assert.equal(json(project), before);
 });
 
@@ -105,7 +105,7 @@ for (const client of ["codex", "claude-code", "zed"]) test(`older formats block 
     await assert.rejects(() => call(name, args), error => {
       assert.match(String(error), /PROJECT_UPGRADE_REQUIRED/, name);
       assert.match(String(error), /Install cadre-ai@3\.9\.0/, name);
-      assert.match(String(error), /Then install cadre-ai@4\.1\.0/, name);
+      assert.ok(String(error).includes(`Then install cadre-ai@${CADRE_RUNTIME_VERSION}`), name);
       return true;
     });
   }

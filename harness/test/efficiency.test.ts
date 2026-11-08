@@ -554,3 +554,24 @@ for (const name of ["codex", "claude-code", "zed"]) {
     assert.equal(git(root, "status", "--porcelain"), "");
   });
 }
+
+test("telemetry preserves populated inspection efficiency and results", async (t) => {
+  const root = fixture(t); initialize(root); track(root);
+  const {inspectionMetrics} = await import("../src/domain/inspection.js");
+  const {startTelemetry, stopTelemetry, operation, flushTelemetry} = await import("../src/telemetry/runtime.js");
+  const priorHome = process.env.CADRE_HOME, priorEnabled = process.env.CADRE_TELEMETRY, priorDnt = process.env.DO_NOT_TRACK, priorDsn = process.env.CADRE_SENTRY_DSN;
+  process.env.CADRE_HOME = mkdtempSync(join(tmpdir(), "cadre-efficiency-telemetry-"));
+  process.env.CADRE_SENTRY_DSN = "https://public@recording.example/1";
+  process.env.CADRE_TELEMETRY = "1"; delete process.env.DO_NOT_TRACK;
+  t.after(() => {stopTelemetry(); rmSync(process.env.CADRE_HOME!, {recursive:true,force:true});
+    for (const [key,value] of [["CADRE_HOME",priorHome],["CADRE_TELEMETRY",priorEnabled],["DO_NOT_TRACK",priorDnt],["CADRE_SENTRY_DSN",priorDsn]]) {
+      if (value === undefined) delete process.env[key!]; else process.env[key!] = value;
+    }
+  });
+  const before = inspectionMetrics(), after = inspectionMetrics();
+  const baseline = validateProject(root,before);
+  let operations = 0;
+  startTelemetry({announce:false,exporterFactory:async()=>({emit(){operations++;},flush:async()=>true,discard(){}})});
+  const observed = operation("state_validate","mcp",()=>validateProject(root,after),{projectRoot:root});
+  await flushTelemetry(); assert.equal(operations,1); assert.deepEqual(observed,baseline); assert.deepEqual(after,before);
+});

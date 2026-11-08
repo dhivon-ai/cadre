@@ -1,4 +1,4 @@
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "../telemetry/process.js";
 import { resolve } from "node:path";
 import { z } from "zod/v4";
 import { gitRoot, isGitAncestor, resolveGitCommit, requireReviewedProductUnchanged } from "./git.js";

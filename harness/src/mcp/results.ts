@@ -1,3 +1,4 @@
+import { outcome, phase, reportError } from "../telemetry/runtime.js";
 import type { CallToolResult, ContentBlock, Implementation } from "@modelcontextprotocol/sdk/types.js";
 import { serializeCadreError } from "../domain/errors.js";
 import { TEMPLATE_SET_VERSION, type TemplateDescriptor } from "../domain/templates.js";
@@ -21,12 +22,15 @@ export function clientResultFormat(client: Implementation | undefined): ResultFo
 /** The resolver is scoped to one server and evaluated after initialization. */
 export function createResultFormatter(format: () => ResultFormat) {
   function result<T extends object>(value: T, _summary?: string, leadingContent: ContentBlock[] = []): CallToolResult {
-    return format() === "structured"
+    if ("commandStatus" in value && value.commandStatus === "approval_required") outcome("approval_required");
+    if ("status" in value && ["cancelled", "declined", "fallback_required"].includes(String(value.status))) outcome(value.status as "cancelled" | "declined" | "fallback_required");
+    return phase("response.format", () => format() === "structured"
       ? { content: leadingContent, structuredContent: value as Record<string, unknown> }
-      : { content: [...leadingContent, { type: "text", text: JSON.stringify(value) }] };
+      : { content: [...leadingContent, { type: "text", text: JSON.stringify(value) }] });
   }
 
   function failure(error: unknown): CallToolResult {
+    reportError(error);
     // Native Claude ignores structuredContent on isError results. One text
     // representation preserves diagnostics for every client without duplication.
     return { content: [{ type: "text", text: JSON.stringify({ error: serializeCadreError(error) }) }], isError: true };

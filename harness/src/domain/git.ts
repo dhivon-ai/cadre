@@ -1,5 +1,5 @@
 import { countGitProcess } from "./inspection.js";
-import { spawnSync } from "node:child_process";
+import { spawnSync } from "../telemetry/process.js";
 import { realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import { safeProjectRoot } from "./paths.js";
